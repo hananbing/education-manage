@@ -1,0 +1,294 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body,
+#app,
+.wrapper {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: 'PingFang SC', "Helvetica Neue", Helvetica, "microsoft yahei", arial, STHeiTi, sans-serif;
+}
+
+a {
+    text-decoration: none
+}
+
+.header{
+    background-color: #242f42;
+}
+.collapse-btn:hover{
+    background: rgb(40,52,70);
+}
+.content-box {
+    position: absolute;
+    left: 250px;
+    right: 0;
+    top: 70px;
+    bottom: 0;
+    padding-bottom: 30px;
+    -webkit-transition: left .3s ease-in-out;
+    transition: left .3s ease-in-out;
+    background: #F2F2F2;
+}
+
+.content {
+    width: auto;
+    height: 100%;
+    /* padding: 10px; */
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.content-collapse {
+    left: 65px;
+}
+
+.container {
+    padding: 15px;
+    /* background: #fff; */
+    /* border: 1px solid #ddd; */
+    border-radius: 5px;
+}
+
+.crumbs {
+    margin: 10px 0;
+}
+
+.el-table th {
+    background-color: #f5f7fa !important;
+}
+
+.pagination {
+    margin: 20px 0 0;
+    text-align: right;
+}
+.el-pagination__total,.el-pagination__sizes{
+    float: left;
+}
+.plugins-tips {
+    padding: 20px 10px;
+    margin-bottom: 20px;
+}
+
+.el-button+.el-tooltip {
+    margin-left: 10px;
+}
+
+.el-table tr:hover {
+    background: #f6faff;
+}
+
+.mgb20 {
+    margin-bottom: 20px;
+}
+
+.move-enter-active,
+.move-leave-active {
+    transition: opacity .5s;
+}
+
+.move-enter,
+.move-leave {
+    opacity: 0;
+}
+
+/*BaseForm*/
+
+.form-box {
+    width: 600px;
+}
+
+.form-box .line {
+    text-align: center;
+}
+
+.el-time-panel__content::after,
+.el-time-panel__content::before {
+    margin-top: -7px;
+}
+
+.el-time-spinner__wrapper .el-scrollbar__wrap:not(.el-scrollbar__wrap--hidden-default) {
+    padding-bottom: 0;
+}
+
+/*Upload*/
+
+.pure-button {
+    width: 150px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    color: #fff;
+    border-radius: 3px;
+}
+
+.g-core-image-corp-container .info-aside {
+    height: 45px;
+}
+
+.el-upload--text {
+    background-color: #fff;
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    box-sizing: border-box;
+    width: 360px;
+    height: 180px;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.el-upload--text .el-icon-upload {
+    font-size: 67px;
+    color: #97a8be;
+    margin: 40px 0 16px;
+    line-height: 50px;
+}
+
+.el-upload--text {
+    color: #97a8be;
+    font-size: 14px;
+    text-align: center;
+}
+
+.el-upload--text em {
+    font-style: normal;
+}
+
+/*VueEditor*/
+
+.ql-container {
+    min-height: 400px;
+}
+
+.ql-snow .ql-tooltip {
+    transform: translateX(117.5px) translateY(10px) !important;
+}
+
+.editor-btn {
+    margin-top: 20px;
+}
+
+/*markdown*/
+
+.v-note-wrapper .v-note-panel {
+    min-height: 500px;
+}
+
+.operation-icon i {
+    cursor: pointer;
+    font-size: 12px;
+    padding: 5px;
+    border-radius: 3px;
+    transition: all 0.3s;
+    color: #556A85;
+  }
+  .operation-icon i.iconfont::before{
+    color: #1C95FF;
+  }
+  .iconfont {
+    font-family: 'iconfont' !important;
+    font-size: 14px;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .iconfont::before {
+    font-family: 'iconfont' !important;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .icon-12px{
+      font-size: 12px;
+  }
+  .icon-13px{
+      font-size: 13px;
+  }
+  .icon-14px{
+      font-size: 14px;
+  }
+  .el-button i.iconfont{
+    font-size: 12px;
+    margin-right: 3px;
+  }
+  .el-button.iconfont{
+    font-size: 12px;
+  }
+  .el-button.iconfont::before{
+   margin-right: 3px; 
+  }
+  .operation-icon i{
+      font-style: normal;
+      color: #2696FF;
+      font-size: 12px;
+      font-family: MicrosoftYaHei;
+  }
+  .operation-icon i:hover{
+      color: #449eec;
+  }
+  .operation-icon i::before {
+    margin-right: 7px;
+  }
+  
+  .operation-icon i:last-child {
+    margin-right: 0;
+  }
+  .operation-icon i:hover,
+  .operation-icon i a:hover {
+    color: #1C95FF;
+  }
+  .operation-icon i a {
+    color: #556A85;
+  }
+  .el-menu-item [class^="iconfont"] {
+    margin-right: 7px;
+    width: 24px;
+    text-align: center;
+    vertical-align: middle;
+}
+.container-tablebar{
+    margin-bottom: 15px;
+}
+/*dialog样式*/
+.el-dialog{
+    min-width: 530px;
+    border-radius: 5px;
+    font-family: '微软雅黑';
+}
+ 
+.el-dialog__header .el-dialog__title {
+    font-size: 15px;
+    font-weight: bold;
+    color: #1e2329;
+  }
+  .el-dialog__header ,.el-dialog__footer{
+    padding: 15px !important;
+  }
+  .el-dialog__headerbtn {
+    top: 16px;
+  }
+  .el-dialog .el-dialog__body {
+    padding: 8px 24px 20px;
+    border-top: 1px solid #e6ecf5;
+    border-bottom: 1px solid #e6ecf5;
+  }
+  .el-dialog__headerbtn .el-dialog__close {
+  transition: all 0.3s;
+  font-weight: bold;
+}
+.el-dialog__headerbtn:focus .el-dialog__close,
+.el-dialog__headerbtn:hover .el-dialog__close {
+  transform: rotate(90deg);
+}
+.el-dialog .el-form-item__label {
+  color: #1f2329;
+}

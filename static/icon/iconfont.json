@@ -1,0 +1,191 @@
+{
+  "id": "1583589",
+  "name": "体检商城后台",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "12535650",
+      "name": "商品管理",
+      "font_class": "shangpinguanli",
+      "unicode": "e673",
+      "unicode_decimal": 58995
+    },
+    {
+      "icon_id": "12535666",
+      "name": "优惠券管理",
+      "font_class": "youhuiquanguanli",
+      "unicode": "e674",
+      "unicode_decimal": 58996
+    },
+    {
+      "icon_id": "12535728",
+      "name": "活动管理",
+      "font_class": "huodongguanli",
+      "unicode": "e675",
+      "unicode_decimal": 58997
+    },
+    {
+      "icon_id": "12535764",
+      "name": "订单管理",
+      "font_class": "dingdanguanli",
+      "unicode": "e676",
+      "unicode_decimal": 58998
+    },
+    {
+      "icon_id": "12535773",
+      "name": "客户中心",
+      "font_class": "kehuzhongxin",
+      "unicode": "e677",
+      "unicode_decimal": 58999
+    },
+    {
+      "icon_id": "12535783",
+      "name": "分销中心",
+      "font_class": "fenxiaozhongxin",
+      "unicode": "e678",
+      "unicode_decimal": 59000
+    },
+    {
+      "icon_id": "12535785",
+      "name": "预约管理",
+      "font_class": "yuyueguanli",
+      "unicode": "e679",
+      "unicode_decimal": 59001
+    },
+    {
+      "icon_id": "12535796",
+      "name": "用户预约管理",
+      "font_class": "yonghuyuyueguanli",
+      "unicode": "e67a",
+      "unicode_decimal": 59002
+    },
+    {
+      "icon_id": "12535828",
+      "name": "收起",
+      "font_class": "shouqi",
+      "unicode": "e67b",
+      "unicode_decimal": 59003
+    },
+    {
+      "icon_id": "12535844",
+      "name": "展开",
+      "font_class": "zhankai",
+      "unicode": "e67c",
+      "unicode_decimal": 59004
+    },
+    {
+      "icon_id": "12535987",
+      "name": "退出",
+      "font_class": "tuichu",
+      "unicode": "e67e",
+      "unicode_decimal": 59006
+    },
+    {
+      "icon_id": "12536050",
+      "name": "上拉",
+      "font_class": "shangla",
+      "unicode": "e680",
+      "unicode_decimal": 59008
+    },
+    {
+      "icon_id": "12536144",
+      "name": "下拉",
+      "font_class": "xiala",
+      "unicode": "e683",
+      "unicode_decimal": 59011
+    },
+    {
+      "icon_id": "12536199",
+      "name": "商品分类",
+      "font_class": "shangpinfenlei",
+      "unicode": "e684",
+      "unicode_decimal": 59012
+    },
+    {
+      "icon_id": "12536216",
+      "name": "新增",
+      "font_class": "xinzeng",
+      "unicode": "e685",
+      "unicode_decimal": 59013
+    },
+    {
+      "icon_id": "12536255",
+      "name": "窗口关闭",
+      "font_class": "chuangkouguanbi",
+      "unicode": "e686",
+      "unicode_decimal": 59014
+    },
+    {
+      "icon_id": "12536328",
+      "name": "移动",
+      "font_class": "yidong",
+      "unicode": "e687",
+      "unicode_decimal": 59015
+    },
+    {
+      "icon_id": "12536370",
+      "name": "日期",
+      "font_class": "riqi",
+      "unicode": "e688",
+      "unicode_decimal": 59016
+    },
+    {
+      "icon_id": "12536431",
+      "name": "提示",
+      "font_class": "tishi",
+      "unicode": "e689",
+      "unicode_decimal": 59017
+    },
+    {
+      "icon_id": "12536447",
+      "name": "批量上架",
+      "font_class": "piliangshangjia",
+      "unicode": "e68a",
+      "unicode_decimal": 59018
+    },
+    {
+      "icon_id": "12536458",
+      "name": "注",
+      "font_class": "zhu",
+      "unicode": "e68b",
+      "unicode_decimal": 59019
+    },
+    {
+      "icon_id": "12536470",
+      "name": "设置分销比例",
+      "font_class": "shezhifenxiaobili",
+      "unicode": "e68c",
+      "unicode_decimal": 59020
+    },
+    {
+      "icon_id": "12536530",
+      "name": "导入",
+      "font_class": "daoru",
+      "unicode": "e68d",
+      "unicode_decimal": 59021
+    },
+    {
+      "icon_id": "12536570",
+      "name": "导出",
+      "font_class": "daochu",
+      "unicode": "e68e",
+      "unicode_decimal": 59022
+    },
+    {
+      "icon_id": "12573844",
+      "name": "设为封面",
+      "font_class": "sheweifengmian",
+      "unicode": "e690",
+      "unicode_decimal": 59024
+    },
+    {
+      "icon_id": "12574225",
+      "name": "删除",
+      "font_class": "shanchu",
+      "unicode": "e691",
+      "unicode_decimal": 59025
+    }
+  ]
+}
