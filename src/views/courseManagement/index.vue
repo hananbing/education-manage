@@ -1,40 +1,28 @@
 <template>
     <div>
-        <search-box :form="form" title="订单列表">
+        <search-box :form="form">
+            <template slot="tabs">
+                <el-tabs v-model="form.type" @tab-click="searchData">
+                    <el-tab-pane label="未结束" name="unFinished"></el-tab-pane>
+                    <el-tab-pane label="已结束" name="finished"></el-tab-pane>
+                </el-tabs>
+            </template>
             <template slot="input">
                 <el-col :span="5">
                     <el-form-item>
-                        <el-select v-model="form.name" style="width:100%" placeholder="请选择班级" @change="searchData">
+                        <el-select v-model="form.name" style="width:100%" placeholder="班级名称" @change="searchData">
                             <el-option label="全部" value="ALL"></el-option>
                             <el-option v-for="(value, key) in classesOptions" :key="key" :label="value" :value="key"> </el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
-                <el-col style="width:240px;">
-                    <el-form-item label="">
-                        <el-date-picker
-                            v-model="form.orderTime"
-                            type="daterange"
-                            range-separator="-"
-                            start-placeholder="开始日期"
-                            end-placeholder="结束日期"
-                        >
-                        </el-date-picker>
-                    </el-form-item>
+                <el-col :span="3">
+                    <el-input v-model="form.courseName" placeholder="请输入课程名称"></el-input>
                 </el-col>
                 <el-col :span="3">
                     <el-form-item>
-                        <el-select v-model="form.instructorFirstName" style="width:100%" placeholder="请选择辅导员" @change="searchData">
-                            <el-option label="全部" value="ALL"></el-option>
-                            <el-option v-for="(value, key) in instructorOptions" :key="key" :label="value" :value="key"> </el-option>
-                        </el-select>
-                    </el-form-item>
-                </el-col>
-                <el-col :span="3">
-                    <el-form-item>
-                        <el-select v-model="form.expertFirstName" style="width:100%" placeholder="请选择专家" @change="searchData">
-                            <el-option label="全部" value="ALL"></el-option>
-                            <el-option v-for="(value, key) in expertOptions" :key="key" :label="value" :value="key"> </el-option>
+                        <el-select v-model="form.expertFirstName" style="width:100%" placeholder="课程类型" @change="searchData">
+                            <el-option v-for="(value, key) in courseOptions" :key="key" :label="value" :value="key"> </el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
@@ -44,27 +32,39 @@
                 <el-button icon="el-icon-refresh" @click="resetForm">重置</el-button>
             </template>
             <template slot="rightButton">
-                <el-button type="warning" icon="el-icon-plus" @click="addClassesdialogVisible = true">新增</el-button>
+                <el-button type="warning" icon="el-icon-plus" @click="addCoursedialogVisible = true">新增</el-button>
             </template>
         </search-box>
         <div class="container">
-            <vxe-table border stripe highlight-hover-row size="medium" :loading="tableLoading" ref="classesTable">
-                <vxe-table-column field="name" title="班级名称"></vxe-table-column>
-                <vxe-table-column title="开始日期">
-                    <template slot-scope="scope">{{ Number(scope.row.startDate) | formatDate('yyyy-MM-dd') }}</template>
+            <vxe-table border stripe highlight-hover-row size="medium" :loading="tableLoading" ref="courseTable">
+                <vxe-table-column field="name" title="课程名称"></vxe-table-column>
+                <vxe-table-column title="课程类型" width="110">
+                    <template slot-scope="scope">{{ courseOptions[scope.row.type] }}</template>
                 </vxe-table-column>
-                <vxe-table-column title="结束日期">
-                    <template slot-scope="scope">{{ Number(scope.row.endDate) | formatDate('yyyy-MM-dd') }}</template>
+                <vxe-table-column title="开始时间">
+                    <template slot-scope="scope">{{ Number(scope.row.startDate) | formatDate('yyyy-MM-dd mm:ss') }}</template>
                 </vxe-table-column>
-                <vxe-table-column field="instructorFirstName" title="辅导员名称"></vxe-table-column>
-                <vxe-table-column field="expertFirstName" title="专家名称"></vxe-table-column>
-                <vxe-table-column fixed="right" title="操作" width="200">
+                <vxe-table-column title="结束时间">
+                    <template slot-scope="scope">{{ Number(scope.row.endDate) | formatDate('yyyy-MM-dd mm:ss') }}</template>
+                </vxe-table-column>
+                <vxe-table-column field="teacherName" title="授课老师名称"></vxe-table-column>
+                <vxe-table-column field="score" title="评分"></vxe-table-column>
+                <vxe-table-column title="是否加链接">
+                    <template></template>
+                </vxe-table-column>
+                <vxe-table-column fixed="right" title="操作" width="220">
                     <template slot-scope="scope">
                         <div class="operation-icon">
                             <el-button type="text" @click="viewData(scope.row)">查看</el-button>
+                            <el-button type="text" @click="handleScoring(scope.row)" v-if="form.type === 'finished'">打分</el-button>
                             <el-button type="text" @click="handleEditClasses(scope.row)">编辑</el-button>
-                            <el-button type="text">删除</el-button>
-                            <el-button type="text">权重配置</el-button>
+                            <el-button type="text" @click="remove(scope.row)">删除</el-button>
+                            <el-button type="text" @click="addLink(scope.row)" v-if="scope.row.type === 'VIDEO' && !scope.row.url"
+                                >添加链接</el-button
+                            >
+                            <el-button type="text" @click="upload(scope.row)" v-if="scope.row.type === 'OFFICE' && !scope.row.annexName"
+                                >上传附件</el-button
+                            >
                         </div>
                     </template>
                 </vxe-table-column>
@@ -73,11 +73,12 @@
         </div>
         <el-dialog
             :title="addDialogTitle"
-            :visible.sync="addClassesdialogVisible"
+            :visible.sync="addCoursedialogVisible"
             @close="closeAddDialog"
             :close-on-click-modal="false"
             width="500px"
         >
+						<p class="classes-name">班级名称</p>
             <el-form
                 ref="addClassesForm"
                 class="dialog-form-box"
@@ -137,10 +138,10 @@
             </ul>
             <span slot="footer" class="dialog-footer">
                 <template v-if="classesDialogType !== 'view'">
-                    <el-button @click="addClassesdialogVisible = false">取 消</el-button>
+                    <el-button @click="addCoursedialogVisible = false">取 消</el-button>
                     <el-button type="primary" @click="saveData">确 定</el-button>
                 </template>
-                <template v-else><el-button @click="addClassesdialogVisible = false">关 闭</el-button></template>
+                <template v-else><el-button @click="addCoursedialogVisible = false">关 闭</el-button></template>
             </span>
         </el-dialog>
     </div>
@@ -151,31 +152,19 @@ export default {
         return {
             form: {
                 name: '',
-                expertFirstName: '',
-                instructorFirstName: '',
+                courseName: '',
                 pageSize: 30,
-                current: 0
+                current: 0,
+                type: 'unFinished'
             },
+            courseOptions: Object.freeze({ LIVE: '直播', VIDEO: '视频', OFFICE: 'office文件' }), // 课程类型
             tableLoading: false,
-            addClassesForm: {
-                name: '',
-                time: [],
-                expertFirstName: '',
-                instructorFirstName: ''
-            },
+            addCourseForm: {},
             classesDialogType: 'add',
             totalPage: 0,
             totalNum: 0,
-            addClassesdialogVisible: false,
-            classesOptions: [], // 班级列表
-            instructorOptions: [], // 辅导员列表
-            expertOptions: [], // 专家列表
-            addClassesRules: {
-                name: { required: true, message: '请输入班级名称', trigger: 'blur' },
-                expertFirstName: { required: true, message: '请输入专家名称', trigger: 'blur' },
-                instructorFirstName: { required: true, message: '请输入辅导员名称', trigger: 'blur' },
-                time: { required: true, message: '请输入有效时间', trigger: 'blur' }
-            }
+            addCoursedialogVisible: false,
+            classesOptions: [] // 班级列表
         };
     },
     computed: {
@@ -197,13 +186,17 @@ export default {
                 { name: 121, expertFirstName: 13213131, instructorFirstName: 2423423424 }
             ]);
         },
+        remove({ id }) {},
+        addLink({ id }) {},
+        upload({ id }) {},
+        handleScoring({ id }) {},
         resetForm() {
             this.form = {
                 name: '',
-                expertFirstName: '',
-                instructorFirstName: '',
+                courseName: '',
                 pageSize: 30,
-                current: 0
+                current: 0,
+                type: this.form.type
             };
         },
         openAddDialog() {},
@@ -225,7 +218,7 @@ export default {
                 instructorFirstName
             };
             this.classesDialogType = type;
-            this.addClassesdialogVisible = true;
+            this.addCoursedialogVisible = true;
         },
         viewData(row) {
             this.splitData(row, 'view');

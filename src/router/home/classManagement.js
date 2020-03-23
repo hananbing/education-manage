@@ -1,4 +1,4 @@
-// 商品管理
+// 班级管理
 export default [
     {
         path: 'class-management',

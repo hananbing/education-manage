@@ -4,7 +4,7 @@
             class="sidebar-el-menu"
             :default-active="onRoutes"
             :collapse="collapse"
-            background-color="#32323A"
+            background-color="#000000"
             text-color="#fff"
             unique-opened
             router
@@ -55,6 +55,11 @@ export default {
                     index: 'class-management',
                     title: '班级管理'
                 },
+                {
+                    icon: 'iconfont iconshangpinguanli',
+                    index: 'course-management',
+                    title: '课程管理'
+                },
             ]
         };
     }, 
@@ -78,7 +83,7 @@ export default {
     display: block;
     position: absolute;
     left: 0;
-    top: 70px;
+    top: 60px;
     bottom: 0;
     overflow-y: scroll;
 }

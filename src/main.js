@@ -13,6 +13,8 @@ import * as directives from './directive/index.js'
 import * as filters from './filters/index.js'
 import confirm from './plugins/confirm/index.js'
 import alert from './plugins/alert/index.js'
+import searchBox from './components/tools/searchBox.vue'
+import pagniation from './components/tools/Pagniation.vue'
 Vue.use(VXETable);
 Vue.config.productionTip = false;
 Vue.use(ElementUI, {
@@ -32,6 +34,8 @@ Object.keys(directives).forEach(key => {
       Vue.directive(key, directives[key])
     }
   })
+Vue.component('search-box', searchBox)  
+Vue.component('pagniation', pagniation)  
 Vue.use(confirm)
 Vue.use(alert)
 Vue.prototype.$http = api // 挂载接口服务在原型上

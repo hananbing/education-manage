@@ -2,7 +2,7 @@
     <div class="wrapper">
         <v-head></v-head>
         <v-sidebar></v-sidebar>
-        <div class="content-box" :class="{'content-collapse':collapse}">
+        <div class="content-box" :class="{ 'content-collapse': collapse }">
             <!-- <v-tags></v-tags> -->
             <div class="content">
                 <transition name="move" mode="out-in">
@@ -29,13 +29,12 @@ export default {
     },
     components: {
         vHead,
-        vSidebar,
+        vSidebar
     },
     created() {
         // bus.$on('collapse-content', msg => {
         //     this.collapse = msg;
         // });
-
         // // 只有在标签页列表里的页面才使用keep-alive，即关闭标签之后就不保存到内存中了。
         // bus.$on('tags', msg => {
         //     let arr = [];
@@ -47,3 +46,24 @@ export default {
     }
 };
 </script>
+<style lang="scss" scoped>
+.content-box {
+    position: absolute;
+    left: 250px;
+    right: 0;
+    top: 60px;
+    bottom: 0;
+    // padding: 15px;
+    -webkit-transition: left .3s ease-in-out;
+    transition: left .3s ease-in-out;
+    background: #F5F5F5;
+}
+
+.content {
+    width: auto;
+    height: 100%;
+    /* padding: 10px; */
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+</style>
