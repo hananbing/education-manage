@@ -1,5 +1,5 @@
-import { doGet } from '../../axiosconfig/index.js';
+import { doGet, doPost } from '../../axiosconfig/index.js';
 const loginService = {
-    login: params => doGet('authenticate', params)
+    login: params => doPost('authenticate', params)
 };
 export default { loginService };

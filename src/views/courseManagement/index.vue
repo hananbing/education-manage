@@ -59,12 +59,8 @@
                             <el-button type="text" @click="handleScoring(scope.row)" v-if="form.type === 'finished'">打分</el-button>
                             <el-button type="text" @click="handleEditcourse(scope.row)">编辑</el-button>
                             <el-button type="text" @click="remove(scope.row)">删除</el-button>
-                            <el-button type="text" @click="addLink(scope.row)" v-if="scope.row.type === 'VIDEO' && !scope.row.url"
-                                >添加链接</el-button
-                            >
-                            <el-button type="text" @click="upload(scope.row)" v-if="scope.row.type === 'OFFICE' && !scope.row.annexName"
-                                >上传附件</el-button
-                            >
+                            <el-button type="text" @click="addLink(scope.row)" v-if="scope.row.type === 'LIVE'">添加链接</el-button>
+                            <el-button type="text" @click="upload(scope.row)" v-if="scope.row.type === 'OFFICE'">上传附件</el-button>
                         </div>
                     </template>
                 </vxe-table-column>
@@ -140,11 +136,56 @@
                 <template v-else><el-button @click="addCoursedialogVisible = false">关 闭</el-button></template>
             </span>
         </el-dialog>
+        <!-- 上传附件/视频/链接 -->
+        <el-dialog
+            :title="uploadDialogTitle"
+            :visible.sync="uploadDialogVisible"
+            @close="closeUploadDialog"
+            :close-on-click-modal="false"
+            width="450px"
+        >
+            <p class="course-name">班级名称</p>
+            <el-form ref="uploadForm" class="dialog-form-box" :model="uploadForm" :rules="uploadRules" label-width="105px">
+                <template v-if="uploadDialogType === 'LIVE'">
+                    <el-form-item label="链接地址" prop="url">
+                        <el-input v-model="uploadForm.url" placeholder="请输入链接地址"></el-input>
+                    </el-form-item>
+                </template>
+                <template v-else>
+                    <el-form-item label="附件名称" prop="annexName">
+                        <el-input v-model="uploadForm.annexName" placeholder="请输入附件名称"></el-input>
+                    </el-form-item>
+                    <el-form-item label="播放地址" prop="url" v-if="uploadDialogType === 'VIDEO'">
+                        <el-input v-model="uploadForm.url" placeholder="请输入播放地址"></el-input>
+                    </el-form-item>
+                    <el-form-item label="上传文件" prop="url" required v-else>
+                        <el-upload class="upload-demo" drag :action="action" multiple>
+                            <i class="el-icon-upload"></i>
+                            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+                            <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过10M</div>
+                        </el-upload>
+                    </el-form-item>
+                </template>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="uploadDialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="uploadData">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 <script>
+import environment from '@/environmental/index.js';
 export default {
     data() {
+        var validateUrl = (rule, value, callback) => {
+            if (!value) {
+                const mesg = this.uploadDialogType === 'VIDEO' ? '请输入视频地址' : '请上传附件';
+                callback(new Error(mesg));
+            } else {
+                callback();
+            }
+        };
         return {
             form: {
                 name: '',
@@ -161,17 +202,28 @@ export default {
                 time: [],
                 teacherName: ''
             },
+            uploadForm: { annexName: '', url: '' },
+            uploadRules: {
+                annexName: { required: true, message: '请输入附件名称', trigger: 'blur' },
+                url: { validator: validateUrl }
+            },
+            uploadDialogType: 'LIVE',
             courseDialogType: 'add',
             totalPage: 0,
             totalNum: 0,
             addCoursedialogVisible: false,
+            uploadDialogVisible: false,
             addcourseRules: {},
-            classesOptions: [] // 班级列表
+            classesOptions: [], // 班级列表
+            action: environment.env().url + 'file'
         };
     },
     computed: {
         addDialogTitle() {
             return this.courseDialogType === 'add' ? '新增' : this.courseDialogType === 'edit' ? '编辑' : '查看';
+        },
+        uploadDialogTitle() {
+            return this.uploadDialogType === 'LIVE' ? '上传链接' : '上传附件';
         }
     },
     mounted() {
@@ -189,8 +241,22 @@ export default {
             ]);
         },
         remove({ id }) {},
-        addLink({ id }) {},
-        upload({ id }) {},
+        addLink({ id, annexName, url, type }) {
+            this.uploadForm = {
+                annexName,
+                url
+            };
+            this.uploadDialogType = type;
+            this.uploadDialogVisible = true;
+        },
+        upload({ id, annexName, url, type }) {
+            this.uploadForm = {
+                annexName,
+                url
+            };
+            this.uploadDialogType = type;
+            this.uploadDialogVisible = true;
+        },
         handleScoring({ id }) {},
         resetForm() {
             this.form = {
@@ -202,8 +268,8 @@ export default {
             };
         },
         openAddDialog() {
-            if(!this.form.courseName){
-                this.$message.error('请先选择班级!')
+            if (!this.form.courseName) {
+                this.$message.error('请先选择班级!');
                 return;
             }
             this.addCoursedialogVisible = true;
@@ -215,6 +281,8 @@ export default {
                 }
             });
         },
+        // 上传附件
+        uploadData() {},
         handleEditcourse(row) {
             this.splitData(row, 'edit');
         },
@@ -233,6 +301,9 @@ export default {
         },
         closeAddDialog() {
             this.resetcourseForm();
+        },
+        closeUploadDialog() {
+            this.$refs.uploadForm.resetFields();
         },
         resetcourseForm() {
             this.addCourseForm = {

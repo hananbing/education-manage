@@ -54,7 +54,7 @@ axios.interceptors.request.use(
     //     })
     //   })
     // }
-    config.headers['Authorization'] = 'Bearer '+ sessionStorage.getItem('token')
+    config.headers['Authorization'] = 'Bearer '+ (sessionStorage.getItem('token') || '')
     // config.headers['Access-Control-Allow-Origin'] = '*'
     return config
   },

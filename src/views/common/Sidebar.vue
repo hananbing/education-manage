@@ -52,6 +52,11 @@ export default {
                     title: '系统首页'
                 },
                 {
+                    icon: 'iconfont iconyonghuguanli',
+                    index: 'user-management',
+                    title: '用户管理'
+                },
+                {
                     icon: 'iconfont iconbanjiguanli',
                     index: 'class-management',
                     title: '班级管理'
