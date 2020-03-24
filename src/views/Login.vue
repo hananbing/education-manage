@@ -1,61 +1,107 @@
 <template>
     <div class="login-wrap">
+        <div class="header">
+            <div class="login"><img src="../assets/img/logo.png" alt="logo" /></div>
+            <div class="register">
+                <!-- 没有账号吗? 去注册 -->
+            </div>
+        </div>
         <div class="ms-login">
-            <div class="ms-title">后台管理系统</div>
+            <div class="ms-title">中小学教师继续教育培训平台</div>
             <el-form :model="param" :rules="rules" ref="login" label-width="0px" class="ms-content">
                 <el-form-item prop="username">
-                    <el-input v-model="param.username" placeholder="username">
-                        <el-button slot="prepend" icon="el-icon-lx-people"></el-button>
+                    <el-input v-model="param.username" placeholder="手机号" size="medium">
+                        <el-button slot="prepend" icon="el-icon-mobile-phone"></el-button>
                     </el-input>
                 </el-form-item>
                 <el-form-item prop="password">
-                    <el-input
-                        type="password"
-                        placeholder="password"
-                        v-model="param.password"
-                        @keyup.enter.native="submitForm()"
-                    >
-                        <el-button slot="prepend" icon="el-icon-lx-lock"></el-button>
+                    <el-input type="password" placeholder="密码" v-model="param.password" size="medium" @keyup.enter.native="submitForm()">
+                        <el-button slot="prepend" icon="el-icon-lock"></el-button>
                     </el-input>
                 </el-form-item>
+                <el-form-item prop="code">
+                    <div class="code-box">
+                        <el-input placeholder="验证码" v-model="param.code" size="medium" @keyup.enter.native="submitForm()"> </el-input>
+                        <div class="code-img">35345</div>
+                    </div>
+                </el-form-item>
+                <el-form-item>
+                    <el-checkbox v-model="rememberP">记住用户</el-checkbox>
+                </el-form-item>
                 <div class="login-btn">
-                    <el-button type="primary" @click="submitForm()">登录</el-button>
+                    <el-button type="primary" @click="submitForm()" size="medium">登录</el-button>
                 </div>
-                <!-- <p class="login-tips">Tips : 用户名和密码随便填。</p> -->
+                <p class="login-tips"><el-link>忘记密码</el-link></p>
             </el-form>
         </div>
+        <div class="footer">ICP备案号 &nbsp;Copyright ©2020 &nbsp; 四川师范大学版权所有</div>
     </div>
 </template>
 
 <script>
+import CryptoJS from 'crypto-js';
 export default {
     data: function() {
         return {
             param: {
                 username: 'admin',
-                password: '123123',
+                password: 'admin',
+                code: ''
             },
+            rememberP: false,
             rules: {
-                username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-                password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
-            },
+                username: [{ required: true, message: '请输入手机号', trigger: 'blur' }],
+                password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+            }
         };
+    },
+    created() {
+        if (localStorage._info) {
+            if (new Date().getTime() - JSON.parse(localStorage._info).createdTime > 86400 * 7 * 1000) {
+                localStorage.removeItem('_info');
+            } else {
+                this.param.username = JSON.parse(localStorage._info)._u;
+                this.param.password = CryptoJS.AES.decrypt(JSON.parse(localStorage._info)._p, 'sichuanshifandaxue').toString(
+                    CryptoJS.enc.Utf8
+                );
+                this.rememberP = true;
+            }
+        }
     },
     methods: {
         submitForm() {
             this.$refs.login.validate(valid => {
                 if (valid) {
-                    this.$message.success('登录成功');
-                    localStorage.setItem('ms_username', this.param.username);
-                    this.$router.push('/');
-                } else {
-                    this.$message.error('请输入账号和密码');
-                    console.log('error submit!!');
-                    return false;
+                    this.$http.loginService.login(this.param).then(res => {
+                        this.$message.success('登录成功');
+                        localStorage.setItem('ms_username', this.param.username);
+                        sessionStorage.setItem('token', res.data.id_token)
+                        this.$router.push('/');
+                        this.RememberUserMesg();
+                    });
                 }
             });
         },
-    },
+        RememberUserMesg() {
+            //七天过期
+            if (!this.rememberP && localStorage._info) {
+                localStorage.removeItem('_info');
+            } else if (this.rememberP) {
+                if (localStorage._info) {
+                    localStorage._info = JSON.stringify({
+                        _u: this.param.username,
+                        _p: CryptoJS.AES.encrypt(this.param.password, 'sichuanshifandaxue').toString()
+                    });
+                } else {
+                    localStorage._info = JSON.stringify({
+                        _u: this.param.username,
+                        _p: CryptoJS.AES.encrypt(this.param.password, 'sichuanshifandaxue').toString(),
+                        createdTime: new Date().getTime()
+                    });
+                }
+            }
+        }
+    }
 };
 </script>
 
@@ -63,30 +109,59 @@ export default {
 .login-wrap {
     position: relative;
     width: 100%;
-    height: 100%;
+    height: 100vh;
     background-image: url(../assets/img/login-bg.jpg);
-    background-size: 100%;
+    background-size: 100% 100%;
 }
 .ms-title {
     width: 100%;
     line-height: 50px;
     text-align: center;
-    font-size: 20px;
     color: #fff;
-    border-bottom: 1px solid #ddd;
+    font-size: 32px;
+    font-family: FZCuHeiSongS-B-GB;
+    font-weight: 400;
+    color: rgba(77, 77, 77, 1);
+}
+.header {
+    height: 54px;
+    padding: 20px;
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+.footer {
+    position: absolute;
+    bottom: 30px;
+    width: 100%;
+    color: #666666;
+    font-size: 13px;
+    text-align: center;
 }
 .ms-login {
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 350px;
-    margin: -190px 0 0 -175px;
+    width: 440px;
+    margin: -215px 0 0 -175px;
     border-radius: 5px;
-    background: rgba(255, 255, 255, 0.3);
     overflow: hidden;
 }
+.code-box {
+    display: flex;
+    justify-content: space-between;
+}
+.code-img {
+    width: 133px;
+    text-align: center;
+    margin-left: 20px;
+    background: #fff;
+    border-radius: 3px;
+    line-height: 36px;
+    height: 36px;
+}
 .ms-content {
-    padding: 30px 30px;
+    padding: 30px 70px;
 }
 .login-btn {
     text-align: center;
@@ -98,7 +173,7 @@ export default {
 }
 .login-tips {
     font-size: 12px;
-    line-height: 30px;
-    color: #fff;
+    margin-top: 15px;
+    text-align: center;
 }
 </style>

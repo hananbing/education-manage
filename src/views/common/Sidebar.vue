@@ -4,8 +4,9 @@
             class="sidebar-el-menu"
             :default-active="onRoutes"
             :collapse="collapse"
-            background-color="#000000"
+            background-color="#2E3331"
             text-color="#fff"
+            active-text-color="#fff"
             unique-opened
             router
         >
@@ -46,17 +47,17 @@ export default {
             collapse: false,
             items: [
                 {
-                    icon: 'el-icon-lx-home',
+                    icon: 'iconfont iconshouye',
                     index: 'dashboard',
                     title: '系统首页'
                 },
                 {
-                    icon: 'iconfont iconshangpinguanli',
+                    icon: 'iconfont iconbanjiguanli',
                     index: 'class-management',
                     title: '班级管理'
                 },
                 {
-                    icon: 'iconfont iconshangpinguanli',
+                    icon: 'iconfont iconkechengguanli',
                     index: 'course-management',
                     title: '课程管理'
                 },

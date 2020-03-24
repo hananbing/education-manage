@@ -63,8 +63,8 @@
                         <div class="operation-icon">
                             <el-button type="text" @click="viewData(scope.row)">查看</el-button>
                             <el-button type="text" @click="handleEditClasses(scope.row)">编辑</el-button>
-                            <el-button type="text">删除</el-button>
-                            <el-button type="text">权重配置</el-button>
+                            <el-button type="text" @click="remove(scope.row)">删除</el-button>
+                            <el-button type="text" @click="weightConfig(scope.row)">权重配置</el-button>
                         </div>
                     </template>
                 </vxe-table-column>
@@ -102,13 +102,11 @@
                 </el-form-item>
                 <el-form-item label="辅导员" prop="instructorFirstName">
                     <el-select v-model="addClassesForm.instructorFirstName" style="width:100%" placeholder="请输入辅导员名称">
-                        <el-option label="全部" value="ALL"></el-option>
                         <el-option v-for="(value, key) in classesOptions" :key="key" :label="value" :value="key"> </el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="专家" prop="expertFirstName">
                     <el-select v-model="addClassesForm.expertFirstName" style="width:100%" placeholder="请输入专家名称">
-                        <el-option label="全部" value="ALL"></el-option>
                         <el-option v-for="(value, key) in classesOptions" :key="key" :label="value" :value="key"> </el-option>
                     </el-select>
                 </el-form-item>
@@ -143,6 +141,34 @@
                 <template v-else><el-button @click="addClassesdialogVisible = false">关 闭</el-button></template>
             </span>
         </el-dialog>
+        <el-dialog
+            title="权重配置"
+            :visible.sync="addWeightDialogVisible"
+            :close-on-click-modal="false"
+            width="450px"
+        >
+            <el-form ref="weightForm" class="dialog-form-box" :model="weightForm" :rules="weightRules" label-width="150px">
+                <el-form-item label="签到分数权重%" prop="name">
+                    <el-input-number v-model="weightForm.name" :min="1" :max="100" label="请输入签到分数权重" style="width:100%"></el-input-number>
+                </el-form-item>
+                <el-form-item label="在线学习分数权重%" prop="name">
+                    <el-input-number v-model="weightForm.name" :min="1" :max="100" label="请输入在线学习分数权重" style="width:100%"></el-input-number>
+                </el-form-item>
+                <el-form-item label="课程学习分数权重%" prop="name">
+                    <el-input-number v-model="weightForm.name" :min="1" :max="100" label="请输入课程学习分数权重" style="width:100%"></el-input-number>
+                </el-form-item>
+                <el-form-item label="作业分数权重%" prop="name">
+                    <el-input-number v-model="weightForm.name" :min="1" :max="100" label="请输入作业分数权重" style="width:100%"></el-input-number>
+                </el-form-item>
+                <el-form-item label="话题分数权重%" prop="name">
+                    <el-input-number v-model="weightForm.name" :min="1" :max="100" label="请输入话题分数权重" style="width:100%"></el-input-number>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="addWeightDialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="addWeight">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 <script>
@@ -163,10 +189,14 @@ export default {
                 expertFirstName: '',
                 instructorFirstName: ''
             },
+            // 权重表单
+            weightForm: {},
+            weightRules: {},
             classesDialogType: 'add',
             totalPage: 0,
             totalNum: 0,
             addClassesdialogVisible: false,
+            addWeightDialogVisible: false,
             classesOptions: [], // 班级列表
             instructorOptions: [], // 辅导员列表
             expertOptions: [], // 专家列表
@@ -185,6 +215,13 @@ export default {
     },
     mounted() {
         this.getData();
+    },
+    watch:{
+        addWeightDialogVisible(val){
+            if(!val){
+                this.$refs.weightForm.resetFields();
+            }
+        }
     },
     methods: {
         searchData() {
@@ -232,6 +269,17 @@ export default {
         },
         closeAddDialog() {
             this.resetClassesForm();
+        },
+        remove() {},
+        weightConfig(row) {
+            this.weightForm = {};
+            this.addWeightDialogVisible = true;
+        },
+        addWeight() {
+            this.$refs['weightForm'].validate(valid => {
+                if (valid) {
+                }
+            });
         },
         resetClassesForm() {
             this.addClassesForm = {

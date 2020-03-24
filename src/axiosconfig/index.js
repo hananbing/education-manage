@@ -15,46 +15,46 @@ axios.defaults.baseURL = baseURL
 Vue.prototype.$static = ''
 let pending = [] //声明一个数组用于存储每个ajax请求的取消函数和ajax标识
 let CancelToken = axios.CancelToken
-//删除已完成的请求
-let removePending = (config, type) => {
-  if (!config || !pending.length) return
-  const url = config.url.match(/app(\S*)/);
-  if (type === 'request') {
-    const currUrl = '/' + (url ? url[0] : '') + '&' + config.method + '&' + JSON.stringify(config.data);
-    const currPending = pending.find(item => item.u === currUrl)
-    if (currPending) {
-      //当当前请求在数组中存在时执行函数体
-      currPending.fn() //执行取消操作
-      pending = pending.filter(item => item.u !== currUrl) //把这条记录从数组中移除
-      return currPending.count
-    }
-  } else {
-    const currUrl = '/' + (url ? url[0] : '') + '&' + config.method + '&' + config.data;
-    pending = pending.filter(item => item.u !== currUrl) //把这条记录从数组中移除
-  }
-}
+// //删除已完成的请求
+// let removePending = (config, type) => {
+//   if (!config || !pending.length) return
+//   const url = config.url.match(/app(\S*)/);
+//   if (type === 'request') {
+//     const currUrl = '/' + (url ? url[0] : '') + '&' + config.method + '&' + JSON.stringify(config.data);
+//     const currPending = pending.find(item => item.u === currUrl)
+//     if (currPending) {
+//       //当当前请求在数组中存在时执行函数体
+//       currPending.fn() //执行取消操作
+//       pending = pending.filter(item => item.u !== currUrl) //把这条记录从数组中移除
+//       return currPending.count
+//     }
+//   } else {
+//     const currUrl = '/' + (url ? url[0] : '') + '&' + config.method + '&' + config.data;
+//     pending = pending.filter(item => item.u !== currUrl) //把这条记录从数组中移除
+//   }
+// }
 axios.interceptors.request.use(
   config => {
     //过滤掉get请求
-    if (config.method !== 'get') {
-      const count = removePending(config, 'request') //在一个ajax发送前执行一下取消操作
-      if (count > 1) {
-        Message.error('您的操作过于频繁！')
-      }
-      config.cancelToken = new CancelToken(c => {
-        let url = config.url
-        if (url[0] !== '/') {
-          url = '/' + url
-        }
-        //地址+方式+参数作为取消标识
-        pending.push({
-          u: url + '&' + config.method + '&' + JSON.stringify(config.data),
-          fn: c,
-          count: count ? count + 1 : 1
-        })
-      })
-    }
-    // config.headers['x-auth-token'] = sessionStorage.getItem('token')
+    // if (config.method !== 'get') {
+    //   // const count = removePending(config, 'request') //在一个ajax发送前执行一下取消操作
+    //   // if (count > 1) {
+    //   //   Message.error('您的操作过于频繁！')
+    //   // }
+    //   config.cancelToken = new CancelToken(c => {
+    //     let url = config.url
+    //     if (url[0] !== '/') {
+    //       url = '/' + url
+    //     }
+    //     //地址+方式+参数作为取消标识
+    //     pending.push({
+    //       u: url + '&' + config.method + '&' + JSON.stringify(config.data),
+    //       fn: c,
+    //       count: count ? count + 1 : 1
+    //     })
+    //   })
+    // }
+    config.headers['Authorization'] = 'Bearer '+ sessionStorage.getItem('token')
     // config.headers['Access-Control-Allow-Origin'] = '*'
     return config
   },
@@ -71,9 +71,9 @@ axios.interceptors.response.use(
       removePending(res.config);
       clearTimeout(timer)
     }, 0)
-    sessionStorage.setItem(
-      'token', res.headers['x-auth-token'] || sessionStorage.getItem('token')
-    )
+    // sessionStorage.setItem(
+    //   'token', sessionStorage.getItem('id_token')
+    // )
     if (res.status > 199 && res.status < 300) {
       return res
     }

@@ -6,8 +6,13 @@ let homeRouter = {
     path: '/',
     component: () => import(/* webpackChunkName: "home" */ '@/views/common/Home.vue'),
     redirect: '/dashboard',
-    meta: { title: '首页' },
-    children: []
+    children: [
+        {
+            component: () => import(/* webpackChunkName: "Dashboard" */ '@/views/Dashboard.vue'),
+            path: '/dashboard',
+            meta: { title: '首页' }
+        }
+    ]
 };
 let routes = [
     homeRouter,
@@ -27,7 +32,7 @@ outsideRouterContext.keys().forEach(route => {
     /**
      * 兼容 import export 和 require module.export 两种规范
      */
-    routes = routes.concat(routerModule.default || routerModule);  
+    routes = routes.concat(routerModule.default || routerModule);
 });
 // 注册二级 （home里面）的路由
 const homeRouterContext = require.context('./home/', true, /\.js$/);
@@ -36,12 +41,14 @@ homeRouterContext.keys().forEach(route => {
     /**
      * 兼容 import export 和 require module.export 两种规范
      */
-    homeRouter.children = homeRouter.children.concat(routerModule.default || routerModule);  
+    homeRouter.children = homeRouter.children.concat(routerModule.default || routerModule);
 });
-routes = routes.concat([{
-    path: '*',
-    redirect: '/404'
-}]);
+routes = routes.concat([
+    {
+        path: '*',
+        redirect: '/404'
+    }
+]);
 export default new Router({
     routes
 });

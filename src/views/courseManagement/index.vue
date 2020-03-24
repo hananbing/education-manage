@@ -32,7 +32,7 @@
                 <el-button icon="el-icon-refresh" @click="resetForm">重置</el-button>
             </template>
             <template slot="rightButton">
-                <el-button type="warning" icon="el-icon-plus" @click="addCoursedialogVisible = true">新增</el-button>
+                <el-button type="warning" icon="el-icon-plus" @click="openAddDialog">新增</el-button>
             </template>
         </search-box>
         <div class="container">
@@ -57,7 +57,7 @@
                         <div class="operation-icon">
                             <el-button type="text" @click="viewData(scope.row)">查看</el-button>
                             <el-button type="text" @click="handleScoring(scope.row)" v-if="form.type === 'finished'">打分</el-button>
-                            <el-button type="text" @click="handleEditClasses(scope.row)">编辑</el-button>
+                            <el-button type="text" @click="handleEditcourse(scope.row)">编辑</el-button>
                             <el-button type="text" @click="remove(scope.row)">删除</el-button>
                             <el-button type="text" @click="addLink(scope.row)" v-if="scope.row.type === 'VIDEO' && !scope.row.url"
                                 >添加链接</el-button
@@ -78,66 +78,62 @@
             :close-on-click-modal="false"
             width="500px"
         >
-						<p class="classes-name">班级名称</p>
+            <p class="course-name">班级名称</p>
             <el-form
-                ref="addClassesForm"
+                ref="addCourseForm"
                 class="dialog-form-box"
-                v-if="classesDialogType !== 'view'"
-                :model="addClassesForm"
-                :rules="addClassesRules"
-                label-width="80px"
+                v-if="courseDialogType !== 'view'"
+                :model="addCourseForm"
+                :rules="addcourseRules"
+                label-width="105px"
             >
-                <el-form-item label="班级名称" prop="name">
-                    <el-input v-model="addClassesForm.name" placeholder="请输入班级名称"></el-input>
+                <el-form-item label="课程名称" prop="name">
+                    <el-input v-model="addCourseForm.name" placeholder="请输入课程名称"></el-input>
                 </el-form-item>
-                <el-form-item label="日期" prop="time">
+                <el-form-item label="课程类型" prop="type">
+                    <el-select v-model="addCourseForm.type" style="width:100%" placeholder="请选择课程类型">
+                        <el-option v-for="(value, key) in courseOptions" :key="key" :label="value" :value="key"> </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="授课时间" prop="time">
                     <el-date-picker
-                        v-model="addClassesForm.time"
+                        v-model="addCourseForm.time"
                         type="daterange"
                         range-separator="-"
-                        start-placeholder="开始日期"
-                        end-placeholder="结束日期"
+                        start-placeholder="开始时间"
+                        end-placeholder="开始时间"
                         style="width:100%"
                     >
                     </el-date-picker>
                 </el-form-item>
-                <el-form-item label="辅导员" prop="instructorFirstName">
-                    <el-select v-model="addClassesForm.instructorFirstName" style="width:100%" placeholder="请输入辅导员名称">
-                        <el-option label="全部" value="ALL"></el-option>
-                        <el-option v-for="(value, key) in classesOptions" :key="key" :label="value" :value="key"> </el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="专家" prop="expertFirstName">
-                    <el-select v-model="addClassesForm.expertFirstName" style="width:100%" placeholder="请输入专家名称">
-                        <el-option label="全部" value="ALL"></el-option>
-                        <el-option v-for="(value, key) in classesOptions" :key="key" :label="value" :value="key"> </el-option>
-                    </el-select>
+                <el-form-item label="授课老师名称" prop="teacherName">
+                    <el-input v-model="addCourseForm.teacherName" placeholder="请输入授课老师名称"></el-input>
                 </el-form-item>
             </el-form>
             <ul class="dialog-form-view" v-else>
                 <li class="item">
-                    <div class="label">班级名称</div>
-                    <div class="content">{{ addClassesForm.name }}</div>
+                    <div class="label">课程名称</div>
+                    <div class="content">{{ addCourseForm.name }}</div>
+                </li>
+                <li class="item">
+                    <div class="label">课程类型</div>
+                    <div class="content">{{ courseOptions[addCourseForm.type] }}</div>
                 </li>
                 <li class="item">
                     <div class="label">开始时间</div>
-                    <div class="content">{{ addClassesForm.time[0] | formatDate('yyyy-MM-dd') }}</div>
+                    <div class="content">{{ addCourseForm.time[0] | formatDate('yyyy-MM-dd mm:ss') }}</div>
                 </li>
                 <li class="item">
                     <div class="label">结束时间</div>
-                    <div class="content">{{ addClassesForm.time[1] | formatDate('yyyy-MM-dd') }}</div>
+                    <div class="content">{{ addCourseForm.time[1] | formatDate('yyyy-MM-dd mm:ss') }}</div>
                 </li>
                 <li class="item">
-                    <div class="label">辅导员</div>
-                    <div class="content">{{ addClassesForm.instructorFirstName }}</div>
-                </li>
-                <li class="item">
-                    <div class="label">专家</div>
-                    <div class="content">{{ addClassesForm.expertFirstName }}</div>
+                    <div class="label">授课老师名称</div>
+                    <div class="content">{{ addCourseForm.teacherName }}</div>
                 </li>
             </ul>
             <span slot="footer" class="dialog-footer">
-                <template v-if="classesDialogType !== 'view'">
+                <template v-if="courseDialogType !== 'view'">
                     <el-button @click="addCoursedialogVisible = false">取 消</el-button>
                     <el-button type="primary" @click="saveData">确 定</el-button>
                 </template>
@@ -159,17 +155,23 @@ export default {
             },
             courseOptions: Object.freeze({ LIVE: '直播', VIDEO: '视频', OFFICE: 'office文件' }), // 课程类型
             tableLoading: false,
-            addCourseForm: {},
-            classesDialogType: 'add',
+            addCourseForm: {
+                name: '',
+                type: '',
+                time: [],
+                teacherName: ''
+            },
+            courseDialogType: 'add',
             totalPage: 0,
             totalNum: 0,
             addCoursedialogVisible: false,
+            addcourseRules: {},
             classesOptions: [] // 班级列表
         };
     },
     computed: {
         addDialogTitle() {
-            return this.classesDialogType === 'add' ? '新增' : this.classesDialogType === 'edit' ? '编辑' : '查看';
+            return this.courseDialogType === 'add' ? '新增' : this.courseDialogType === 'edit' ? '编辑' : '查看';
         }
     },
     mounted() {
@@ -181,7 +183,7 @@ export default {
             this.getData();
         },
         getData() {
-            this.$refs.classesTable.loadData([
+            this.$refs.courseTable.loadData([
                 { name: 121, expertFirstName: 13213131, instructorFirstName: 2423423424 },
                 { name: 121, expertFirstName: 13213131, instructorFirstName: 2423423424 }
             ]);
@@ -199,42 +201,48 @@ export default {
                 type: this.form.type
             };
         },
-        openAddDialog() {},
+        openAddDialog() {
+            if(!this.form.courseName){
+                this.$message.error('请先选择班级!')
+                return;
+            }
+            this.addCoursedialogVisible = true;
+        },
         // 新增/编辑班级
         saveData() {
-            this.$refs['addClassesForm'].validate(valid => {
+            this.$refs['addCourseForm'].validate(valid => {
                 if (valid) {
                 }
             });
         },
-        handleEditClasses(row) {
+        handleEditcourse(row) {
             this.splitData(row, 'edit');
         },
-        splitData({ name, expertFirstName, instructorFirstName, startDate, endDate }, type = 'edit') {
-            this.addClassesForm = {
+        splitData({ name, type, teacherName, startDate, endDate }, opeartionType = 'edit') {
+            this.addCourseForm = {
                 name,
+                type,
                 time: [startDate, endDate],
-                expertFirstName,
-                instructorFirstName
+                teacherName
             };
-            this.classesDialogType = type;
+            this.courseDialogType = opeartionType;
             this.addCoursedialogVisible = true;
         },
         viewData(row) {
             this.splitData(row, 'view');
         },
         closeAddDialog() {
-            this.resetClassesForm();
+            this.resetcourseForm();
         },
-        resetClassesForm() {
-            this.addClassesForm = {
+        resetcourseForm() {
+            this.addCourseForm = {
                 name: '',
                 time: [],
                 expertFirstName: '',
                 instructorFirstName: ''
             };
-            const addClassesForm = this.$refs.addClassesForm;
-            addClassesForm && addClassesForm.resetFields();
+            const addCourseForm = this.$refs.addCourseForm;
+            addCourseForm && addCourseForm.resetFields();
         },
         handleChangePage(page) {
             this.form.pageSize = page.pageSize;
@@ -253,4 +261,10 @@ export default {
     }
 };
 </script>
-<style scoped></style>
+<style scoped lang="scss">
+.course-name {
+    color: #333;
+    font-family: Microsoft YaHei;
+    font-weight: bold;
+}
+</style>

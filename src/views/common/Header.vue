@@ -8,11 +8,11 @@
             <div class="header-user-con">
                 <!-- 用户头像 -->
                 <div class="user-avator">
-                    <el-avatar size="small" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png">13131</el-avatar>
+                    <el-avatar size="small" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"></el-avatar>
                     <span class="user-name">欢迎你, 管理员</span>
                 </div>
                 <!-- 退出系统 -->
-                <i class="login-out"></i>
+                <i class="login-out iconfont icontuichuxitong" @click="loginOut" title="退出"></i>
             </div>
         </div>
     </div>
@@ -30,8 +30,13 @@ export default {
             return username ? username : this.name;
         }
     },
-    methods: {},
-    mounted() {}
+    methods: {
+        loginOut() {
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('userInfo');
+            this.$router.push('/login');
+        }
+    }
 };
 </script>
 <style scoped lang="scss">
@@ -46,7 +51,7 @@ export default {
     display: flex;
     .header-left {
         width: 250px;
-        background-color: #000000;
+        background-color: #2e3331;
     }
     .header-right {
         display: flex;
@@ -68,6 +73,7 @@ export default {
             }
             .login-out {
                 margin-left: 25px;
+                cursor: pointer;
             }
         }
     }
