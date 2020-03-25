@@ -23,7 +23,7 @@ export default {};
         font-family: SimSun;
         font-weight: bold;
         line-height: 72px;
-        font-size: 28px;
+        font-size: 32px;
         .title {
             color: #333;
             font-size: 36px;

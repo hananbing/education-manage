@@ -7003,11 +7003,6 @@ sort-keys@^1.0.0:
   dependencies:
     is-plain-obj "^1.0.0"
 
-sortablejs@^1.10.1:
-  version "1.10.1"
-  resolved "https://registry.npm.taobao.org/sortablejs/download/sortablejs-1.10.1.tgz#3d52b00f871be00f00f84d99a60d120bf3dfe52c"
-  integrity sha1-PVKwD4cb4A8A+E2Zpg0SC/Pf5Sw=
-
 source-list-map@^2.0.0:
   version "2.0.1"
   resolved "https://registry.npm.taobao.org/source-list-map/download/source-list-map-2.0.1.tgz#3993bd873bfc48479cca9ea3a547835c7c154b34"
@@ -7899,17 +7894,10 @@ vue@^2.6.10:
   resolved "https://registry.npm.taobao.org/vue/download/vue-2.6.11.tgz#76594d877d4b12234406e84e35275c6d514125c5"
   integrity sha1-dllNh31LEiNEBuhONSdcbVFBJcU=
 
-vuedraggable@^2.17.0:
-  version "2.23.2"
-  resolved "https://registry.npm.taobao.org/vuedraggable/download/vuedraggable-2.23.2.tgz?cache=0&sync_timestamp=1569989363583&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fvuedraggable%2Fdownload%2Fvuedraggable-2.23.2.tgz#0d95d7fdf4f02f56755a26b3c9dca5c7ca9cfa72"
-  integrity sha1-DZXX/fTwL1Z1Wiazydylx8qc+nI=
-  dependencies:
-    sortablejs "^1.10.1"
-
-vxe-table@^2.7.12:
-  version "2.7.12"
-  resolved "https://registry.npm.taobao.org/vxe-table/download/vxe-table-2.7.12.tgz#f1aa2a108043153c049412326c223e9adccb930d"
-  integrity sha1-8aoqEIBDFTwElBIybCI+mtzLkw0=
+vxe-table@^2.8.31:
+  version "2.8.31"
+  resolved "https://registry.yarnpkg.com/vxe-table/-/vxe-table-2.8.31.tgz#ecd61a09a4ee398ed24bd48ad4fa73d33e2e8772"
+  integrity sha512-QrpaWXqYczvlkY0v3+9Evr9l7IwwVHp9g+nJ+cXGHfvx2z3Yqx/OgXLGE8X2UrV2iKkp0fp9dT52ipOo+fwpnQ==
 
 watchpack@^1.6.0:
   version "1.6.0"

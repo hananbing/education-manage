@@ -22,14 +22,14 @@
                 <el-form-item prop="code">
                     <div class="code-box">
                         <el-input placeholder="验证码" v-model="param.code" size="medium" @keyup.enter.native="submitForm()"> </el-input>
-                        <div class="code-img">35345</div>
+                        <div class="code-img"><s-identify :code.sync="identifyCode"></s-identify></div>
                     </div>
                 </el-form-item>
                 <el-form-item>
                     <el-checkbox v-model="rememberP">记住用户</el-checkbox>
                 </el-form-item>
                 <div class="login-btn">
-                    <el-button type="primary" @click="submitForm()" size="medium">登录</el-button>
+                    <el-button type="primary" @click="submitForm()" size="medium" :loading="submitLoading">登录</el-button>
                 </div>
                 <p class="login-tips"><el-link>忘记密码</el-link></p>
             </el-form>
@@ -40,60 +40,80 @@
 
 <script>
 import CryptoJS from 'crypto-js';
+import SIdentify from '@/components/identify.vue';
 export default {
-    data: function() {
+    data() {
+        var validateCode = (rule, value, callback) => {
+            if (!value) {
+                callback(new Error('请输入验证码'));
+            } else if (value !== this.identifyCode) {
+                callback(new Error('验证码错误'));
+            } else {
+                callback();
+            }
+        };
         return {
             param: {
                 username: 'admin',
                 password: 'admin',
                 code: ''
             },
+            identifyCode: '',
+            submitLoading: false,
             rememberP: false,
             rules: {
                 username: [{ required: true, message: '请输入手机号', trigger: 'blur' }],
-                password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+                password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+                code: { validator: validateCode, trigger: 'blur' }
             }
         };
     },
     created() {
-        if (localStorage._info) {
-            if (new Date().getTime() - JSON.parse(localStorage._info).createdTime > 86400 * 7 * 1000) {
-                localStorage.removeItem('_info');
+        if (localStorage._userInfo) {
+            if (new Date().getTime() - JSON.parse(localStorage._userInfo).createdTime > 86400 * 7 * 1000) {
+                localStorage.removeItem('_userInfo');
             } else {
-                this.param.username = JSON.parse(localStorage._info)._u;
-                this.param.password = CryptoJS.AES.decrypt(JSON.parse(localStorage._info)._p, 'sichuanshifandaxue').toString(
+                this.param.username = JSON.parse(localStorage._userInfo)._u;
+                this.param.password = CryptoJS.AES.decrypt(JSON.parse(localStorage._userInfo)._p, 'sichuanshifandaxue').toString(
                     CryptoJS.enc.Utf8
                 );
                 this.rememberP = true;
             }
         }
     },
+    components: { SIdentify },
     methods: {
         submitForm() {
             this.$refs.login.validate(valid => {
                 if (valid) {
-                    this.$http.loginService.login(this.param).then(res => {
-                        this.$message.success('登录成功');
-                        localStorage.setItem('ms_username', this.param.username);
-                        sessionStorage.setItem('token', res.data.id_token)
-                        this.$router.push('/');
-                        this.RememberUserMesg();
-                    });
+                    this.submitLoading = true;
+                    this.$http.loginService
+                        .login(this.param)
+                        .then(res => {
+                            this.$message.success('登录成功');
+                            localStorage.setItem('ms_username', this.param.username);
+                            sessionStorage.setItem('token', res.id_token);
+                            this.RememberUserMesg();
+                            this.$router.push('/');
+                        })
+                        .finally(() => {
+                            this.submitLoading = false;
+                        });
                 }
             });
         },
         RememberUserMesg() {
             //七天过期
-            if (!this.rememberP && localStorage._info) {
-                localStorage.removeItem('_info');
+            if (!this.rememberP && localStorage._userInfo) {
+                localStorage.removeItem('_userInfo');
             } else if (this.rememberP) {
-                if (localStorage._info) {
-                    localStorage._info = JSON.stringify({
+                if (localStorage._userInfo) {
+                    localStorage._userInfo = JSON.stringify({
                         _u: this.param.username,
                         _p: CryptoJS.AES.encrypt(this.param.password, 'sichuanshifandaxue').toString()
                     });
                 } else {
-                    localStorage._info = JSON.stringify({
+                    localStorage._userInfo = JSON.stringify({
                         _u: this.param.username,
                         _p: CryptoJS.AES.encrypt(this.param.password, 'sichuanshifandaxue').toString(),
                         createdTime: new Date().getTime()

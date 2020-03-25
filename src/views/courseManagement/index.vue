@@ -42,10 +42,10 @@
                     <template slot-scope="scope">{{ courseOptions[scope.row.type] }}</template>
                 </vxe-table-column>
                 <vxe-table-column title="开始时间">
-                    <template slot-scope="scope">{{ Number(scope.row.startDate) | formatDate('yyyy-MM-dd mm:ss') }}</template>
+                    <template slot-scope="scope">{{ Number(scope.row.startDate) }}</template>
                 </vxe-table-column>
                 <vxe-table-column title="结束时间">
-                    <template slot-scope="scope">{{ Number(scope.row.endDate) | formatDate('yyyy-MM-dd mm:ss') }}</template>
+                    <template slot-scope="scope">{{ Number(scope.row.endDate) }}</template>
                 </vxe-table-column>
                 <vxe-table-column field="teacherName" title="授课老师名称"></vxe-table-column>
                 <vxe-table-column field="score" title="评分"></vxe-table-column>
@@ -56,7 +56,7 @@
                     <template slot-scope="scope">
                         <div class="operation-icon">
                             <el-button type="text" @click="viewData(scope.row)">查看</el-button>
-                            <el-button type="text" @click="handleScoring(scope.row)" v-if="form.type === 'finished'">打分</el-button>
+                            <el-button type="text" @click="handleScoring(scope.row)">打分</el-button>
                             <el-button type="text" @click="handleEditcourse(scope.row)">编辑</el-button>
                             <el-button type="text" @click="remove(scope.row)">删除</el-button>
                             <el-button type="text" @click="addLink(scope.row)" v-if="scope.row.type === 'LIVE'">添加链接</el-button>
@@ -117,11 +117,11 @@
                 </li>
                 <li class="item">
                     <div class="label">开始时间</div>
-                    <div class="content">{{ addCourseForm.time[0] | formatDate('yyyy-MM-dd mm:ss') }}</div>
+                    <div class="content">{{ addCourseForm.time[0] }}</div>
                 </li>
                 <li class="item">
                     <div class="label">结束时间</div>
-                    <div class="content">{{ addCourseForm.time[1] | formatDate('yyyy-MM-dd mm:ss') }}</div>
+                    <div class="content">{{ addCourseForm.time[1] }}</div>
                 </li>
                 <li class="item">
                     <div class="label">授课老师名称</div>
@@ -144,10 +144,10 @@
             :close-on-click-modal="false"
             width="450px"
         >
-            <p class="course-name">班级名称</p>
-            <el-form ref="uploadForm" class="dialog-form-box" :model="uploadForm" :rules="uploadRules" label-width="105px">
+            <p class="course-name">班级名称&nbsp;</p>
+            <el-form ref="uploadForm" class="dialog-form-box" :model="uploadForm" :rules="uploadRules" label-width="85px">
                 <template v-if="uploadDialogType === 'LIVE'">
-                    <el-form-item label="链接地址" prop="url">
+                    <el-form-item label="链接地址" prop="url" key="1" required>
                         <el-input v-model="uploadForm.url" placeholder="请输入链接地址"></el-input>
                     </el-form-item>
                 </template>
@@ -155,11 +155,19 @@
                     <el-form-item label="附件名称" prop="annexName">
                         <el-input v-model="uploadForm.annexName" placeholder="请输入附件名称"></el-input>
                     </el-form-item>
-                    <el-form-item label="播放地址" prop="url" v-if="uploadDialogType === 'VIDEO'">
+                    <el-form-item label="播放地址" prop="url" v-if="uploadDialogType === 'VIDEO'" key="2">
                         <el-input v-model="uploadForm.url" placeholder="请输入播放地址"></el-input>
                     </el-form-item>
                     <el-form-item label="上传文件" prop="url" required v-else>
-                        <el-upload class="upload-demo" drag :action="action" multiple>
+                        <el-upload
+                            class="upload-demo"
+                            drag
+                            :action="action"
+                            :before-upload="beforeUpload"
+                            :file-list="fileList"
+                            :limit="1"
+                            :on-success="uploadSuccess"
+                        >
                             <i class="el-icon-upload"></i>
                             <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
                             <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过10M</div>
@@ -172,10 +180,12 @@
                 <el-button type="primary" @click="uploadData">确 定</el-button>
             </span>
         </el-dialog>
+        <scoring-component ref="scoring" />
     </div>
 </template>
 <script>
 import environment from '@/environmental/index.js';
+import scoringComponent from './components/scoringComponent.vue';
 export default {
     data() {
         var validateUrl = (rule, value, callback) => {
@@ -205,8 +215,9 @@ export default {
             uploadForm: { annexName: '', url: '' },
             uploadRules: {
                 annexName: { required: true, message: '请输入附件名称', trigger: 'blur' },
-                url: { validator: validateUrl }
+                url: { validator: validateUrl, trigger: 'blur' }
             },
+            fileList: [], // 文件上传列表
             uploadDialogType: 'LIVE',
             courseDialogType: 'add',
             totalPage: 0,
@@ -218,6 +229,7 @@ export default {
             action: environment.env().url + 'file'
         };
     },
+    components: { scoringComponent },
     computed: {
         addDialogTitle() {
             return this.courseDialogType === 'add' ? '新增' : this.courseDialogType === 'edit' ? '编辑' : '查看';
@@ -236,8 +248,9 @@ export default {
         },
         getData() {
             this.$refs.courseTable.loadData([
-                { name: 121, expertFirstName: 13213131, instructorFirstName: 2423423424 },
-                { name: 121, expertFirstName: 13213131, instructorFirstName: 2423423424 }
+                { name: 121, expertFirstName: 13213131, instructorFirstName: 2423423424, type: 'VIDEO', url: '' },
+                { name: 121, expertFirstName: 13213131, instructorFirstName: 2423423424, type: 'LIVE', url: '' },
+                { name: 121, expertFirstName: 13213131, instructorFirstName: 2423423424, type: 'OFFICE', url: '' }
             ]);
         },
         remove({ id }) {},
@@ -257,7 +270,9 @@ export default {
             this.uploadDialogType = type;
             this.uploadDialogVisible = true;
         },
-        handleScoring({ id }) {},
+        handleScoring({ id, name }) {
+            this.$refs.scoring.openDialog(id, name);
+        },
         resetForm() {
             this.form = {
                 name: '',
@@ -282,7 +297,16 @@ export default {
             });
         },
         // 上传附件
-        uploadData() {},
+        uploadData() {
+            this.$refs['uploadForm'].validate(valid => {
+                if (valid) {
+                }
+            });
+        },
+        beforeUpload() {},
+        uploadSuccess(response, file, fileList) {
+            console.log(response, file, fileList);
+        },
         handleEditcourse(row) {
             this.splitData(row, 'edit');
         },

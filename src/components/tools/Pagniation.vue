@@ -1,15 +1,14 @@
 <template>
 
     <!-- 页码 -->
-    <div v-show='totalNum' class="pagniation-box">
+    <div  class="pagniation-box">
       <div
-        style="float: left;"
-        class="pages"
+        class="pages-left"
       >
         <span class="el-pagination__total">共{{totalNum || 0}}条</span>
         <el-select
           v-model="pageSize"
-          size="small"
+          size="mini"
           @change="pageSizeChange"
           placeholder="10条/页"
         >
@@ -22,8 +21,8 @@
           </el-option>
         </el-select>
       </div>
-      <div style="float: right;">
-        <div style="float: left;">
+      <div class="pages-right">
+        <div>
           <el-pagination
             background
             layout="prev, pager, next"
@@ -45,9 +44,9 @@
             </el-input>
             页
             <el-button
-              size="small"
+              size="mini"
               @click="pageJump"
-              style="padding: 5px 15px;line-height: inherit"
+              style="margin-left:5px;"
             >跳转</el-button>
           </div>
         </div>
@@ -80,20 +79,20 @@ export default {
     options:{
       default:()=>[
         {
-          value: 10,
-          label: "10条/页"
-        },
-        {
-          value: 20,
-          label: "20条/页"
-        },
-        {
           value: 30,
           label: "30条/页"
         },
         {
-          value: 40,
-          label: "40条/页"
+          value: 50,
+          label: "50条/页"
+        },
+        {
+          value: 70,
+          label: "70条/页"
+        },
+        {
+          value: 100,
+          label: "100条/页"
         }
       ],
       type:Array
@@ -155,15 +154,19 @@ export default {
   padding: 15px 10px; 
   overflow: hidden;
   display: flex;
-  justify-content: space-between;
+  justify-content:flex-end;
   align-items: center;
 }
-.pages{
+.pages-left{
   display: flex;
+  margin-right: 20px;
   align-items: center;
 }
-.pages .el-input__inner{
+.pages-left .el-input__inner{
   width: 100px;
+}
+.pages-right{
+  display: flex;justify-content: flex-start;
 }
 .el-pagination__total{
   font-size: 13px;

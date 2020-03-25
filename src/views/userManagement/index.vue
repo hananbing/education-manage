@@ -1,41 +1,31 @@
 <template>
     <div>
-        <search-box :form="form" >
+        <search-box :form="form">
             <template slot="input">
                 <el-col :span="5">
                     <el-form-item>
-                        <el-select v-model="form.name" style="width:100%" placeholder="请选择班级" @change="searchData">
+                        <el-select v-model="form.classesName" style="width:100%" placeholder="请选择班级" @change="searchData">
                             <el-option label="全部" value="ALL"></el-option>
                             <el-option v-for="(value, key) in classesOptions" :key="key" :label="value" :value="key"> </el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
-                <el-col style="width:240px;">
-                    <el-form-item label="">
-                        <el-date-picker
-                            v-model="form.orderTime"
-                            type="daterange"
-                            range-separator="-"
-                            start-placeholder="开始日期"
-                            end-placeholder="结束日期"
-                        >
-                        </el-date-picker>
-                    </el-form-item>
-                </el-col>
                 <el-col :span="3">
                     <el-form-item>
-                        <el-select v-model="form.instructorFirstName" style="width:100%" placeholder="请选择辅导员" @change="searchData">
+                        <el-select v-model="form.role" style="width:100%" placeholder="请选择角色" @change="searchData">
                             <el-option label="全部" value="ALL"></el-option>
-                            <el-option v-for="(value, key) in instructorOptions" :key="key" :label="value" :value="key"> </el-option>
+                            <el-option v-for="(value, key) in roleOptions" :key="key" :label="value" :value="key"> </el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
                 <el-col :span="3">
                     <el-form-item>
-                        <el-select v-model="form.expertFirstName" style="width:100%" placeholder="请选择专家" @change="searchData">
-                            <el-option label="全部" value="ALL"></el-option>
-                            <el-option v-for="(value, key) in expertOptions" :key="key" :label="value" :value="key"> </el-option>
-                        </el-select>
+                        <el-input v-model="form.name" placeholder="请输入姓名" @keyup.enter.native="searchData"></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="3">
+                    <el-form-item>
+                        <el-input v-model="form.phone" placeholder="请输入手机号" @keyup.enter.native="searchData"></el-input>
                     </el-form-item>
                 </el-col>
             </template>
@@ -44,20 +34,20 @@
                 <el-button icon="el-icon-refresh" @click="resetForm">重置</el-button>
             </template>
             <template slot="rightButton">
+                <el-button icon="iconfont icondaoru" @click="importData">导入</el-button>
                 <el-button type="warning" icon="el-icon-plus" @click="addClassesdialogVisible = true">新增</el-button>
             </template>
         </search-box>
         <div class="container">
             <vxe-table border stripe highlight-hover-row size="medium" :loading="tableLoading" ref="classesTable">
-                <vxe-table-column field="name" title="班级名称"></vxe-table-column>
-                <vxe-table-column title="开始日期">
-                    <template slot-scope="scope">{{ Number(scope.row.startDate) | formatDate('yyyy-MM-dd') }}</template>
+                <vxe-table-column field="name" title="姓名"></vxe-table-column>
+                <vxe-table-column field="name" title="性别">
+                    <template v-slot="{ row }">
+                        <span>{{ row.sexType === 'MEN' ? '男' : '女' }}</span>
+                    </template>
                 </vxe-table-column>
-                <vxe-table-column title="结束日期">
-                    <template slot-scope="scope">{{ Number(scope.row.endDate) | formatDate('yyyy-MM-dd') }}</template>
-                </vxe-table-column>
-                <vxe-table-column field="instructorFirstName" title="辅导员名称"></vxe-table-column>
-                <vxe-table-column field="expertFirstName" title="专家名称"></vxe-table-column>
+                <vxe-table-column field="login" title="手机号"></vxe-table-column>
+                <vxe-table-column field="expertFirstName" title="角色"></vxe-table-column>
                 <vxe-table-column fixed="right" title="操作" width="200">
                     <template slot-scope="scope">
                         <div class="operation-icon">
@@ -101,7 +91,7 @@
                     </el-date-picker>
                 </el-form-item>
                 <el-form-item label="辅导员" prop="instructorFirstName">
-                    <el-select v-model="addClassesForm.instructorFirstName" style="width:100%" placeholder="请输入辅导员名称">
+                    <el-select v-model="addClassesForm.role" style="width:100%" placeholder="请输入辅导员名称">
                         <el-option v-for="(value, key) in classesOptions" :key="key" :label="value" :value="key"> </el-option>
                     </el-select>
                 </el-form-item>
@@ -214,6 +204,12 @@ export default {
                 expertFirstName: '',
                 instructorFirstName: ''
             },
+            roleOptions: {
+                '1': '学员',
+                '2': '辅导员',
+                '3': '老师',
+                '4': '专家'
+            },
             // 权重表单
             weightForm: {},
             weightRules: {},
@@ -268,6 +264,8 @@ export default {
                 current: 0
             };
         },
+        // 导入数据
+        importData() {},
         openAddDialog() {},
         // 新增/编辑班级
         saveData() {

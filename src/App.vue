@@ -33,4 +33,18 @@
 .el-menu-item.is-active {
     background-color: #276e51 !important;
 }
+/* vxe-table 样式修改 */
+.vxe-table.size--small .vxe-body--column:not(.col--ellipsis) {
+    padding: 4px 0 !important;
+}
+.vxe-table.size--medium .vxe-body--column:not(.col--ellipsis) {
+    padding: 8px 0 !important;
+}
+
+.course-name {
+    color: #333;
+    font-family: Microsoft YaHei;
+    font-weight: bold;
+    margin-bottom: 7px;
+}
 </style>
