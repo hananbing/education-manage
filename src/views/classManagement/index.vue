@@ -4,7 +4,7 @@
             <template slot="input">
                 <el-col :span="5">
                     <el-form-item>
-                        <el-select v-model="form.name" style="width:100%" placeholder="请选择班级" @change="searchData">
+                        <el-select v-model.trim="form.name" style="width:100%" placeholder="请选择班级" @change="searchData">
                             <el-option label="全部" value="ALL"></el-option>
                             <el-option v-for="(value, key) in classesOptions" :key="key" :label="value" :value="key"> </el-option>
                         </el-select>
@@ -13,7 +13,7 @@
                 <el-col style="width:240px;">
                     <el-form-item label="">
                         <el-date-picker
-                            v-model="form.orderTime"
+                            v-model.trim="form.orderTime"
                             type="daterange"
                             range-separator="-"
                             start-placeholder="开始日期"
@@ -24,16 +24,21 @@
                 </el-col>
                 <el-col :span="3">
                     <el-form-item>
-                        <el-select v-model="form.instructorFirstName" style="width:100%" placeholder="请选择辅导员" @change="searchData">
-                            <el-option label="全部" value="ALL"></el-option>
+                        <el-select
+                            v-model.trim="form.instructorFirstName"
+                            style="width:100%"
+                            placeholder="请选择辅导员"
+                            @change="searchData"
+                        >
+                            <el-option label="全部" value=""></el-option>
                             <el-option v-for="(value, key) in instructorOptions" :key="key" :label="value" :value="key"> </el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
                 <el-col :span="3">
                     <el-form-item>
-                        <el-select v-model="form.expertFirstName" style="width:100%" placeholder="请选择专家" @change="searchData">
-                            <el-option label="全部" value="ALL"></el-option>
+                        <el-select v-model.trim="form.expertFirstName" style="width:100%" placeholder="请选择专家" @change="searchData">
+                            <el-option label="全部" value=""></el-option>
                             <el-option v-for="(value, key) in expertOptions" :key="key" :label="value" :value="key"> </el-option>
                         </el-select>
                     </el-form-item>
@@ -51,10 +56,10 @@
             <vxe-table border stripe highlight-hover-row size="medium" :loading="tableLoading" ref="classesTable">
                 <vxe-table-column field="name" title="班级名称"></vxe-table-column>
                 <vxe-table-column title="开始日期">
-                    <template slot-scope="scope">{{ Number(scope.row.startDate) | formatDate('yyyy-MM-dd') }}</template>
+                    <template slot-scope="scope">{{ Number(scope.row.startDate)}}</template>
                 </vxe-table-column>
                 <vxe-table-column title="结束日期">
-                    <template slot-scope="scope">{{ Number(scope.row.endDate) | formatDate('yyyy-MM-dd') }}</template>
+                    <template slot-scope="scope">{{ Number(scope.row.endDate)}}</template>
                 </vxe-table-column>
                 <vxe-table-column field="instructorFirstName" title="辅导员名称"></vxe-table-column>
                 <vxe-table-column field="expertFirstName" title="专家名称"></vxe-table-column>
@@ -87,20 +92,21 @@
                 label-width="80px"
             >
                 <el-form-item label="班级名称" prop="name">
-                    <el-input v-model="addClassesForm.name" placeholder="请输入班级名称"></el-input>
+                    <el-input v-model.trim="addClassesForm.name" placeholder="请输入班级名称"></el-input>
                 </el-form-item>
                 <el-form-item label="日期" prop="time">
                     <el-date-picker
-                        v-model="addClassesForm.time"
+                        v-model.trim="addClassesForm.time"
                         type="daterange"
                         range-separator="-"
                         start-placeholder="开始日期"
                         end-placeholder="结束日期"
                         style="width:100%"
+                        value-format="yyyy-MM-dd"
                     >
                     </el-date-picker>
                 </el-form-item>
-                <el-form-item label="辅导员" prop="instructorFirstName">
+                <!-- <el-form-item label="辅导员" prop="instructorFirstName">
                     <el-select v-model="addClassesForm.instructorFirstName" style="width:100%" placeholder="请输入辅导员名称">
                         <el-option v-for="(value, key) in classesOptions" :key="key" :label="value" :value="key"> </el-option>
                     </el-select>
@@ -109,7 +115,7 @@
                     <el-select v-model="addClassesForm.expertFirstName" style="width:100%" placeholder="请输入专家名称">
                         <el-option v-for="(value, key) in classesOptions" :key="key" :label="value" :value="key"> </el-option>
                     </el-select>
-                </el-form-item>
+                </el-form-item> -->
             </el-form>
             <ul class="dialog-form-view" v-else>
                 <li class="item">
@@ -136,37 +142,62 @@
             <span slot="footer" class="dialog-footer">
                 <template v-if="classesDialogType !== 'view'">
                     <el-button @click="addClassesdialogVisible = false">取 消</el-button>
-                    <el-button type="primary" @click="saveData">确 定</el-button>
+                    <el-button type="primary" @click="saveData" :loading="dialogLoading">确 定</el-button>
                 </template>
                 <template v-else><el-button @click="addClassesdialogVisible = false">关 闭</el-button></template>
             </span>
         </el-dialog>
-        <el-dialog
-            title="权重配置"
-            :visible.sync="addWeightDialogVisible"
-            :close-on-click-modal="false"
-            width="450px"
-        >
+        <el-dialog title="权重配置" :visible.sync="addWeightDialogVisible" :close-on-click-modal="false" width="450px">
             <el-form ref="weightForm" class="dialog-form-box" :model="weightForm" :rules="weightRules" label-width="150px">
                 <el-form-item label="签到分数权重%" prop="name">
-                    <el-input-number v-model="weightForm.name" :min="1" :max="100" label="请输入签到分数权重" style="width:100%"></el-input-number>
+                    <el-input-number
+                        v-model="weightForm.name"
+                        :min="1"
+                        :max="100"
+                        label="请输入签到分数权重"
+                        style="width:100%"
+                    ></el-input-number>
                 </el-form-item>
                 <el-form-item label="在线学习分数权重%" prop="name">
-                    <el-input-number v-model="weightForm.name" :min="1" :max="100" label="请输入在线学习分数权重" style="width:100%"></el-input-number>
+                    <el-input-number
+                        v-model="weightForm.name"
+                        :min="1"
+                        :max="100"
+                        label="请输入在线学习分数权重"
+                        style="width:100%"
+                    ></el-input-number>
                 </el-form-item>
                 <el-form-item label="课程学习分数权重%" prop="name">
-                    <el-input-number v-model="weightForm.name" :min="1" :max="100" label="请输入课程学习分数权重" style="width:100%"></el-input-number>
+                    <el-input-number
+                        v-model="weightForm.name"
+                        :min="1"
+                        :max="100"
+                        label="请输入课程学习分数权重"
+                        style="width:100%"
+                    ></el-input-number>
                 </el-form-item>
                 <el-form-item label="作业分数权重%" prop="name">
-                    <el-input-number v-model="weightForm.name" :min="1" :max="100" label="请输入作业分数权重" style="width:100%"></el-input-number>
+                    <el-input-number
+                        v-model="weightForm.name"
+                        :min="1"
+                        :max="100"
+                        label="请输入作业分数权重"
+                        style="width:100%"
+                    ></el-input-number>
                 </el-form-item>
                 <el-form-item label="话题分数权重%" prop="name">
-                    <el-input-number v-model="weightForm.name" :min="1" :max="100" label="请输入话题分数权重" style="width:100%"></el-input-number>
+                    <el-input-number
+                        v-model="weightForm.name"
+                        :min="1"
+                        :max="100"
+                        label="请输入话题分数权重"
+                        style="width:100%"
+                    ></el-input-number>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="addWeightDialogVisible = false">取 消</el-button>
-                <el-button type="primary" @click="addWeight">确 定</el-button>
+                <el-button type="primary" @click="addWeight" :loading="dialogLoading">确 定</el-button>
             </span>
         </el-dialog>
     </div>
@@ -185,10 +216,11 @@ export default {
             tableLoading: false,
             addClassesForm: {
                 name: '',
-                time: [],
-                expertFirstName: '',
-                instructorFirstName: ''
+                time: []
+                // expertFirstName: '',
+                // instructorFirstName: ''
             },
+            dialogLoading: false,
             // 权重表单
             weightForm: {},
             weightRules: {},
@@ -202,8 +234,8 @@ export default {
             expertOptions: [], // 专家列表
             addClassesRules: {
                 name: { required: true, message: '请输入班级名称', trigger: 'blur' },
-                expertFirstName: { required: true, message: '请输入专家名称', trigger: 'blur' },
-                instructorFirstName: { required: true, message: '请输入辅导员名称', trigger: 'blur' },
+                // expertFirstName: { required: true, message: '请输入专家名称', trigger: 'blur' },
+                // instructorFirstName: { required: true, message: '请输入辅导员名称', trigger: 'blur' },
                 time: { required: true, message: '请输入有效时间', trigger: 'blur' }
             }
         };
@@ -213,12 +245,12 @@ export default {
             return this.classesDialogType === 'add' ? '新增' : this.classesDialogType === 'edit' ? '编辑' : '查看';
         }
     },
-    mounted() {
+    created() {
         this.getData();
     },
-    watch:{
-        addWeightDialogVisible(val){
-            if(!val){
+    watch: {
+        addWeightDialogVisible(val) {
+            if (!val) {
                 this.$refs.weightForm.resetFields();
             }
         }
@@ -229,25 +261,32 @@ export default {
             this.getData();
         },
         getData() {
-            this.$refs.classesTable.loadData([
-                { name: 121, expertFirstName: 13213131, instructorFirstName: 2423423424 },
-                { name: 121, expertFirstName: 13213131, instructorFirstName: 2423423424 }
-            ]);
-        },
-        resetForm() {
-            this.form = {
-                name: '',
-                expertFirstName: '',
-                instructorFirstName: '',
-                pageSize: 30,
-                current: 0
-            };
+            this.$http.classesService.getAllClasses(this.form).then(res => {
+                this.$refs.classesTable.loadData(res.data.content);
+                this.totalPage = res.data.totalPages;
+                this.totalNum = res.data.totalElements;
+            });
         },
         openAddDialog() {},
         // 新增/编辑班级
         saveData() {
             this.$refs['addClassesForm'].validate(valid => {
                 if (valid) {
+                    this.dialogLoading = true;
+                    const { time, name } = this.addClassesForm;
+                    const params = {
+                        name,
+                        startDate: time[0],
+                        endDate: time[1]
+                    };
+                    this.$http.classesService
+                        .createClasses(params)
+                        .then(res => {
+                            this.addClassesdialogVisible = false;
+                        })
+                        .finally(() => {
+                            this.dialogLoading = false;
+                        });
                 }
             });
         },
@@ -257,9 +296,9 @@ export default {
         splitData({ name, expertFirstName, instructorFirstName, startDate, endDate }, type = 'edit') {
             this.addClassesForm = {
                 name,
-                time: [startDate, endDate],
-                expertFirstName,
-                instructorFirstName
+                time: [startDate, endDate]
+                // expertFirstName,
+                // instructorFirstName
             };
             this.classesDialogType = type;
             this.addClassesdialogVisible = true;
@@ -270,7 +309,14 @@ export default {
         closeAddDialog() {
             this.resetClassesForm();
         },
-        remove() {},
+        remove({id}) {
+            this.$http.classesService.deleteClasses(id).then(res => {
+                 this.$message({
+                     message:'删除成功',
+                     type:'success'
+                 })
+            });
+        },
         weightConfig(row) {
             this.weightForm = {};
             this.addWeightDialogVisible = true;
@@ -284,9 +330,9 @@ export default {
         resetClassesForm() {
             this.addClassesForm = {
                 name: '',
-                time: [],
-                expertFirstName: '',
-                instructorFirstName: ''
+                time: []
+                // expertFirstName: '',
+                // instructorFirstName: ''
             };
             const addClassesForm = this.$refs.addClassesForm;
             addClassesForm && addClassesForm.resetFields();
@@ -301,7 +347,7 @@ export default {
                 name: '',
                 expertFirstName: '',
                 instructorFirstName: '',
-                pageSize: 30,
+                pageSize: this.form.pageSize,
                 current: 0
             };
         }

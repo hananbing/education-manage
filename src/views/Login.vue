@@ -1,13 +1,13 @@
 <template>
     <div class="login-wrap">
         <div class="header">
-            <div class="login"><img src="../assets/img/logo.png" alt="logo" /></div>
+            <!-- <div class="login"><img src="../assets/img/logo.png" alt="logo" /></div>
             <div class="register">
-                <!-- 没有账号吗? 去注册 -->
-            </div>
+                没有账号吗? 去注册
+            </div> -->
         </div>
         <div class="ms-login">
-            <div class="ms-title">中小学教师继续教育培训平台</div>
+            <!-- <div class="ms-title">中小学教师继续教育培训平台</div> -->
             <el-form :model="param" :rules="rules" ref="login" label-width="0px" class="ms-content">
                 <el-form-item prop="username">
                     <el-input v-model="param.username" placeholder="手机号" size="medium">
@@ -34,7 +34,7 @@
                 <p class="login-tips"><el-link>忘记密码</el-link></p>
             </el-form>
         </div>
-        <div class="footer">ICP备案号 &nbsp;Copyright ©2020 &nbsp; 四川师范大学版权所有</div>
+        <!-- <div class="footer">ICP备案号 &nbsp;Copyright ©2020 &nbsp; 四川师范大学版权所有</div> -->
     </div>
 </template>
 
@@ -54,7 +54,7 @@ export default {
         };
         return {
             param: {
-                username: 'admin',
+                username: '13812345678',
                 password: 'admin',
                 code: ''
             },
@@ -93,6 +93,7 @@ export default {
                             this.$message.success('登录成功');
                             localStorage.setItem('ms_username', this.param.username);
                             sessionStorage.setItem('token', res.id_token);
+                            this.getAccountInfo()
                             this.RememberUserMesg();
                             this.$router.push('/');
                         })
@@ -100,6 +101,12 @@ export default {
                             this.submitLoading = false;
                         });
                 }
+            });
+        },
+        // 获取账户信息
+        getAccountInfo() {
+            this.$http.userService.getAccount().then(res => {
+                console.log(res)
             });
         },
         RememberUserMesg() {

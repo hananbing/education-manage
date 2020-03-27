@@ -49,6 +49,43 @@ routes = routes.concat([
         redirect: '/404'
     }
 ]);
-export default new Router({
+const routeObj = new Router({
     routes
+});
+export default routeObj;
+// 添加拦截器
+const special = ['/login'];
+routeObj.beforeEach((to, from, next) => {
+    document.title = to.meta.title;
+    if (special.includes(to.path)) {
+        sessionStorage.token = '';
+        next();
+    } else {
+        if (!sessionStorage.token) {
+            new Vue().$message({
+                type: 'info',
+                message: '您还没有登录，请登录!'
+            });
+            next({
+                path: '/login',
+                query: {
+                    redirect: decodeURIComponent(to.path) // 解决路由可能进行了16进制转义
+                }
+            });
+        } else {
+            if (to.path === '/') {
+                next({
+                    path: '/index'
+                });
+            } else {
+                // 路由权限校验
+                // const menuAuth = JSON.parse(sessionStorage.getItem('auth')) || []
+                // console.log(menuAuth)
+                // if (to.path !== '/index' && !routerPermission(menuAuth, to.path)) {
+                //   return false
+                // }
+                next();
+            }
+        }
+    }
 });

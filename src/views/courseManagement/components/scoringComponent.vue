@@ -5,14 +5,14 @@
             <vxe-table-column field="name" title="学员姓名" width="140"></vxe-table-column>
             <vxe-table-column field="name" title="得分">
                 <template v-slot="{ row }">
-                    <el-slider v-model="row.score"></el-slider>
+                    <el-slider v-model="row.score" :class="{ 'dark': !row.light }" @change="sliderChange(row)"></el-slider>
                 </template>
             </vxe-table-column>
             <vxe-table-column field="name" width="80">
                 <template v-slot="{ row }">
                     <div class="score-box">
                         <span class="score">{{ row.score }}</span>
-                        <el-button type="text">保存</el-button>
+                        <el-button type="text" @click="saveData(row)">保存</el-button>
                     </div>
                 </template>
             </vxe-table-column>
@@ -38,9 +38,9 @@ export default {
             totalPage: 0,
             totalNum: 0,
             tableData: [
-                { name: '张三', score: 0 },
-                { name: '张三', score: 6 },
-                { name: '张三', score: 6 }
+                { name: '张三', score: 0, light: false },
+                { name: '张三', score: 6, light: false },
+                { name: '张三', score: 6, light: false }
             ],
             tableLoading: false
         };
@@ -52,9 +52,15 @@ export default {
             this.visible = true;
             this.getData();
         },
-        saveData() {},
+        saveData(row) {
+            row.light = false;
+            this.$http;
+        },
         closeDialog() {
             this.tableData = [];
+        },
+        sliderChange(row) {
+            row.light = true;
         },
         getData() {},
         handleChangePage(page) {
@@ -65,6 +71,14 @@ export default {
     }
 };
 </script>
+<style scoped>
+.dark >>> .el-slider__bar{
+    background-color: #CCCCCC;
+}
+.dark >>> .el-slider__button{
+    border-color: #CCCCCC;
+}
+</style>
 <style scoped lang="scss">
 .score-box {
     display: flex;

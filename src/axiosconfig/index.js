@@ -15,8 +15,7 @@ axios.defaults.baseURL = baseURL
 Vue.prototype.$static = ''
 axios.interceptors.request.use(
   config => {
-    // config.headers['Authorization'] = 'Bearer '+ (sessionStorage.getItem('token') || '')
-    // config.headers['Access-Control-Allow-Origin'] = '*'
+    config.headers['Authorization'] = 'Bearer '+ (sessionStorage.getItem('token') || '')
     return config
   },
   err => {
@@ -44,7 +43,6 @@ axios.interceptors.response.use(
           });
         }
         sessionStorage.setItem('token', '')
-        // window.postMessage('loginout')
         timmer = setTimeout(function() {
           window.location.href = '/#/login'
         }, 5000);

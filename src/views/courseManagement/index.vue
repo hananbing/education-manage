@@ -247,13 +247,20 @@ export default {
             this.getData();
         },
         getData() {
-            this.$refs.courseTable.loadData([
-                { name: 121, expertFirstName: 13213131, instructorFirstName: 2423423424, type: 'VIDEO', url: '' },
-                { name: 121, expertFirstName: 13213131, instructorFirstName: 2423423424, type: 'LIVE', url: '' },
-                { name: 121, expertFirstName: 13213131, instructorFirstName: 2423423424, type: 'OFFICE', url: '' }
-            ]);
+            this.$http.courseService.getAllCourses(this.form).then(res => {
+                this.$refs.courseTable.loadData(res.data.content);
+                this.totalPage = res.data.totalPages;
+                this.totalNum = res.data.totalElements;
+            });
         },
-        remove({ id }) {},
+        remove({ id }) {
+            this.$http.courseService.deleteCourse(id).then(res => {
+                this.$message({
+                    message: '删除成功',
+                    type: 'success'
+                });
+            });
+        },
         addLink({ id, annexName, url, type }) {
             this.uploadForm = {
                 annexName,
@@ -277,7 +284,7 @@ export default {
             this.form = {
                 name: '',
                 courseName: '',
-                pageSize: 30,
+                pageSize: this.form.pageSize,
                 current: 0,
                 type: this.form.type
             };
@@ -343,15 +350,6 @@ export default {
             this.form.pageSize = page.pageSize;
             this.form.current = page.currentPage - 1;
             this.getData();
-        },
-        resetForm() {
-            this.form = {
-                name: '',
-                expertFirstName: '',
-                instructorFirstName: '',
-                pageSize: 30,
-                current: 0
-            };
         }
     }
 };

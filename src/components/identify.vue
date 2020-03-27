@@ -65,6 +65,15 @@ export default {
             default: 36
         }
     },
+     watch: {
+        identifyCode() {
+            this.drawPic();
+        }
+    },
+    mounted() {
+        this.drawPic();
+        this.randomCodes()
+    },
     methods: {
         // 随机生成code
         randomCodes() {
@@ -72,7 +81,7 @@ export default {
                 .fill()
                 .map(() => CODE_CHARTS[this.randomNum(0, 35)])
                 .join('');
-            this.$emit('update:code', this.identifyCode)
+            this.$emit('update:code', this.identifyCode);
         },
         // 生成一个随机数
         randomNum(min, max) {
@@ -133,13 +142,6 @@ export default {
             }
         }
     },
-    watch: {
-        identifyCode() {
-            this.drawPic();
-        }
-    },
-    mounted() {
-        this.drawPic();
-    }
+    
 };
 </script>

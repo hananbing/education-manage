@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import App from './App.vue';
 import router from './router';
+import store from './store/Store.vue' //使用vuex
 import ElementUI from 'element-ui';
 import api from './service/index.js'
 import './style/element-variables.scss';
@@ -41,5 +42,6 @@ Vue.use(alert)
 Vue.prototype.$http = api // 挂载接口服务在原型上
 new Vue({
     router,
+    store,
     render: h => h(App)
 }).$mount('#app');

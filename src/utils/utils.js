@@ -15,6 +15,13 @@ const validatePhone = (rule, value, callback) => {
   }
   callback()
 }
+//验证邮箱
+const validateEmail = (rule, value, callback) => {
+  if (!/^([a-zA-Z\d])(\w|\-)+@[a-zA-Z\d]+\.[a-zA-Z]{2,4}$/.test(value)) {
+    callback(new Error('邮箱格式不正确！'))
+  }
+  callback()
+}
 //表单判断数字
 const validateFormNumber = (rule, value, callback) => {
   if (value && !/^(-)?([1-9]+\.?\d*|0)$/.test(Number(value))) {
