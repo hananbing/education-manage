@@ -11,15 +11,13 @@
                             placeholder="请选择班级"
                             @change="searchData"
                         >
-                            <el-option label="全部" value=""></el-option>
-                            <el-option v-for="(value, key) in classesOptions" :key="key" :label="value" :value="key"> </el-option>
+                            <el-option v-for="item in classesOptions" :key="item.id" :label="item.name" :value="item.name"> </el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
                 <el-col :span="3">
                     <el-form-item>
                         <el-select v-model.trim="form.authorities" style="width:100%" placeholder="请选择角色" @change="searchData">
-                            <el-option label="角色" value=""></el-option>
                             <el-option v-for="(value, key) in roleOptions" :key="key" :label="value" :value="key"> </el-option>
                         </el-select>
                     </el-form-item>
@@ -101,9 +99,9 @@
                         <el-option label="女" value="WOMEN"> </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="民族" prop="nation">
-                    <el-select v-model="addUserForm.nation" style="width:100%" placeholder="请选择民族">
-                        <el-option v-for="(value, key) in nationsType" :key="key" :label="value" :value="key"> </el-option>
+                <el-form-item label="民族" prop="nationType">
+                    <el-select v-model="addUserForm.nationType" style="width:100%" placeholder="请选择民族">
+                        <el-option v-for="(value, key) in nationTypes" :key="key" :label="value" :value="key"> </el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="手机号" prop="login">
@@ -144,13 +142,13 @@
 import viewData from '@/components/viewData.vue';
 import importUser from './components/importUser.vue';
 import addressComponent from '@/components/tools/address.vue';
-import { validatePhone } from '@/utils/utils.js';
-import { SELEECT_ROLES, NATIONS } from '@/utils/config.js';
+import { validatePhone, validateEmail } from '@/utils/utils.js';
+import { SELEECT_ROLES, NATION_TYPES } from '@/utils/config.js';
 export default {
     data() {
         return {
             form: {
-                courseName: '',
+                classesName: '',
                 authorities: '',
                 name: '',
                 login: '',
@@ -162,14 +160,14 @@ export default {
                 name: '',
                 authorities: '',
                 sexType: '',
-                nation: '',
+                nationType: '',
                 login: '',
                 email: '',
                 companyName: '',
                 subject: '',
                 addressData: []
             },
-            nationsType: NATIONS,
+            nationTypes: NATION_TYPES,
             roleOptions: SELEECT_ROLES,
             dialogDto: {
                 component: null,
@@ -189,7 +187,7 @@ export default {
                 name: { required: true, message: '请输入姓名', trigger: 'blur' },
                 authorities: { required: true, message: '请选择角色', trigger: 'blur' },
                 sexType: { required: true, message: '请选择性别', trigger: 'blur' },
-                nation: { required: true, message: '请选择民族', trigger: 'blur' },
+                nationType: { required: true, message: '请选择民族', trigger: 'blur' },
                 email: { validator: validateEmail },
                 login: [
                     { required: true, message: '请输入手机号', trigger: 'blur' },
@@ -207,6 +205,7 @@ export default {
     components: { viewData, importUser, addressComponent },
     created() {
         this.getData();
+        this.getAllClassesData();
     },
     watch: {},
     methods: {
@@ -215,27 +214,29 @@ export default {
             this.getData();
         },
         getData() {
-            this.$http.userService.getAllUsers(this.form).then(res => {
+            const params = Object.assign({}, this.form)
+            params.authorities = [params.authorities];
+            this.$http.userService.getAllUsers(params).then(res => {
                 this.$refs.userTable.loadData(res.data.content);
                 this.totalPage = res.data.totalPages;
                 this.totalNum = res.data.totalElements;
             });
         },
         // 获取所有的班级列表
-        getAllClasses() {
-            this.$http.classesService.getAllClasses(this.form).then(res => {
+        getAllClassesData() {
+            this.$http.classesService.getAllClasses({ current: 0, pageSize: 1000 }).then(res => {
                 this.classesOptions = res.data.content;
             });
         },
         // 导入数据
         importData() {
-            if (!this.form.courseName) {
+            if (!this.form.classesName) {
                 this.$message.error('请先选择班级!');
                 return;
             }
         },
         openAddDialog() {
-            // if (!this.form.courseName) {
+            // if (!this.form.classesName) {
             //     this.$message.error('请先选择班级!');
             //     return;
             // }
@@ -249,9 +250,17 @@ export default {
                     params.fullAddressName = params.addressData.join('-');
                     this.dialogLoading = true;
                     if (this.userDialogType === 'add') {
+                        params.authorities = [params.authorities];
                         this.$http.userService
                             .createUser(params)
-                            .then(res => {})
+                            .then(res => {
+                                this.$message({
+                                    type:'success',
+                                    message:'添加成功'
+                                })
+                                this.getData();
+                                this.addUserDialogVisible = false;
+                            })
                             .finally(() => {
                                 this.dialogLoading = false;
                             });
@@ -259,7 +268,14 @@ export default {
                         params.id = this.curCheckId;
                         this.$http.userService
                             .updateUser(params)
-                            .then(res => {})
+                            .then(res => {
+                                 this.getData();
+                                 this.$message({
+                                    type:'success',
+                                    message:'修改成功'
+                                })
+                                this.addUserDialogVisible = false;
+                            })
                             .finally(() => {
                                 this.dialogLoading = false;
                             });
@@ -267,12 +283,12 @@ export default {
                 }
             });
         },
-        handleEditUser({ id, name, authorities, sexType, nation, login, email, companyName, subject, fullAddressName }) {
+        handleEditUser({ id, name, authorities, sexType, nationType, login, email, companyName, subject, fullAddressName }) {
             this.addUserForm = {
                 name,
                 authorities,
                 sexType,
-                nation,
+                nationType,
                 login,
                 email,
                 companyName,
@@ -283,12 +299,12 @@ export default {
             this.curCheckId = id;
             this.addUserDialogVisible = true;
         },
-        viewData({ name, authorities, sexType, nation, login, email, companyName, subject, fullAddressName }) {
+        viewData({ name, authorities, sexType, nationType, login, email, companyName, subject, fullAddressName }) {
             this.viewDataList = [
-                { name: '角色', value: authorities },
+                { name: '角色', value: authorities[0] },
                 { name: '姓名', value: name },
                 { name: '性别', value: sexType === 'MEN' ? '男' : '女' },
-                { name: '民族', value: NATIONS[nation] },
+                { name: '民族', value: NATION_TYPES[nationType] },
                 { name: '手机号', value: login },
                 { name: '邮箱', value: email },
                 { name: '单位', value: companyName },
@@ -317,13 +333,14 @@ export default {
         },
         resetForm() {
             this.form = {
-                courseName: '',
+                name: '',
                 authorities: '',
                 name: '',
                 login: '',
                 pageSize: this.form.pageSize,
                 current: 0
             };
+            this.getData()
         }
     }
 };

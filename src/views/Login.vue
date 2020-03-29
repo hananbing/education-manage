@@ -91,9 +91,8 @@ export default {
                         .login(this.param)
                         .then(res => {
                             this.$message.success('登录成功');
-                            localStorage.setItem('ms_username', this.param.username);
                             sessionStorage.setItem('token', res.id_token);
-                            this.getAccountInfo()
+                            this.getAccountInfo();
                             this.RememberUserMesg();
                             this.$router.push('/');
                         })
@@ -106,7 +105,8 @@ export default {
         // 获取账户信息
         getAccountInfo() {
             this.$http.userService.getAccount().then(res => {
-                console.log(res)
+                this.$store.commit({ type: 'setUserInfo', data: res });
+
             });
         },
         RememberUserMesg() {

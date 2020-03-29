@@ -2,26 +2,32 @@
     <div>
         <search-box :form="form">
             <template slot="tabs">
-                <el-tabs v-model="form.type" @tab-click="searchData">
+                <!-- <el-tabs v-model="form.type" @tab-click="searchData">
                     <el-tab-pane label="未结束" name="unFinished"></el-tab-pane>
                     <el-tab-pane label="已结束" name="finished"></el-tab-pane>
-                </el-tabs>
+                </el-tabs> -->
             </template>
             <template slot="input">
                 <el-col :span="5">
                     <el-form-item>
-                        <el-select v-model="form.name" style="width:100%" placeholder="班级名称" @change="searchData">
-                            <el-option label="全部" value="ALL"></el-option>
-                            <el-option v-for="(value, key) in classesOptions" :key="key" :label="value" :value="key"> </el-option>
+                        <el-select
+                            v-model="form.classesName"
+                            style="width:100%"
+                            placeholder="班级名称"
+                            @change="searchData"
+                            filterable
+                            clearable
+                        >
+                            <el-option v-for="item in classesOptions" :key="item.id" :label="item.name" :value="item.name"> </el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
                 <el-col :span="3">
-                    <el-input v-model="form.courseName" placeholder="请输入课程名称"></el-input>
+                    <el-input v-model="form.name" placeholder="请输入课程名称" @keyup.enter.native="searchData"></el-input>
                 </el-col>
                 <el-col :span="3">
                     <el-form-item>
-                        <el-select v-model="form.expertFirstName" style="width:100%" placeholder="课程类型" @change="searchData">
+                        <el-select v-model="form.type" style="width:100%" placeholder="课程类型" @change="searchData" clearable>
                             <el-option v-for="(value, key) in courseOptions" :key="key" :label="value" :value="key"> </el-option>
                         </el-select>
                     </el-form-item>
@@ -42,10 +48,10 @@
                     <template slot-scope="scope">{{ courseOptions[scope.row.type] }}</template>
                 </vxe-table-column>
                 <vxe-table-column title="开始时间">
-                    <template slot-scope="scope">{{ Number(scope.row.startDate) }}</template>
+                    <template slot-scope="scope">{{ scope.row.startDate }}</template>
                 </vxe-table-column>
                 <vxe-table-column title="结束时间">
-                    <template slot-scope="scope">{{ Number(scope.row.endDate) }}</template>
+                    <template slot-scope="scope">{{ scope.row.endDate }}</template>
                 </vxe-table-column>
                 <vxe-table-column field="teacherName" title="授课老师名称"></vxe-table-column>
                 <vxe-table-column field="score" title="评分"></vxe-table-column>
@@ -81,7 +87,7 @@
                 v-if="courseDialogType !== 'view'"
                 :model="addCourseForm"
                 :rules="addcourseRules"
-                label-width="105px"
+                label-width="115px"
             >
                 <el-form-item label="课程名称" prop="name">
                     <el-input v-model="addCourseForm.name" placeholder="请输入课程名称"></el-input>
@@ -148,12 +154,12 @@
             <el-form ref="uploadForm" class="dialog-form-box" :model="uploadForm" :rules="uploadRules" label-width="85px">
                 <template v-if="uploadDialogType === 'LIVE'">
                     <el-form-item label="链接地址" prop="url" key="1" required>
-                        <el-input v-model="uploadForm.url" placeholder="请输入链接地址"></el-input>
+                        <el-input v-model="uploadForm.url" placeholder="请输入链接地址" clearable></el-input>
                     </el-form-item>
                 </template>
                 <template v-else>
                     <el-form-item label="附件名称" prop="annexName">
-                        <el-input v-model="uploadForm.annexName" placeholder="请输入附件名称"></el-input>
+                        <el-input v-model="uploadForm.annexName" placeholder="请输入附件名称" clearable></el-input>
                     </el-form-item>
                     <el-form-item label="播放地址" prop="url" v-if="uploadDialogType === 'VIDEO'" key="2">
                         <el-input v-model="uploadForm.url" placeholder="请输入播放地址"></el-input>
@@ -198,12 +204,13 @@ export default {
         };
         return {
             form: {
+                classesName: '',
                 name: '',
-                courseName: '',
                 pageSize: 30,
                 current: 0,
-                type: 'unFinished'
+                type: ''
             },
+            curCheckId: null,
             courseOptions: Object.freeze({ LIVE: '直播', VIDEO: '视频', OFFICE: 'office文件' }), // 课程类型
             tableLoading: false,
             addCourseForm: {
@@ -224,7 +231,12 @@ export default {
             totalNum: 0,
             addCoursedialogVisible: false,
             uploadDialogVisible: false,
-            addcourseRules: {},
+            addcourseRules: {
+                name: { required: true, message: '请输入课程名称', trigger: 'blur' },
+                type: { required: true, message: '请选择课程类型', trigger: 'change' },
+                time: { required: true, message: '请选择课程时间', trigger: 'change' },
+                teacherName: { required: true, message: '请输入老师名称', trigger: 'blur' }
+            },
             classesOptions: [], // 班级列表
             action: environment.env().url + 'file'
         };
@@ -240,6 +252,7 @@ export default {
     },
     mounted() {
         this.getData();
+        this.getAllClassesData();
     },
     methods: {
         searchData() {
@@ -251,6 +264,12 @@ export default {
                 this.$refs.courseTable.loadData(res.data.content);
                 this.totalPage = res.data.totalPages;
                 this.totalNum = res.data.totalElements;
+                this.tableData = Object.freeze(res.data.content);
+            });
+        },
+        getAllClassesData() {
+            this.$http.classesService.getAllClasses({ current: 0, pageSize: 1000 }).then(res => {
+                this.classesOptions = res.data.content;
             });
         },
         remove({ id }) {
@@ -259,6 +278,7 @@ export default {
                     message: '删除成功',
                     type: 'success'
                 });
+                this.getData();
             });
         },
         addLink({ id, annexName, url, type }) {
@@ -268,6 +288,7 @@ export default {
             };
             this.uploadDialogType = type;
             this.uploadDialogVisible = true;
+            this.curCheckId = id;
         },
         upload({ id, annexName, url, type }) {
             this.uploadForm = {
@@ -276,30 +297,73 @@ export default {
             };
             this.uploadDialogType = type;
             this.uploadDialogVisible = true;
+            this.curCheckId = id;
         },
         handleScoring({ id, name }) {
             this.$refs.scoring.openDialog(id, name);
         },
         resetForm() {
             this.form = {
+                classesName: '',
                 name: '',
-                courseName: '',
                 pageSize: this.form.pageSize,
                 current: 0,
-                type: this.form.type
+                type: ''
             };
+            this.getData();
         },
         openAddDialog() {
-            if (!this.form.courseName) {
+            if (!this.form.classesName) {
                 this.$message.error('请先选择班级!');
                 return;
             }
             this.addCoursedialogVisible = true;
         },
+        getClassesByName() {
+            return this.classesOptions.find(item => item.name === this.form.classesName);
+        },
         // 新增/编辑班级
         saveData() {
             this.$refs['addCourseForm'].validate(valid => {
                 if (valid) {
+                    const params = Object.assign({}, this.addCourseForm);
+                    params.startDate = params.time[0];
+                    params.endDate = params.time[1];
+                    this.dialogLoading = true;
+                    if (this.courseDialogType === 'add') {
+                        const { id, name } = this.getClassesByName();
+                        params.classesId = id;
+                        params.classesName = name;
+                        this.$http.courseService
+                            .createCourse(params)
+                            .then(res => {
+                                this.closeAddDialog();
+                                this.$message({
+                                    type: 'success',
+                                    message: '课程添加成功'
+                                });
+                                this.getData();
+                            })
+                            .finally(() => {
+                                this.dialogLoading = false;
+                            });
+                    } else {
+                        params.id = this.curCheckId;
+                        this.dialogLoading = true;
+                        this.$http.courseService
+                            .updateCourse(params)
+                            .then(res => {
+                                this.getData();
+                                this.closeAddDialog();
+                                this.$message({
+                                    type: 'success',
+                                    message: '课程修改成功'
+                                });
+                            })
+                            .finally(() => {
+                                this.dialogLoading = false;
+                            });
+                    }
                 }
             });
         },
@@ -307,6 +371,21 @@ export default {
         uploadData() {
             this.$refs['uploadForm'].validate(valid => {
                 if (valid) {
+                    this.dialogLoading = true;
+                    const params = this.tableData.find(item => item.id === this.curCheckId);
+                    this.$http.courseService
+                        .updateCourse({ ...params, ...this.uploadForm })
+                        .then(res => {
+                            this.getData();
+                            this.$message({
+                                type: 'success',
+                                message: '上传成功'
+                            });
+                            this.uploadDialogVisible = false;
+                        })
+                        .finally(() => {
+                            this.dialogLoading = false;
+                        });
                 }
             });
         },
@@ -316,6 +395,7 @@ export default {
         },
         handleEditcourse(row) {
             this.splitData(row, 'edit');
+            this.curCheckId = row.id;
         },
         splitData({ name, type, teacherName, startDate, endDate }, opeartionType = 'edit') {
             this.addCourseForm = {
@@ -331,17 +411,19 @@ export default {
             this.splitData(row, 'view');
         },
         closeAddDialog() {
+            this.addCoursedialogVisible = false;
             this.resetcourseForm();
         },
         closeUploadDialog() {
+            this.uploadForm = { annexName: '', url: '' };
             this.$refs.uploadForm.resetFields();
         },
         resetcourseForm() {
             this.addCourseForm = {
                 name: '',
+                type: '',
                 time: [],
-                expertFirstName: '',
-                instructorFirstName: ''
+                teacherName: ''
             };
             const addCourseForm = this.$refs.addCourseForm;
             addCourseForm && addCourseForm.resetFields();

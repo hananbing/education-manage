@@ -21,12 +21,12 @@
 export default {
     data() {
         return {
-            name: 'xx'
+            name: 'xxxxx'
         };
     },
     computed: {
         username() {
-            let username = localStorage.getItem('ms_username');
+            let username = this.$store.state.Jurisdiction.userInfo.name || this.name;
             return username;
         }
     },

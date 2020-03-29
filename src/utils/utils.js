@@ -199,5 +199,6 @@ export {
   formatDate,
   formatMoney,
   copyContent,
+  validateEmail,
   judgeIsChangeCurPage
 }

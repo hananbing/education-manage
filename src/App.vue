@@ -3,6 +3,23 @@
         <router-view></router-view>
     </div>
 </template>
+<script>
+export default {
+    created() {
+        if (sessionStorage.getItem('token')) {
+            this.getAccountInfo();
+        }
+    },
+    methods: {
+        // 获取账户信息
+        getAccountInfo() {
+            this.$http.userService.getAccount().then(res => {
+                this.$store.commit({ type: 'setUserInfo', data: res });
+            });
+        }
+    }
+};
+</script>
 <style>
 @import './style/icon/iconfont.css'; /*iconfont字体图标*/
 @import './style/main.css';

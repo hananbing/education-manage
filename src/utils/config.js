@@ -12,10 +12,10 @@ const SELEECT_ROLES = {
     ROLE_EXPERT: '专家',
     ROLE_STUDENT: '学员'
 };
-const NATIONS = {
+const NATION_TYPES = {
     HAN: '汉族',
     YI: '彝族',
     TIBETAN: '藏族',
     OTHERS: '其他'
 };
-export { ALL_ROLES, SELEECT_ROLES, NATIONS };
+export { ALL_ROLES, SELEECT_ROLES, NATION_TYPES };
