@@ -41,8 +41,8 @@
                 <el-button type="warning" icon="el-icon-plus" @click="openAddDialog">新增</el-button>
             </template>
         </search-box>
-        <div class="container">
-            <vxe-table border stripe highlight-hover-row size="medium" :loading="tableLoading" ref="courseTable">
+        <div class="container" v-loading="tableLoading">
+            <vxe-table border stripe highlight-hover-row size="medium"  ref="courseTable">
                 <vxe-table-column field="name" title="课程名称"></vxe-table-column>
                 <vxe-table-column title="课程类型" width="110">
                     <template slot-scope="scope">{{ courseOptions[scope.row.type] }}</template>
@@ -260,16 +260,19 @@ export default {
             this.getData();
         },
         getData() {
+            this.tableLoading = true;
             this.$http.courseService.getAllCourses(this.form).then(res => {
                 this.$refs.courseTable.loadData(res.data.content);
                 this.totalPage = res.data.totalPages;
                 this.totalNum = res.data.totalElements;
                 this.tableData = Object.freeze(res.data.content);
+            }).finally(()=>{
+                this.tableLoading = false;
             });
         },
         getAllClassesData() {
-            this.$http.classesService.getAllClasses({ current: 0, pageSize: 1000 }).then(res => {
-                this.classesOptions = res.data.content;
+            this.$http.classesService.getAllClasses().then(res => {
+                this.classesOptions = res.data;
             });
         },
         remove({ id }) {

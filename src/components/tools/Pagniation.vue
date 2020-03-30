@@ -1,7 +1,7 @@
 <template>
 
     <!-- 页码 -->
-    <div  class="pagniation-box">
+    <div  class="pagniation-box" v-show="totalNum">
       <div
         class="pages-left"
       >

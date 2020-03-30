@@ -42,8 +42,8 @@
                 <el-button type="warning" icon="el-icon-plus" @click="openAddDialog">新增</el-button>
             </template>
         </search-box>
-        <div class="container">
-            <vxe-table border stripe highlight-hover-row size="medium" :loading="tableLoading" ref="userTable">
+        <div class="container" v-loading="tableLoading">
+            <vxe-table border stripe highlight-hover-row size="medium"  ref="userTable">
                 <vxe-table-column field="name" title="姓名"></vxe-table-column>
                 <vxe-table-column field="name" title="性别">
                     <template v-slot="{ row }">
@@ -107,7 +107,7 @@
                 <el-form-item label="手机号" prop="login">
                     <el-input v-model.trim="addUserForm.login" placeholder="请输入手机号"></el-input>
                 </el-form-item>
-                <el-form-item label="邮箱">
+                <el-form-item label="邮箱" prop="email">
                     <el-input v-model.trim="addUserForm.email" placeholder="请输入邮箱"></el-input>
                 </el-form-item>
                 <el-form-item label="单位">
@@ -188,7 +188,7 @@ export default {
                 authorities: { required: true, message: '请选择角色', trigger: 'blur' },
                 sexType: { required: true, message: '请选择性别', trigger: 'blur' },
                 nationType: { required: true, message: '请选择民族', trigger: 'blur' },
-                email: { validator: validateEmail },
+                email: { validator: validateEmail, trigger:'blur' },
                 login: [
                     { required: true, message: '请输入手机号', trigger: 'blur' },
                     { validator: validatePhone, trigger: 'blur' }
@@ -214,18 +214,20 @@ export default {
             this.getData();
         },
         getData() {
-            const params = Object.assign({}, this.form)
-            params.authorities = [params.authorities];
+            const params = Object.assign({}, this.form);
+            this.tableLoading = true;
             this.$http.userService.getAllUsers(params).then(res => {
                 this.$refs.userTable.loadData(res.data.content);
                 this.totalPage = res.data.totalPages;
                 this.totalNum = res.data.totalElements;
+            }).finally(()=>{
+                this.tableLoading = false;
             });
         },
         // 获取所有的班级列表
         getAllClassesData() {
-            this.$http.classesService.getAllClasses({ current: 0, pageSize: 1000 }).then(res => {
-                this.classesOptions = res.data.content;
+            this.$http.classesService.getAllClasses().then(res => {
+                this.classesOptions = res.data;
             });
         },
         // 导入数据
@@ -236,11 +238,14 @@ export default {
             }
         },
         openAddDialog() {
-            // if (!this.form.classesName) {
-            //     this.$message.error('请先选择班级!');
-            //     return;
-            // }
+            if (!this.form.classesName) {
+                this.$message.error('请先选择班级!');
+                return;
+            }
             this.addUserDialogVisible = true;
+        },
+        getClassesByName() {
+            return this.classesOptions.find(item => item.name === this.form.classesName);
         },
         // 新增/编辑班级
         saveData() {
@@ -248,16 +253,19 @@ export default {
                 if (valid) {
                     const params = Object.assign({}, this.addUserForm);
                     params.fullAddressName = params.addressData.join('-');
+                    params.authorities = [params.authorities];
                     this.dialogLoading = true;
                     if (this.userDialogType === 'add') {
-                        params.authorities = [params.authorities];
+                        const { id, name } = this.getClassesByName();
+                        params.classesId = id;
+                        params.classesName = name;
                         this.$http.userService
                             .createUser(params)
                             .then(res => {
                                 this.$message({
-                                    type:'success',
-                                    message:'添加成功'
-                                })
+                                    type: 'success',
+                                    message: '添加成功'
+                                });
                                 this.getData();
                                 this.addUserDialogVisible = false;
                             })
@@ -269,11 +277,11 @@ export default {
                         this.$http.userService
                             .updateUser(params)
                             .then(res => {
-                                 this.getData();
-                                 this.$message({
-                                    type:'success',
-                                    message:'修改成功'
-                                })
+                                this.getData();
+                                this.$message({
+                                    type: 'success',
+                                    message: '修改成功'
+                                });
                                 this.addUserDialogVisible = false;
                             })
                             .finally(() => {
@@ -286,7 +294,7 @@ export default {
         handleEditUser({ id, name, authorities, sexType, nationType, login, email, companyName, subject, fullAddressName }) {
             this.addUserForm = {
                 name,
-                authorities,
+                authorities: authorities[0] || '',
                 sexType,
                 nationType,
                 login,
@@ -340,7 +348,7 @@ export default {
                 pageSize: this.form.pageSize,
                 current: 0
             };
-            this.getData()
+            this.getData();
         }
     }
 };

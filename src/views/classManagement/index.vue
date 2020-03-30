@@ -7,7 +7,6 @@
                         <el-select v-model.trim="form.name" style="width:100%" placeholder="请选择班级" filterable @change="searchData">
                             <el-option v-for="item in classesOptions" :key="item.id" :label="item.name" :value="item.name"> </el-option>
                         </el-select>
-                        <!-- <el-input v-model="form.name" placeholder="请输入班级名称" @keyup.enter.native="searchData"></el-input> -->
                     </el-form-item>
                 </el-col>
                 <el-col style="width:240px;">
@@ -48,8 +47,8 @@
                 <el-button type="warning" icon="el-icon-plus" @click="addClassesdialogVisible = true">新增</el-button>
             </template>
         </search-box>
-        <div class="container">
-            <vxe-table border stripe highlight-hover-row size="medium" :loading="tableLoading" ref="classesTable" show-overflow>
+        <div class="container" v-loading="tableLoading"、>
+            <vxe-table border stripe highlight-hover-row size="medium"  ref="classesTable" show-overflow>
                 <vxe-table-column field="name" title="班级名称"></vxe-table-column>
                 <vxe-table-column title="开始日期">
                     <template slot-scope="scope">{{ scope.row.startDate }}</template>
@@ -102,12 +101,12 @@
                     >
                     </el-date-picker>
                 </el-form-item>
-                <!-- <el-form-item label="辅导员" prop="instructorName">
-                    <el-select v-model="addClassesForm.instructorName" style="width:100%" placeholder="请输入辅导员名称">
-                        <el-option v-for="(value, key) in classesOptions" :key="key" :label="value" :value="key"> </el-option>
+                <el-form-item label="项目类型" prop="projectType">
+                    <el-select v-model="addClassesForm.projectType" style="width:100%" placeholder="请选择项目类型">
+                        <el-option v-for="(value, key) in projectType" :key="key" :label="value" :value="key"> </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="专家" prop="expertName">
+                <!-- <el-form-item label="专家" prop="expertName">
                     <el-select v-model="addClassesForm.expertName" style="width:100%" placeholder="请输入专家名称">
                         <el-option v-for="(value, key) in classesOptions" :key="key" :label="value" :value="key"> </el-option>
                     </el-select>
@@ -119,12 +118,16 @@
                     <div class="content">{{ addClassesForm.name }}</div>
                 </li>
                 <li class="item">
+                    <div class="label">项目类型</div>
+                    <div class="content">{{ projectType[addClassesForm.projectType] }}</div>
+                </li>
+                <li class="item">
                     <div class="label">开始时间</div>
-                    <div class="content">{{ addClassesForm.time[0] | formatDate('yyyy-MM-dd') }}</div>
+                    <div class="content">{{ addClassesForm.time[0]}}</div>
                 </li>
                 <li class="item">
                     <div class="label">结束时间</div>
-                    <div class="content">{{ addClassesForm.time[1] | formatDate('yyyy-MM-dd') }}</div>
+                    <div class="content">{{ addClassesForm.time[1]}}</div>
                 </li>
                 <li class="item">
                     <div class="label">辅导员</div>
@@ -228,6 +231,7 @@ export default {
             tableLoading: false,
             addClassesForm: {
                 name: '',
+                projectType: '',
                 time: []
                 // expertName: '',
                 // instructorName: ''
@@ -242,6 +246,7 @@ export default {
                 signInScore: 0,
                 assignmentScore: 0
             },
+            projectType: { CHUAN_SHI: '川师', CITY: '省市区', OTHER: '其他省市' },
             weightRules: {
                 topicScore: [
                     { type: 'number', required: true, message: '请输入百分比', trigger: 'blur' }
@@ -274,7 +279,7 @@ export default {
             expertOptions: [], // 专家列表
             addClassesRules: {
                 name: { required: true, message: '请输入班级名称', trigger: 'blur' },
-                // expertName: { required: true, message: '请输入专家名称', trigger: 'blur' },
+                projectType: { required: true, message: '请选择项目类型', trigger: 'change' },
                 // instructorName: { required: true, message: '请输入辅导员名称', trigger: 'blur' },
                 time: { required: true, message: '请输入有效时间', trigger: 'blur' }
             }
@@ -302,19 +307,22 @@ export default {
             this.getData();
         },
         getData() {
+            this.tableLoading = true;
             const params = Object.assign({}, this.form);
             params.startDate = params.time[0] || '';
             params.endDate = params.time[1] || '';
             delete params.time;
-            this.$http.classesService.getAllClasses(params).then(res => {
+            this.$http.classesService.getClasses(params).then(res => {
                 this.$refs.classesTable.loadData(res.data.content);
                 this.totalPage = res.data.totalPages;
                 this.totalNum = res.data.totalElements;
+            }).finally(()=>{
+                this.tableLoading = false;
             });
         },
         getAllClassesData() {
-            this.$http.classesService.getAllClasses({ current: 0, pageSize: 1000 }).then(res => {
-                this.classesOptions = res.data.content;
+            this.$http.classesService.getAllClasses().then(res => {
+                this.classesOptions = res.data;
             });
         },
         openAddDialog() {},
@@ -323,9 +331,10 @@ export default {
             this.$refs['addClassesForm'].validate(valid => {
                 if (valid) {
                     this.dialogLoading = true;
-                    const { time, name } = this.addClassesForm;
+                    const { time, name, projectType } = this.addClassesForm;
                     const params = {
                         name,
+                        projectType,
                         startDate: time[0],
                         endDate: time[1]
                     };
@@ -358,10 +367,11 @@ export default {
             this.splitData(row, 'edit');
             this.curCheckedId = row.id;
         },
-        splitData({ name, expertName, instructorName, startDate, endDate }, type = 'edit') {
+        splitData({ name, projectType, expertName, instructorName, startDate, endDate }, type = 'edit') {
             this.addClassesForm = {
                 name,
-                time: [startDate, endDate]
+                time: [startDate, endDate],
+                projectType
                 // expertName,
                 // instructorName
             };
@@ -410,6 +420,7 @@ export default {
                             message: '设置成功',
                             type: 'success'
                         });
+                        this.getData()
                     });
                 }
             });
@@ -417,7 +428,8 @@ export default {
         resetClassesForm() {
             this.addClassesForm = {
                 name: '',
-                time: []
+                time: [],
+                projectType:''
                 // expertName: '',
                 // instructorName: ''
             };

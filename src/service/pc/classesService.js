@@ -1,7 +1,9 @@
 import { doGet, doPost, doPut, doDelete } from '../../axiosconfig/index.js';
 const classesService = {
+    // 获取班级列表 分页
+    getClasses: params => doGet('/classes', params),
     // 获取所有班级列表
-    getAllClasses: params => doGet('/classes', params),
+    getAllClasses: () => doGet('/classes/list'),
     // 通过id查询班级
     getClassesById: id => doGet('/classes/' + id),
     // 新增班级

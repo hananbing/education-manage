@@ -17,7 +17,7 @@ const validatePhone = (rule, value, callback) => {
 }
 //验证邮箱
 const validateEmail = (rule, value, callback) => {
-  if (!/^([a-zA-Z\d])(\w|\-)+@[a-zA-Z\d]+\.[a-zA-Z]{2,4}$/.test(value)) {
+  if (value && !/^([a-zA-Z\d])(\w|\-)+@[a-zA-Z\d]+\.[a-zA-Z]{2,4}$/.test(value)) {
     callback(new Error('邮箱格式不正确！'))
   }
   callback()
