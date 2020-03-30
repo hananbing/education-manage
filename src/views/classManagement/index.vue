@@ -47,7 +47,7 @@
                 <el-button type="warning" icon="el-icon-plus" @click="addClassesdialogVisible = true">新增</el-button>
             </template>
         </search-box>
-        <div class="container" v-loading="tableLoading"、>
+        <div class="container" v-loading="tableLoading">
             <vxe-table border stripe highlight-hover-row size="medium"  ref="classesTable" show-overflow>
                 <vxe-table-column field="name" title="班级名称"></vxe-table-column>
                 <vxe-table-column title="开始日期">
