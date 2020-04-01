@@ -104,7 +104,7 @@
                         <el-option v-for="(value, key) in nationTypes" :key="key" :label="value" :value="key"> </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="手机号" prop="login" v-if="userDialogType !== 'EDIT'">
+                <el-form-item label="手机号" prop="login" v-if="userDialogType !== 'edit'">
                     <el-input v-model.trim="addUserForm.login" placeholder="请输入手机号"></el-input>
                 </el-form-item>
                 <el-form-item label="邮箱" prop="email">
@@ -131,7 +131,7 @@
         </el-dialog>
         <!-- 其他操作 -->
         <el-dialog :title="dialogDto.title" :visible.sync="dialogDto.visible" :close-on-click-modal="false" :width="dialogDto.width">
-            <component :is="dialogDto.component" :dialogDto='dialogDto' />
+            <component :is="dialogDto.component" :dialogDto="dialogDto" />
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialogDto.visible = false">关 闭</el-button>
             </span>
@@ -171,7 +171,7 @@ export default {
             roleOptions: SELEECT_ROLES,
             dialogDto: {
                 component: null,
-                classesName:'',
+                classesName: '',
                 visible: false,
                 title: '导入学员',
                 width: '500px'
@@ -240,10 +240,12 @@ export default {
                 this.$message.error('请先选择班级!');
                 return;
             }
+            const { id, name } = this.getClassesByName();
             this.dialogDto = {
                 component: 'importUser',
                 visible: true,
-                classesName:this.form.classesName,
+                classesId: id,
+                classesName: name,
                 title: '导入学员',
                 width: '700px'
             };
@@ -318,7 +320,7 @@ export default {
             this.curCheckId = id;
             this.addUserDialogVisible = true;
         },
-        viewData({ name, authorities, sexType, nationType, login, email, companyName, subject, fullAddressName }) {
+        viewData({ id, name, authorities, sexType, nationType, login, email, companyName, subject, fullAddressName }) {
             this.viewDataList = [
                 { name: '角色', value: authorities[0] },
                 { name: '姓名', value: name },
@@ -330,11 +332,21 @@ export default {
                 { name: '省市县', value: fullAddressName },
                 { name: '所教学科', value: subject }
             ];
+            this.userDialogType = 'view';
+            this.curCheckId = id;
+            this.addUserDialogVisible = true;
         },
         closeAddDialog() {
             this.resetUserForm();
         },
-        remove() {},
+        remove({ login }) {
+            this.$http.userService.removeUser(login).then(res => {
+                this.$message({
+                    type: 'success',
+                    message: '删除成功'
+                });
+            });
+        },
         resetUserForm() {
             this.addUserForm = {
                 name: '',

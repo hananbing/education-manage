@@ -9,6 +9,8 @@ const courseService = {
     // 修改课程
     updateCourse: params => doPut('/courses', params),
     // 删除课程
-    deleteCourse: id => doDelete('/courses/' + id)
+    deleteCourse: id => doDelete('/courses/' + id),
+    // 获取课程下面的所有学生
+    getCourseStudents: id => doGet(`/courses/${id}/students`)
 };
 export default { courseService };

@@ -5,6 +5,7 @@
                 <el-col :span="5">
                     <el-form-item>
                         <el-select v-model.trim="form.name" style="width:100%" placeholder="请选择班级" filterable @change="searchData">
+                            <el-option label="全部" value=""> </el-option>
                             <el-option v-for="item in classesOptions" :key="item.id" :label="item.name" :value="item.name"> </el-option>
                         </el-select>
                     </el-form-item>
@@ -48,7 +49,7 @@
             </template>
         </search-box>
         <div class="container" v-loading="tableLoading">
-            <vxe-table border stripe highlight-hover-row size="medium"  ref="classesTable" show-overflow>
+            <vxe-table border stripe highlight-hover-row size="medium" ref="classesTable" show-overflow>
                 <vxe-table-column field="name" title="班级名称"></vxe-table-column>
                 <vxe-table-column title="开始日期">
                     <template slot-scope="scope">{{ scope.row.startDate }}</template>
@@ -123,11 +124,11 @@
                 </li>
                 <li class="item">
                     <div class="label">开始时间</div>
-                    <div class="content">{{ addClassesForm.time[0]}}</div>
+                    <div class="content">{{ addClassesForm.time[0] }}</div>
                 </li>
                 <li class="item">
                     <div class="label">结束时间</div>
-                    <div class="content">{{ addClassesForm.time[1]}}</div>
+                    <div class="content">{{ addClassesForm.time[1] }}</div>
                 </li>
                 <li class="item">
                     <div class="label">辅导员</div>
@@ -312,13 +313,16 @@ export default {
             params.startDate = params.time[0] || '';
             params.endDate = params.time[1] || '';
             delete params.time;
-            this.$http.classesService.getClasses(params).then(res => {
-                this.$refs.classesTable.loadData(res.data.content);
-                this.totalPage = res.data.totalPages;
-                this.totalNum = res.data.totalElements;
-            }).finally(()=>{
-                this.tableLoading = false;
-            });
+            this.$http.classesService
+                .getClasses(params)
+                .then(res => {
+                    this.$refs.classesTable.loadData(res.data.content);
+                    this.totalPage = res.data.totalPages;
+                    this.totalNum = res.data.totalElements;
+                })
+                .finally(() => {
+                    this.tableLoading = false;
+                });
         },
         getAllClassesData() {
             this.$http.classesService.getAllClasses().then(res => {
@@ -420,7 +424,7 @@ export default {
                             message: '设置成功',
                             type: 'success'
                         });
-                        this.getData()
+                        this.getData();
                     });
                 }
             });
@@ -429,7 +433,7 @@ export default {
             this.addClassesForm = {
                 name: '',
                 time: [],
-                projectType:''
+                projectType: ''
                 // expertName: '',
                 // instructorName: ''
             };

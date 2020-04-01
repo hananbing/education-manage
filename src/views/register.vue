@@ -32,12 +32,12 @@
                     </div>
                 </el-form-item>
                 <el-form-item prop="password">
-                    <el-input v-model.trim="param.password" placeholder="输入密码" size="medium">
+                    <el-input v-model.trim="param.password" type="password" placeholder="输入密码" size="medium">
                         <el-button slot="prepend" icon="iconfont iconmima"></el-button>
                     </el-input>
                 </el-form-item>
                 <el-form-item prop="confirmpassword">
-                    <el-input v-model.trim="param.confirmpassword" placeholder="再次输入密码" size="medium">
+                    <el-input v-model.trim="param.confirmpassword" type="password" placeholder="再次输入密码" size="medium">
                         <el-button slot="prepend" icon="iconfont iconmima"></el-button>
                     </el-input>
                 </el-form-item>
@@ -66,8 +66,8 @@ export default {
         var validatePassword = (rule, value, callback) => {
             if (value.length < 6) {
                 callback(new Error('密码长度必须大于6位'));
-            } else if (!/^[a-zA-Z0-9_]$/.test(value)) {
-                callback(new Error('密码只能为数字、字母、下划线'));
+            } else if (!/^[a-zA-Z0-9_]{6,}$/.test(value)) {
+                callback(new Error('密码只能为数字、字母、下划线组合'));
             } else if (!/^(?!([a-zA-Z]+|\d+)$)[a-zA-Z\d]{6,16}$/.test(value)) {
                 callback(new Error('密码必须包含数字和字母'));
             } else {
@@ -85,7 +85,7 @@ export default {
             param: {
                 phone: '',
                 captcha: '',
-                name:'',
+                name: '',
                 code: '',
                 password: '',
                 confirmpassword: ''
@@ -133,7 +133,7 @@ export default {
         getCode() {
             if (this.disabled) return;
             this.$refs.regsiterForm.validateField(['phone', 'name'], valid => {
-                this.$http.userService.getCode({ phone: this.param.phone, name:this.param.name }).then(res => {
+                this.$http.userService.getCode({ phone: this.param.phone, name: this.param.name }).then(res => {
                     this.$message({
                         message: '验证码发送成功！',
                         type: 'success'
@@ -159,7 +159,7 @@ export default {
                     });
                 }
             });
-        },
+        }
     }
 };
 </script>
