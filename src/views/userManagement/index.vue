@@ -43,7 +43,7 @@
             </template>
         </search-box>
         <div class="container" v-loading="tableLoading">
-            <vxe-table border stripe highlight-hover-row size="medium"  ref="userTable">
+            <vxe-table border stripe highlight-hover-row size="medium" ref="userTable">
                 <vxe-table-column field="name" title="姓名"></vxe-table-column>
                 <vxe-table-column field="name" title="性别">
                     <template v-slot="{ row }">
@@ -104,7 +104,7 @@
                         <el-option v-for="(value, key) in nationTypes" :key="key" :label="value" :value="key"> </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="手机号" prop="login">
+                <el-form-item label="手机号" prop="login" v-if="userDialogType !== 'EDIT'">
                     <el-input v-model.trim="addUserForm.login" placeholder="请输入手机号"></el-input>
                 </el-form-item>
                 <el-form-item label="邮箱" prop="email">
@@ -131,7 +131,7 @@
         </el-dialog>
         <!-- 其他操作 -->
         <el-dialog :title="dialogDto.title" :visible.sync="dialogDto.visible" :close-on-click-modal="false" :width="dialogDto.width">
-            <component :is="dialogDto.component" />
+            <component :is="dialogDto.component" :dialogDto='dialogDto' />
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialogDto.visible = false">关 闭</el-button>
             </span>
@@ -171,6 +171,7 @@ export default {
             roleOptions: SELEECT_ROLES,
             dialogDto: {
                 component: null,
+                classesName:'',
                 visible: false,
                 title: '导入学员',
                 width: '500px'
@@ -188,7 +189,7 @@ export default {
                 authorities: { required: true, message: '请选择角色', trigger: 'blur' },
                 sexType: { required: true, message: '请选择性别', trigger: 'blur' },
                 nationType: { required: true, message: '请选择民族', trigger: 'blur' },
-                email: { validator: validateEmail, trigger:'blur' },
+                email: { validator: validateEmail, trigger: 'blur' },
                 login: [
                     { required: true, message: '请输入手机号', trigger: 'blur' },
                     { validator: validatePhone, trigger: 'blur' }
@@ -216,13 +217,16 @@ export default {
         getData() {
             const params = Object.assign({}, this.form);
             this.tableLoading = true;
-            this.$http.userService.getAllUsers(params).then(res => {
-                this.$refs.userTable.loadData(res.data.content);
-                this.totalPage = res.data.totalPages;
-                this.totalNum = res.data.totalElements;
-            }).finally(()=>{
-                this.tableLoading = false;
-            });
+            this.$http.userService
+                .getAllUsers(params)
+                .then(res => {
+                    this.$refs.userTable.loadData(res.data.content);
+                    this.totalPage = res.data.totalPages;
+                    this.totalNum = res.data.totalElements;
+                })
+                .finally(() => {
+                    this.tableLoading = false;
+                });
         },
         // 获取所有的班级列表
         getAllClassesData() {
@@ -236,6 +240,13 @@ export default {
                 this.$message.error('请先选择班级!');
                 return;
             }
+            this.dialogDto = {
+                component: 'importUser',
+                visible: true,
+                classesName:this.form.classesName,
+                title: '导入学员',
+                width: '700px'
+            };
         },
         openAddDialog() {
             if (!this.form.classesName) {
@@ -301,7 +312,7 @@ export default {
                 email,
                 companyName,
                 subject,
-                addressData: fullAddressName.split('-')
+                addressData: fullAddressName ? fullAddressName.split('-') : []
             };
             this.userDialogType = 'edit';
             this.curCheckId = id;

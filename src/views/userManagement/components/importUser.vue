@@ -1,26 +1,29 @@
 <template>
     <div>
+        <p class="course-name" v-if="this.dialogDto.classesName">班级名称&nbsp;{{ this.dialogDto.classesName }}</p>
         <div class="dialog-search-box">
-            <!-- <el-input placeholder="请输入内容" v-model="input3" class="input-with-select">
-                <el-select v-model="select" slot="prepend" placeholder="请选择">
-                    <el-option label="餐厅名" value="1"></el-option>
-                    <el-option label="订单号" value="2"></el-option>
-                    <el-option label="用户电话" value="3"></el-option>
-                </el-select>
-                <el-button slot="append" icon="el-icon-search"></el-button>
-            </el-input> -->
-            <el-button icon="iconfont icondaoru" @click="importData">导入</el-button>
-            <el-button icon="iconfont iconxiazaimoban" @click="downloadTemplate">下载模板</el-button>
+            <el-upload
+                class="upload-demo"
+                action="https://jsonplaceholder.typicode.com/posts/"
+                :limit="1"
+                :on-error="onError"
+                :file-list="fileList"
+            >
+                <!-- <el-button size="small" type="primary">点击上传</el-button> -->
+                <el-button type="primary" @click="importData">导入数据</el-button>
+                <div slot="tip" class="el-upload__tip">只能上传excel文件</div>
+            </el-upload>
+            <el-button icon="iconfont iconmobanxiazai" class="download" @click="downloadTemplate">下载模板</el-button>
         </div>
-        <p class="course-name" v-if="courseName">班级名称&nbsp;{{ courseName }}</p>
-        <!-- <div class="container"> -->
-        <vxe-table border stripe highlight-hover-row size="small" :loading="tableLoading">
-            <vxe-table-column field="name" title="姓名" width="80"></vxe-table-column>
-            <vxe-table-column title="手机号" field="login" width="110"> </vxe-table-column>
-            <vxe-table-column title="失败原因" field="remark" show-overflow> </vxe-table-column>
-        </vxe-table>
-        <pagniation :currentPage="form.current" :totalPage="totalPage" :totalNum="totalNum" @changePage="handleChangePage"></pagniation>
-        <!-- </div> -->
+        <div class="box" >
+            <h4>错误列表</h4>
+            <vxe-table border stripe highlight-hover-row size="small">
+                <vxe-table-column field="name" title="姓名" width="100"></vxe-table-column>
+                <vxe-table-column title="手机号" field="login" width="130"> </vxe-table-column>
+                <vxe-table-column title="失败原因" field="remark" show-overflow> </vxe-table-column>
+            </vxe-table>
+            <pagniation :currentPage="form.current" :totalPage="totalPage" :totalNum="totalNum" @changePage="handleChangePage"></pagniation>
+        </div>
     </div>
 </template>
 <script>
@@ -35,11 +38,14 @@ export default {
             tableData: [],
             totalPage: 0,
             totalNum: 0,
-            tableLoading: false
+            fileList: []
         };
     },
     props: {
-        courseName: String // 名称
+        dialogDto: {
+            type: Object,
+            default: {}
+        } // 组件props集合
     },
     methods: {
         getData() {},
@@ -47,8 +53,23 @@ export default {
             this.form.pageSize = page.pageSize;
             this.form.current = page.currentPage - 1;
             this.getData();
-        }
+        },
+        onError(err, file, fileList){
+            this.$message.error('上传失败')
+        },
+        importData() {},
+        downloadTemplate() {}
     }
 };
 </script>
-<style scoped></style>
+<style scoped>
+.dialog-search-box {
+    position: relative;
+    margin: 5px 0 20px;
+}
+.download {
+    position: absolute;
+    left: 90px;
+    top: 0;
+}
+</style>

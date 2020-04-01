@@ -1,22 +1,23 @@
 <template>
     <div class="login-wrap">
         <div class="header">
-            <!-- <div class="login"><img src="../assets/img/logo.png" alt="logo" /></div>
-            <div class="register">
-                没有账号吗? 去注册
-            </div> -->
+            <div class="header-left">
+                <!-- <img src="../assets/img/logo.png" alt="logo" /> -->
+                <!-- <div class="header-title">注册</div> -->
+            </div>
+            <div class="header-right">没有账号？ <router-link to="/register" style="color:#2693FF">去注册</router-link></div>
         </div>
         <div class="ms-login">
-            <!-- <div class="ms-title">中小学教师继续教育培训平台</div> -->
+            <!-- <div class="ms-title">继续教育平台</div> -->
             <el-form :model="param" :rules="rules" ref="login" label-width="0px" class="ms-content">
                 <el-form-item prop="username">
                     <el-input v-model="param.username" placeholder="手机号" size="medium">
-                        <el-button slot="prepend" icon="el-icon-mobile-phone"></el-button>
+                        <el-button slot="prepend" icon="iconfont iconshoujihao"></el-button>
                     </el-input>
                 </el-form-item>
                 <el-form-item prop="password">
                     <el-input type="password" placeholder="密码" v-model="param.password" size="medium" @keyup.enter.native="submitForm()">
-                        <el-button slot="prepend" icon="el-icon-lock"></el-button>
+                        <el-button slot="prepend" icon="iconfont iconmima"></el-button>
                     </el-input>
                 </el-form-item>
                 <el-form-item prop="code">
@@ -31,7 +32,7 @@
                 <div class="login-btn">
                     <el-button type="primary" @click="submitForm()" size="medium" :loading="submitLoading">登录</el-button>
                 </div>
-                <p class="login-tips"><el-link>忘记密码</el-link></p>
+                <p class="login-tips"><el-link @click="$router.push('/resetPassword')">忘记密码</el-link></p>
             </el-form>
         </div>
         <!-- <div class="footer">ICP备案号 &nbsp;Copyright ©2020 &nbsp; 四川师范大学版权所有</div> -->
@@ -137,8 +138,8 @@ export default {
     position: relative;
     width: 100%;
     height: 100vh;
-    background-image: url(../assets/img/login-bg.jpg);
-    background-size: 100% 100%;
+    background: url('../assets/img/login-bg.jpg') no-repeat center;
+    background-size: cover;
 }
 .ms-title {
     width: 100%;
@@ -151,11 +152,25 @@ export default {
     color: rgba(77, 77, 77, 1);
 }
 .header {
-    height: 54px;
+    height: 94px;
     padding: 20px;
     display: flex;
     width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+    align-items: center;
     justify-content: space-between;
+}
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.header-left {
+    font-size: 16px;
+}
+.header-right {
+    color: #666666;
 }
 .footer {
     position: absolute;
@@ -181,7 +196,7 @@ export default {
 .code-img {
     width: 133px;
     text-align: center;
-    margin-left: 20px;
+    margin-left: 10px;
     background: #fff;
     border-radius: 3px;
     line-height: 36px;

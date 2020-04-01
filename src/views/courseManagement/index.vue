@@ -2,10 +2,10 @@
     <div>
         <search-box :form="form">
             <template slot="tabs">
-                <!-- <el-tabs v-model="form.type" @tab-click="searchData">
+                <el-tabs v-model="form.endStatus" @tab-click="searchData">
                     <el-tab-pane label="未结束" name="unFinished"></el-tab-pane>
                     <el-tab-pane label="已结束" name="finished"></el-tab-pane>
-                </el-tabs> -->
+                </el-tabs>
             </template>
             <template slot="input">
                 <el-col :span="5">
@@ -204,6 +204,7 @@ export default {
         };
         return {
             form: {
+                endStatus:'unFinished',
                 classesName: '',
                 name: '',
                 pageSize: 30,
@@ -261,7 +262,9 @@ export default {
         },
         getData() {
             this.tableLoading = true;
-            this.$http.courseService.getAllCourses(this.form).then(res => {
+            const params = Object.assign({}, this.form)
+            params.endStatus = params.endStatus !== 'unFinished'
+            this.$http.courseService.getAllCourses(params).then(res => {
                 this.$refs.courseTable.loadData(res.data.content);
                 this.totalPage = res.data.totalPages;
                 this.totalNum = res.data.totalElements;
@@ -307,6 +310,7 @@ export default {
         },
         resetForm() {
             this.form = {
+                endStatus:this.form.endStatus,
                 classesName: '',
                 name: '',
                 pageSize: this.form.pageSize,

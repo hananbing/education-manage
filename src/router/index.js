@@ -55,6 +55,8 @@ const routeObj = new Router({
 export default routeObj;
 // 添加拦截器
 const special = ['/login'];
+// 不校验token的路由
+const allPermissionRouter = ['/resetPassword', '/register'];
 routeObj.beforeEach((to, from, next) => {
     document.title = to.meta.title;
     if (special.includes(to.path)) {
@@ -62,16 +64,20 @@ routeObj.beforeEach((to, from, next) => {
         next();
     } else {
         if (!sessionStorage.token) {
-            new Vue().$message({
-                type: 'info',
-                message: '您还没有登录，请登录!'
-            });
-            next({
-                path: '/login',
-                query: {
-                    redirect: decodeURIComponent(to.path) // 解决路由可能进行了16进制转义
-                }
-            });
+            if (allPermissionRouter.includes(to.path)) {
+                next();
+            } else {
+                new Vue().$message({
+                    type: 'info',
+                    message: '您还没有登录，请登录!'
+                });
+                next({
+                    path: '/login',
+                    query: {
+                        redirect: decodeURIComponent(to.path) // 解决路由可能进行了16进制转义
+                    }
+                });
+            }
         } else {
             if (to.path === '/') {
                 next({

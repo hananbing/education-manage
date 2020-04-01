@@ -11,6 +11,12 @@ const userService = {
     // 获取账户信息
     getAccount: () => doGet('/account'),
     // 修改密码
-    updateAccountPassword: () => doPost('/account/change-password')
+    updateAccountPassword: () => doPost('/account/change-password'),
+    // 重置密码
+    resetAccountPassword: () => doPost('/account/reset-password'),
+    // 获取验证码
+    getCode: (params) => doGet('/account/captcha', params),
+    // 注册账号
+    createAccount: (params) => doPost('/account/register', params),
 };
 export default { userService };
