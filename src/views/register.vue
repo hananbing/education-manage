@@ -10,7 +10,7 @@
         <div class="ms-login">
             <!-- <div class="ms-title">继续教育平台</div> -->
             <el-form :model="param" :rules="rules" ref="regsiterForm" label-width="0px" class="ms-content">
-                <el-form-item prop="code">
+                <el-form-item prop="name">
                     <el-input v-model.trim="param.name" placeholder="姓名" size="medium">
                         <el-button slot="prepend" icon="iconfont iconxingming"></el-button>
                     </el-input>
@@ -130,9 +130,16 @@ export default {
                 }
             }, 1000);
         },
+        validateField(fields = []) {
+            let errorCount = 0;
+            this.$refs.regsiterForm.validateField(fields, valid => {
+                valid && errorCount++;
+            });
+            return !errorCount;
+        },
         getCode() {
             if (this.disabled) return;
-            this.$refs.regsiterForm.validateField(['phone', 'name'], valid => {
+            if (this.validateField(['phone', 'name'])) {
                 this.$http.userService.getCode({ phone: this.param.phone, name: this.param.name }).then(res => {
                     this.$message({
                         message: '验证码已发送，请注意查收！',
@@ -140,7 +147,7 @@ export default {
                     });
                     this.countDown();
                 });
-            });
+            }
         },
         submit() {
             this.$refs.regsiterForm.validate(valid => {

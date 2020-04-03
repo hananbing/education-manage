@@ -146,7 +146,7 @@ export default {
         },
         validateField(fields = []) {
             let errorCount = 0;
-            this.$refs.resetPasswordForm.validateField(['phone', 'code'], valid => {
+            this.$refs.resetPasswordForm.validateField(fields, valid => {
                 valid && errorCount++;
             });
             return !errorCount;
@@ -154,7 +154,7 @@ export default {
         getCode() {
             if (this.disabled) return;
             if (this.validateField(['phone', 'code'])) {
-                this.$http.userService.getCode({ phone: this.param.phone, name: '' }).then(res => {
+                this.$http.userService.getCodeByphone({ phone: this.param.phone }).then(res => {
                     this.$message({
                         message: '验证码已发送，请注意查收！',
                         type: 'success'

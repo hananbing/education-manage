@@ -314,7 +314,7 @@ export default {
                 email,
                 companyName,
                 subject,
-                addressData: fullAddressName ? fullAddressName.split('-') : []
+                addressData: fullAddressName ? fullAddressName.split('-') : ['天津市', '天津市', '北辰区']
             };
             this.userDialogType = 'edit';
             this.curCheckId = id;
@@ -339,20 +339,26 @@ export default {
         closeAddDialog() {
             this.resetUserForm();
         },
-        remove({ login }) {
-            this.$http.userService.removeUser(login).then(res => {
+        remove({ id }) {
+            this.$http.userService.removeUser(id).then(res => {
                 this.$message({
                     type: 'success',
                     message: '删除成功'
                 });
+                this.getData()
             });
         },
         resetUserForm() {
             this.addUserForm = {
                 name: '',
-                time: [],
-                expertFirstName: '',
-                instructorFirstName: ''
+                authorities: '',
+                sexType: '',
+                nationType: '',
+                login: '',
+                email: '',
+                companyName: '',
+                subject: '',
+                addressData: []
             };
             const addUserForm = this.$refs.addUserForm;
             addUserForm && addUserForm.resetFields();
