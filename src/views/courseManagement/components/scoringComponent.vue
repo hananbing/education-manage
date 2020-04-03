@@ -1,23 +1,26 @@
 <template>
     <el-dialog title="打分列表" :visible.sync="visible" @close="closeDialog" :close-on-click-modal="false" width="600px">
         <p class="course-name">课程名称:&nbsp;{{ courseName }}</p>
-        <vxe-table :data="tableData" stripe highlight-hover-row size="small" :loading="tableLoading" ref="courseTable">
-            <vxe-table-column field="name" title="学员姓名" width="140"></vxe-table-column>
-            <vxe-table-column field="name" title="得分">
-                <template v-slot="{ row }">
-                    <el-slider v-model="row.score" :class="{ 'dark': !row.light }" @change="sliderChange(row)"></el-slider>
-                </template>
-            </vxe-table-column>
-            <vxe-table-column field="name" width="80">
-                <template v-slot="{ row }">
-                    <div class="score-box">
-                        <span class="score">{{ row.score }}</span>
-                        <el-button type="text" @click="saveData(row)">保存</el-button>
-                    </div>
-                </template>
-            </vxe-table-column>
-        </vxe-table>
-        <pagniation :currentPage="form.current" :totalPage="totalPage" :totalNum="totalNum" @changePage="handleChangePage"></pagniation>
+        <div v-loading="tableLoading">
+            <vxe-table :data="tableData" stripe highlight-hover-row size="small" ref="courseTable">
+                <vxe-table-column field="name" title="学员姓名" width="140"></vxe-table-column>
+                <vxe-table-column field="name" title="得分">
+                    <template v-slot="{ row }">
+                        <el-slider v-model="row.score" :class="{ dark: !row.light }" @change="sliderChange(row)"></el-slider>
+                    </template>
+                </vxe-table-column>
+                <vxe-table-column field="name" width="80">
+                    <template v-slot="{ row }">
+                        <div class="score-box">
+                            <span class="score">{{ row.score }}</span>
+                            <el-button type="text" @click="saveData(row)">保存</el-button>
+                        </div>
+                    </template>
+                </vxe-table-column>
+            </vxe-table>
+            <pagniation :currentPage="form.current" :totalPage="totalPage" :totalNum="totalNum" @changePage="handleChangePage"></pagniation>
+        </div>
+
         <span slot="footer" class="dialog-footer">
             <el-button @click="visible = false">关 闭</el-button>
             <!-- <el-button type="primary" @click="saveData">确 定</el-button> -->
@@ -62,7 +65,19 @@ export default {
         sliderChange(row) {
             row.light = true;
         },
-        getData() {},
+        getData() {
+            this.tableLoading = true;
+            this.$http.courseService
+                .getCourseStudents(this.courseId)
+                .then(res => {
+                    this.tableData = res.data.content;
+                    this.totalPage = res.data.totalPages;
+                    this.totalNum = res.data.totalElements;
+                })
+                .finally(() => {
+                    this.tableLoading = false;
+                });
+        },
         handleChangePage(page) {
             this.form.pageSize = page.pageSize;
             this.form.current = page.currentPage - 1;
@@ -72,11 +87,11 @@ export default {
 };
 </script>
 <style scoped>
-.dark >>> .el-slider__bar{
-    background-color: #CCCCCC;
+.dark >>> .el-slider__bar {
+    background-color: #cccccc;
 }
-.dark >>> .el-slider__button{
-    border-color: #CCCCCC;
+.dark >>> .el-slider__button {
+    border-color: #cccccc;
 }
 </style>
 <style scoped lang="scss">
