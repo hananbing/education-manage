@@ -135,7 +135,7 @@ export default {
             this.$refs.regsiterForm.validateField(['phone', 'name'], valid => {
                 this.$http.userService.getCode({ phone: this.param.phone, name:this.param.name }).then(res => {
                     this.$message({
-                        message: '验证码发送成功！',
+                        message: '验证码已发送，请注意查收！',
                         type: 'success'
                     });
                     this.countDown();

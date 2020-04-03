@@ -14,8 +14,10 @@ const userService = {
     updateAccountPassword: () => doPost('/account/change-password'),
     // 重置密码
     resetAccountPassword: () => doPost('/account/reset-password'),
-    // 获取验证码
+    // 注册获取验证码
     getCode: (params) => doGet('/account/captcha', params),
+    // 重置密码获取验证码
+    getCodeByphone: (params) => doGet('/account/captcha', params),
     // 注册账号
     createAccount: (params) => doPost('/account/register', params),
 };
