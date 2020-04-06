@@ -10,15 +10,8 @@
             <template slot="input">
                 <el-col :span="5">
                     <el-form-item>
-                        <el-select
-                            v-model="form.classesName"
-                            style="width:100%"
-                            placeholder="班级名称"
-                            @change="searchData"
-                            filterable
-                            clearable
-                        >
-                            <el-option v-for="item in classesOptions" :key="item.id" :label="item.name" :value="item.name"> </el-option>
+                        <el-select v-model="form.classesId" style="width: 100%;" placeholder="班级名称" @change="searchData" filterable>
+                            <el-option v-for="item in classesOptions" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
@@ -27,7 +20,7 @@
                 </el-col>
                 <el-col :span="3">
                     <el-form-item>
-                        <el-select v-model="form.type" style="width:100%" placeholder="课程类型" @change="searchData" clearable>
+                        <el-select v-model="form.type" style="width: 100%;" placeholder="课程类型" @change="searchData" clearable>
                             <el-option v-for="(value, key) in courseOptions" :key="key" :label="value" :value="key"> </el-option>
                         </el-select>
                     </el-form-item>
@@ -42,31 +35,42 @@
             </template>
         </search-box>
         <div class="container" v-loading="tableLoading">
-            <vxe-table border stripe highlight-hover-row size="medium"  ref="courseTable">
+            <vxe-table stripe highlight-hover-row size="medium" ref="courseTable" :max-height="tableMaxHeight">
                 <vxe-table-column field="name" title="课程名称"></vxe-table-column>
                 <vxe-table-column title="课程类型" width="110">
                     <template slot-scope="scope">{{ courseOptions[scope.row.type] }}</template>
                 </vxe-table-column>
                 <vxe-table-column title="开始时间">
-                    <template slot-scope="scope">{{ scope.row.startDate }}</template>
+                    <template slot-scope="scope">{{ scope.row.startDate | formatDate }}</template>
                 </vxe-table-column>
                 <vxe-table-column title="结束时间">
-                    <template slot-scope="scope">{{ scope.row.endDate }}</template>
+                    <template slot-scope="scope">{{ scope.row.endDate | formatDate }}</template>
                 </vxe-table-column>
                 <vxe-table-column field="teacherName" title="授课老师名称"></vxe-table-column>
-                <vxe-table-column field="score" title="评分"></vxe-table-column>
-                <vxe-table-column title="是否加链接">
-                    <template></template>
+                <vxe-table-column field="score" title="评分" width="100"></vxe-table-column>
+                <vxe-table-column title="是否加链接" align="center">
+                    <template v-slot="{ row }">
+                        <div class="icon">
+                            <i class="iconfont iconshi" v-if="row.url"></i>
+                            <i class="iconfont iconfou" v-else></i>
+                        </div>
+                    </template>
                 </vxe-table-column>
                 <vxe-table-column fixed="right" title="操作" width="220">
                     <template slot-scope="scope">
                         <div class="operation-icon">
                             <el-button type="text" @click="viewData(scope.row)">查看</el-button>
+                            <!-- <template v-if="form.endStatus === 'finished'"> -->
                             <el-button type="text" @click="handleScoring(scope.row)">打分</el-button>
+                            <!-- </template> -->
+                            <!-- <template v-else> -->
                             <el-button type="text" @click="handleEditcourse(scope.row)">编辑</el-button>
                             <el-button type="text" @click="remove(scope.row)">删除</el-button>
-                            <el-button type="text" @click="addLink(scope.row)" v-if="scope.row.type === 'LIVE'">添加链接</el-button>
-                            <el-button type="text" @click="upload(scope.row)" v-if="scope.row.type === 'OFFICE'">上传附件</el-button>
+                            <el-button type="text" @click="addLink(scope.row)">{{
+                                scope.row.type === 'LIVE' ? '添加链接' : '上传附件'
+                            }}</el-button>
+                            <!-- <el-button type="text" @click="upload(scope.row)" v-if="scope.row.type === 'OFFICE'">上传附件</el-button> -->
+                            <!-- </template> -->
                         </div>
                     </template>
                 </vxe-table-column>
@@ -80,7 +84,7 @@
             :close-on-click-modal="false"
             width="500px"
         >
-            <p class="course-name">班级名称</p>
+            <p class="course-name">班级名称&nbsp;{{ curClassName }}</p>
             <el-form
                 ref="addCourseForm"
                 class="dialog-form-box"
@@ -93,7 +97,7 @@
                     <el-input v-model="addCourseForm.name" placeholder="请输入课程名称"></el-input>
                 </el-form-item>
                 <el-form-item label="课程类型" prop="type">
-                    <el-select v-model="addCourseForm.type" style="width:100%" placeholder="请选择课程类型">
+                    <el-select v-model="addCourseForm.type" style="width: 100%;" placeholder="请选择课程类型">
                         <el-option v-for="(value, key) in courseOptions" :key="key" :label="value" :value="key"> </el-option>
                     </el-select>
                 </el-form-item>
@@ -104,7 +108,8 @@
                         range-separator="-"
                         start-placeholder="开始时间"
                         end-placeholder="开始时间"
-                        style="width:100%"
+                        style="width: 100%;"
+                        value-format="timestamp"
                     >
                     </el-date-picker>
                 </el-form-item>
@@ -123,11 +128,11 @@
                 </li>
                 <li class="item">
                     <div class="label">开始时间</div>
-                    <div class="content">{{ addCourseForm.time[0] }}</div>
+                    <div class="content">{{ addCourseForm.time[0] | formatDate}}</div>
                 </li>
                 <li class="item">
                     <div class="label">结束时间</div>
-                    <div class="content">{{ addCourseForm.time[1] }}</div>
+                    <div class="content">{{ addCourseForm.time[1] | formatDate}}</div>
                 </li>
                 <li class="item">
                     <div class="label">授课老师名称</div>
@@ -150,7 +155,7 @@
             :close-on-click-modal="false"
             width="450px"
         >
-            <p class="course-name">班级名称&nbsp;</p>
+            <p class="course-name">班级名称&nbsp;{{ curClassName }}</p>
             <el-form ref="uploadForm" class="dialog-form-box" :model="uploadForm" :rules="uploadRules" label-width="85px">
                 <template v-if="uploadDialogType === 'LIVE'">
                     <el-form-item label="链接地址" prop="url" key="1" required>
@@ -204,8 +209,8 @@ export default {
         };
         return {
             form: {
-                endStatus:'unFinished',
-                classesName: '',
+                endStatus: 'unFinished',
+                classesId: '',
                 name: '',
                 pageSize: 30,
                 current: 0,
@@ -238,7 +243,6 @@ export default {
                 time: { required: true, message: '请选择课程时间', trigger: 'change' },
                 teacherName: { required: true, message: '请输入老师名称', trigger: 'blur' }
             },
-            classesOptions: [], // 班级列表
             action: environment.env().url + 'file'
         };
     },
@@ -249,37 +253,59 @@ export default {
         },
         uploadDialogTitle() {
             return this.uploadDialogType === 'LIVE' ? '上传链接' : '上传附件';
+        },
+        // 当前显示的班级名称
+        curClassName() {
+            const data = this.classesOptions.find((item) => item.id === this.form.classesId);
+            return data ? data.name : '';
+        },
+        classesOptions() {
+            return this.$store.state.Common.classesData;
         }
     },
-    mounted() {
+    async created() {
+        await this.setFirstClassId();
         this.getData();
-        this.getAllClassesData();
     },
     methods: {
+        // 默认选中第一项
+        async setFirstClassId() {
+            if (!this.classesOptions.length) {
+                await this.getAllClassesData();
+            }
+            const first = this.classesOptions[0];
+            this.form.classesId = first ? first.id : '';
+        },
+        async getAllClassesData() {
+            await this.$http.classesService.getAllClasses().then((res) => {
+                this.$store.commit({
+                    type: 'setClassesData',
+                    val: res.data
+                });
+            });
+        },
         searchData() {
             this.form.current = 0;
             this.getData();
         },
         getData() {
             this.tableLoading = true;
-            const params = Object.assign({}, this.form)
-            params.endStatus = params.endStatus !== 'unFinished'
-            this.$http.courseService.getAllCourses(params).then(res => {
-                this.$refs.courseTable.loadData(res.data.content);
-                this.totalPage = res.data.totalPages;
-                this.totalNum = res.data.totalElements;
-                this.tableData = Object.freeze(res.data.content);
-            }).finally(()=>{
-                this.tableLoading = false;
-            });
-        },
-        getAllClassesData() {
-            this.$http.classesService.getAllClasses().then(res => {
-                this.classesOptions = res.data;
-            });
+            const params = Object.assign({}, this.form);
+            params.endStatus = params.endStatus !== 'unFinished';
+            this.$http.courseService
+                .getAllCourses(params)
+                .then((res) => {
+                    this.$refs.courseTable.loadData(res.data.content);
+                    this.totalPage = res.data.totalPages;
+                    this.totalNum = res.data.totalElements;
+                    this.tableData = Object.freeze(res.data.content);
+                })
+                .finally(() => {
+                    this.tableLoading = false;
+                });
         },
         remove({ id }) {
-            this.$http.courseService.deleteCourse(id).then(res => {
+            this.$http.courseService.deleteCourse(id).then((res) => {
                 this.$message({
                     message: '删除成功',
                     type: 'success'
@@ -310,8 +336,8 @@ export default {
         },
         resetForm() {
             this.form = {
-                endStatus:this.form.endStatus,
-                classesName: '',
+                endStatus: this.form.endStatus,
+                classesId: this.form.classesId,
                 name: '',
                 pageSize: this.form.pageSize,
                 current: 0,
@@ -320,30 +346,30 @@ export default {
             this.getData();
         },
         openAddDialog() {
-            if (!this.form.classesName) {
+            if (!this.form.classesId) {
                 this.$message.error('请先选择班级!');
                 return;
             }
             this.addCoursedialogVisible = true;
         },
-        getClassesByName() {
-            return this.classesOptions.find(item => item.name === this.form.classesName);
+        getClassesById() {
+            return this.classesOptions.find((item) => item.id === this.form.classesId);
         },
         // 新增/编辑班级
         saveData() {
-            this.$refs['addCourseForm'].validate(valid => {
+            this.$refs['addCourseForm'].validate((valid) => {
                 if (valid) {
                     const params = Object.assign({}, this.addCourseForm);
                     params.startDate = params.time[0];
                     params.endDate = params.time[1];
                     this.dialogLoading = true;
                     if (this.courseDialogType === 'add') {
-                        const { id, name } = this.getClassesByName();
+                        const { id, name } = this.getClassesById();
                         params.classesId = id;
                         params.classesName = name;
                         this.$http.courseService
                             .createCourse(params)
-                            .then(res => {
+                            .then((res) => {
                                 this.closeAddDialog();
                                 this.$message({
                                     type: 'success',
@@ -359,7 +385,7 @@ export default {
                         this.dialogLoading = true;
                         this.$http.courseService
                             .updateCourse(params)
-                            .then(res => {
+                            .then((res) => {
                                 this.getData();
                                 this.closeAddDialog();
                                 this.$message({
@@ -376,13 +402,13 @@ export default {
         },
         // 上传附件
         uploadData() {
-            this.$refs['uploadForm'].validate(valid => {
+            this.$refs['uploadForm'].validate((valid) => {
                 if (valid) {
                     this.dialogLoading = true;
-                    const params = this.tableData.find(item => item.id === this.curCheckId);
+                    const params = this.tableData.find((item) => item.id === this.curCheckId);
                     this.$http.courseService
                         .updateCourse({ ...params, ...this.uploadForm })
-                        .then(res => {
+                        .then((res) => {
                             this.getData();
                             this.$message({
                                 type: 'success',
@@ -448,5 +474,9 @@ export default {
     color: #333;
     font-family: Microsoft YaHei;
     font-weight: bold;
+}
+.icon .iconshi,
+.icon .iconfou {
+    font-size: 12px;
 }
 </style>

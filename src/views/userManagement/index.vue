@@ -5,19 +5,19 @@
                 <el-col :span="5">
                     <el-form-item>
                         <el-select
-                            v-model.trim="form.classesName"
-                            style="width:100%"
+                            v-model.trim="form.classesId"
+                            style="width: 100%;"
                             filterable
                             placeholder="请选择班级"
                             @change="searchData"
                         >
-                            <el-option v-for="item in classesOptions" :key="item.id" :label="item.name" :value="item.name"> </el-option>
+                            <el-option v-for="item in classesOptions" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
                 <el-col :span="3">
                     <el-form-item>
-                        <el-select v-model.trim="form.authorities" style="width:100%" placeholder="请选择角色" @change="searchData">
+                        <el-select v-model.trim="form.authorities" style="width: 100%;" placeholder="请选择角色" @change="searchData">
                             <el-option v-for="(value, key) in roleOptions" :key="key" :label="value" :value="key"> </el-option>
                         </el-select>
                     </el-form-item>
@@ -43,7 +43,7 @@
             </template>
         </search-box>
         <div class="container" v-loading="tableLoading">
-            <vxe-table border stripe highlight-hover-row size="medium" ref="userTable">
+            <vxe-table border stripe highlight-hover-row size="medium" ref="userTable" :max-height="tableMaxHeight">
                 <vxe-table-column field="name" title="姓名"></vxe-table-column>
                 <vxe-table-column field="name" title="性别">
                     <template v-slot="{ row }">
@@ -76,7 +76,7 @@
             :close-on-click-modal="false"
             width="500px"
         >
-            <p class="course-name">班级名称&nbsp;</p>
+            <p class="course-name">班级名称&nbsp;{{curClassName}}</p>
             <el-form
                 ref="addUserForm"
                 class="dialog-form-box"
@@ -86,7 +86,7 @@
                 label-width="80px"
             >
                 <el-form-item label="角色" prop="authorities">
-                    <el-select v-model="addUserForm.authorities" style="width:100%" placeholder="请选择角色">
+                    <el-select v-model="addUserForm.authorities" style="width: 100%;" placeholder="请选择角色">
                         <el-option v-for="(value, key) in roleOptions" :key="key" :label="value" :value="key"> </el-option>
                     </el-select>
                 </el-form-item>
@@ -94,13 +94,13 @@
                     <el-input v-model="addUserForm.name" placeholder="请输入姓名"></el-input>
                 </el-form-item>
                 <el-form-item label="性别" prop="sexType">
-                    <el-select v-model="addUserForm.sexType" style="width:100%" placeholder="请输选择性别">
+                    <el-select v-model="addUserForm.sexType" style="width: 100%;" placeholder="请输选择性别">
                         <el-option label="男" value="MEN"> </el-option>
                         <el-option label="女" value="WOMEN"> </el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item label="民族" prop="nationType">
-                    <el-select v-model="addUserForm.nationType" style="width:100%" placeholder="请选择民族">
+                    <el-select v-model="addUserForm.nationType" style="width: 100%;" placeholder="请选择民族">
                         <el-option v-for="(value, key) in nationTypes" :key="key" :label="value" :value="key"> </el-option>
                     </el-select>
                 </el-form-item>
@@ -148,7 +148,7 @@ export default {
     data() {
         return {
             form: {
-                classesName: '',
+                classesId: '',
                 authorities: '',
                 name: '',
                 login: '',
@@ -181,7 +181,6 @@ export default {
             totalPage: 0,
             totalNum: 0,
             addUserDialogVisible: false,
-            classesOptions: [], // 班级列表
             instructorOptions: [], // 辅导员列表
             expertOptions: [], // 专家列表
             addUserRules: {
@@ -201,15 +200,39 @@ export default {
     computed: {
         addDialogTitle() {
             return this.userDialogType === 'add' ? '新增' : this.userDialogType === 'edit' ? '编辑' : '查看';
+        },
+        // 当前显示的班级名称
+        curClassName() {
+            const data = this.classesOptions.find((item) => item.id === this.form.classesId);
+            return data ? data.name : '';
+        },
+        classesOptions() {
+            return this.$store.state.Common.classesData;
         }
     },
     components: { viewData, importUser, addressComponent },
-    created() {
+    async created() {
+        await this.setFirstClassId();
         this.getData();
-        this.getAllClassesData();
     },
     watch: {},
     methods: {
+        // 默认选中第一项
+        async setFirstClassId() {
+            if (!this.classesOptions.length) {
+                await this.getAllClassesData();
+            }
+            const first = this.classesOptions[0];
+            this.form.classesId = first ? first.id : '';
+        },
+        async getAllClassesData() {
+            await this.$http.classesService.getAllClasses().then((res) => {
+                this.$store.commit({
+                    type: 'setClassesData',
+                    val: res.data
+                });
+            });
+        },
         searchData() {
             this.form.current = 0;
             this.getData();
@@ -228,19 +251,13 @@ export default {
                     this.tableLoading = false;
                 });
         },
-        // 获取所有的班级列表
-        getAllClassesData() {
-            this.$http.classesService.getAllClasses().then(res => {
-                this.classesOptions = res.data;
-            });
-        },
         // 导入数据
         importData() {
-            if (!this.form.classesName) {
+            if (!this.form.classesId) {
                 this.$message.error('请先选择班级!');
                 return;
             }
-            const { id, name } = this.getClassesByName();
+            const { id, name } = this.getClassesById();
             this.dialogDto = {
                 component: 'importUser',
                 visible: true,
@@ -251,14 +268,14 @@ export default {
             };
         },
         openAddDialog() {
-            if (!this.form.classesName) {
+            if (!this.form.classesId) {
                 this.$message.error('请先选择班级!');
                 return;
             }
             this.addUserDialogVisible = true;
         },
-        getClassesByName() {
-            return this.classesOptions.find(item => item.name === this.form.classesName);
+        getClassesById() {
+            return this.classesOptions.find(item => item.id === this.form.classesId);
         },
         // 新增/编辑班级
         saveData() {
@@ -269,7 +286,7 @@ export default {
                     params.authorities = [params.authorities];
                     this.dialogLoading = true;
                     if (this.userDialogType === 'add') {
-                        const { id, name } = this.getClassesByName();
+                        const { id, name } = this.getClassesById();
                         params.classesId = id;
                         params.classesName = name;
                         this.$http.userService
@@ -304,7 +321,7 @@ export default {
                 }
             });
         },
-        handleEditUser({ id, name, authorities, sexType, nationType, login, email, companyName, subject, fullAddressName }) {
+        handleEditUser({ id, name, classesId, authorities, sexType, nationType, login, email, companyName, subject, fullAddressName }) {
             this.addUserForm = {
                 name,
                 authorities: authorities[0] || '',
@@ -314,7 +331,8 @@ export default {
                 email,
                 companyName,
                 subject,
-                addressData: fullAddressName ? fullAddressName.split('-') : ['天津市', '天津市', '北辰区']
+                classesId,
+                addressData: fullAddressName ? fullAddressName.split('-') : []
             };
             this.userDialogType = 'edit';
             this.curCheckId = id;
@@ -345,7 +363,7 @@ export default {
                     type: 'success',
                     message: '删除成功'
                 });
-                this.getData()
+                this.getData();
             });
         },
         resetUserForm() {
@@ -370,7 +388,7 @@ export default {
         },
         resetForm() {
             this.form = {
-                name: '',
+                classesId: this.form.classesId,
                 authorities: '',
                 name: '',
                 login: '',

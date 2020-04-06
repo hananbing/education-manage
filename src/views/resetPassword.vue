@@ -28,7 +28,7 @@
                             <el-button slot="prepend" icon="iconfont iconyanzhengma"></el-button>
                         </el-input>
                         <el-button type="primary" plain :disabled="disabled" class="getCodeBtn" @click="getCode">{{
-                            timer ? stepTime + 's' : '获取验证码'
+                            disabled ? stepTime + 's' : '获取验证码'
                         }}</el-button>
                     </div>
                 </el-form-item>

@@ -2,14 +2,14 @@
     <el-dialog title="打分列表" :visible.sync="visible" @close="closeDialog" :close-on-click-modal="false" width="600px">
         <p class="course-name">课程名称:&nbsp;{{ courseName }}</p>
         <div v-loading="tableLoading">
-            <vxe-table :data="tableData" stripe highlight-hover-row size="small" ref="courseTable">
-                <vxe-table-column field="name" title="学员姓名" width="140"></vxe-table-column>
-                <vxe-table-column field="name" title="得分">
+            <vxe-table :data="tableData" stripe highlight-hover-row size="small" max-height="350px">
+                <vxe-table-column field="studentName" title="学员姓名" width="140"></vxe-table-column>
+                <vxe-table-column field="score" title="得分">
                     <template v-slot="{ row }">
                         <el-slider v-model="row.score" :class="{ dark: !row.light }" @change="sliderChange(row)"></el-slider>
                     </template>
                 </vxe-table-column>
-                <vxe-table-column field="name" width="80">
+                <vxe-table-column width="80">
                     <template v-slot="{ row }">
                         <div class="score-box">
                             <span class="score">{{ row.score }}</span>
@@ -40,11 +40,7 @@ export default {
             courseId: null,
             totalPage: 0,
             totalNum: 0,
-            tableData: [
-                { name: '张三', score: 0, light: false },
-                { name: '张三', score: 6, light: false },
-                { name: '张三', score: 6, light: false }
-            ],
+            tableData: [],
             tableLoading: false
         };
     },
@@ -57,7 +53,7 @@ export default {
         },
         saveData(row) {
             row.light = false;
-            this.$http;
+            this.$http.courseService.updateStudentScore(this.courseId, row.studentUserId, { score: parseFloat(row.score) });
         },
         closeDialog() {
             this.tableData = [];
@@ -69,7 +65,7 @@ export default {
             this.tableLoading = true;
             this.$http.courseService
                 .getCourseStudents(this.courseId)
-                .then(res => {
+                .then((res) => {
                     this.tableData = res.data.content;
                     this.totalPage = res.data.totalPages;
                     this.totalNum = res.data.totalElements;

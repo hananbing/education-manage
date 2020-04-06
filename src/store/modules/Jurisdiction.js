@@ -26,7 +26,7 @@ export default {
     },
     getters: {
         checkAuth(state) {
-            return permissionId => {
+            return (permissionId) => {
                 if (permissionId === '') {
                     return true;
                 }
@@ -37,8 +37,8 @@ export default {
         },
         //获取符合权限的按钮组
         checkAuthAllBtn(state) {
-            return permissionIds => {
-                return permissionIds.filter(item => {
+            return (permissionIds) => {
+                return permissionIds.filter((item) => {
                     let flag = false;
                     if (!item) {
                         return true;
@@ -54,10 +54,10 @@ export default {
         }
     }
 };
-let treeSelectAuth = function(array, permissionId, flag = false) {
-    array.map(item => {
+let treeSelectAuth = function (array, permissionId, flag = false) {
+    array.map((item) => {
         if (
-            item.permission.find(e => {
+            item.permission.find((e) => {
                 return e.permissionId === permissionId;
             })
         ) {

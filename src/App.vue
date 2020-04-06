@@ -8,9 +8,21 @@ export default {
     created() {
         if (sessionStorage.getItem('token')) {
             this.getAccountInfo();
+             
         }
+         
+    },
+    mounted() {
+        let winHeight;
+        if (window.innerHeight) {
+            winHeight = window.innerHeight;
+        } else if (document.body && document.body.clientHeight) {
+            winHeight = document.body.clientHeight;
+        }
+        this.$store.commit({ type: 'setwinHeight', val: winHeight });
     },
     methods: {
+        
         // 获取账户信息
         getAccountInfo() {
             this.$http.userService.getAccount().then(res => {

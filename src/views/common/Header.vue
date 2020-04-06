@@ -1,10 +1,12 @@
 <template>
     <div class="header">
         <div class="header-left">
-            <div class="logo">体检后台管理中心</div>
+            <!-- <div class="logo"> -->
+                 <img src="../../assets/img/logo.png" class="logo" alt="logo" />
+            <!-- </div> -->
         </div>
         <div class="header-right">
-            <div class="title">体检后台管理中心</div>
+            <div class="title">继续教育后台管理</div>
             <div class="header-user-con">
                 <!-- 用户头像 -->
                 <div class="user-avator">
@@ -51,6 +53,9 @@ export default {
     display: flex;
     .header-left {
         width: 250px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         background-color: #2e3331;
     }
     .header-right {
@@ -86,8 +91,8 @@ export default {
 }
 .header .logo {
     float: left;
-    width: 250px;
-    line-height: 60px;
+    width: 201px;
+    height: 42px;
 }
 .header-right {
     float: right;
