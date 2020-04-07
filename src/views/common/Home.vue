@@ -43,6 +43,19 @@ export default {
         //     }
         //     this.tagsList = arr;
         // });
+        // this.getAllClassesData();
+    },
+    methods: {
+        // getAllClassesData() {
+        //     this.$http.classesService.getAllClasses().then((res) => {
+        //         this.$store.commit({
+        //             type: 'setClassesData',
+        //             val: res.data
+        //         });
+        //         // const first = res.data[0];
+        //         // this.form.classesId = first ? first.id : '';
+        //     });
+        // }
     }
 };
 </script>
@@ -54,9 +67,9 @@ export default {
     top: 60px;
     bottom: 0;
     // padding: 15px;
-    -webkit-transition: left .3s ease-in-out;
-    transition: left .3s ease-in-out;
-    background: #F5F5F5;
+    -webkit-transition: left 0.3s ease-in-out;
+    transition: left 0.3s ease-in-out;
+    background: #f5f5f5;
 }
 
 .content {

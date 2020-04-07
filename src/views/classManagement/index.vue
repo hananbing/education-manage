@@ -4,19 +4,19 @@
             <template slot="input">
                 <el-col :span="5">
                     <el-form-item>
-                        <el-select v-model.trim="form.name" style="width:100%" placeholder="请选择班级" filterable @change="searchData">
+                        <el-select v-model.trim="form.name" style="width: 100%;" placeholder="请选择班级" filterable @change="searchData">
                             <el-option label="全部" value=""> </el-option>
                             <el-option v-for="item in classesOptions" :key="item.id" :label="item.name" :value="item.name"> </el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
-                <el-col style="width:240px;">
+                <el-col style="width: 240px;">
                     <el-form-item label="">
                         <el-date-picker
                             v-model.trim="form.time"
                             type="daterange"
                             range-separator="-"
-                            value-format="yyyy-MM-dd"
+                            value-format="timestamp"
                             start-placeholder="开始日期"
                             end-placeholder="结束日期"
                         >
@@ -25,7 +25,7 @@
                 </el-col>
                 <el-col :span="3">
                     <el-form-item>
-                        <el-select v-model.trim="form.instructorName" style="width:100%" placeholder="请选择辅导员" @change="searchData">
+                        <el-select v-model.trim="form.instructorName" style="width: 100%;" placeholder="请选择辅导员" @change="searchData">
                             <el-option label="请选择辅导员" value=""></el-option>
                             <el-option v-for="(value, key) in instructorOptions" :key="key" :label="value" :value="key"> </el-option>
                         </el-select>
@@ -33,7 +33,7 @@
                 </el-col>
                 <el-col :span="3">
                     <el-form-item>
-                        <el-select v-model.trim="form.expertName" style="width:100%" placeholder="请选择专家" @change="searchData">
+                        <el-select v-model.trim="form.expertName" style="width: 100%;" placeholder="请选择专家" @change="searchData">
                             <el-option label="请选择专家" value=""></el-option>
                             <el-option v-for="(value, key) in expertOptions" :key="key" :label="value" :value="key"> </el-option>
                         </el-select>
@@ -49,13 +49,13 @@
             </template>
         </search-box>
         <div class="container" v-loading="tableLoading">
-            <vxe-table border stripe highlight-hover-row size="medium" ref="classesTable" show-overflow>
+            <vxe-table border stripe highlight-hover-row size="medium" ref="classesTable" show-overflow :max-height="tableMaxHeight">
                 <vxe-table-column field="name" title="班级名称"></vxe-table-column>
                 <vxe-table-column title="开始日期">
-                    <template slot-scope="scope">{{ scope.row.startDate }}</template>
+                    <template slot-scope="scope">{{ scope.row.startDate | formatDate}}</template>
                 </vxe-table-column>
                 <vxe-table-column title="结束日期">
-                    <template slot-scope="scope">{{ scope.row.endDate }}</template>
+                    <template slot-scope="scope">{{ scope.row.endDate | formatDate}}</template>
                 </vxe-table-column>
                 <vxe-table-column field="instructorName" title="辅导员名称"></vxe-table-column>
                 <vxe-table-column field="expertName" title="专家名称"></vxe-table-column>
@@ -97,13 +97,13 @@
                         range-separator="-"
                         start-placeholder="开始日期"
                         end-placeholder="结束日期"
-                        style="width:100%"
-                        value-format="yyyy-MM-dd"
+                        style="width: 100%;"
+                        value-format="timestamp"
                     >
                     </el-date-picker>
                 </el-form-item>
                 <el-form-item label="项目类型" prop="projectType">
-                    <el-select v-model="addClassesForm.projectType" style="width:100%" placeholder="请选择项目类型">
+                    <el-select v-model="addClassesForm.projectType" style="width: 100%;" placeholder="请选择项目类型">
                         <el-option v-for="(value, key) in projectType" :key="key" :label="value" :value="key"> </el-option>
                     </el-select>
                 </el-form-item>
@@ -124,11 +124,11 @@
                 </li>
                 <li class="item">
                     <div class="label">开始时间</div>
-                    <div class="content">{{ addClassesForm.time[0] }}</div>
+                    <div class="content">{{ addClassesForm.time[0] | formatDate}}</div>
                 </li>
                 <li class="item">
                     <div class="label">结束时间</div>
-                    <div class="content">{{ addClassesForm.time[1] }}</div>
+                    <div class="content">{{ addClassesForm.time[1] | formatDate}}</div>
                 </li>
                 <li class="item">
                     <div class="label">辅导员</div>
@@ -156,7 +156,7 @@
                         :max="100"
                         step-strictly
                         label="请输入签到分数权重"
-                        style="width:100%"
+                        style="width: 100%;"
                     ></el-input-number>
                 </el-form-item>
                 <el-form-item label="在线学习分数权重%" prop="onlineScore">
@@ -166,7 +166,7 @@
                         :max="100"
                         step-strictly
                         label="请输入在线学习分数权重"
-                        style="width:100%"
+                        style="width: 100%;"
                     ></el-input-number>
                 </el-form-item>
                 <el-form-item label="课程学习分数权重%" prop="courseScore">
@@ -176,7 +176,7 @@
                         :max="100"
                         step-strictly
                         label="请输入课程学习分数权重"
-                        style="width:100%"
+                        style="width: 100%;"
                     ></el-input-number>
                 </el-form-item>
                 <el-form-item label="作业分数权重%" prop="assignmentScore">
@@ -186,7 +186,7 @@
                         :max="100"
                         step-strictly
                         label="请输入作业分数权重"
-                        style="width:100%"
+                        style="width: 100%;"
                     ></el-input-number>
                 </el-form-item>
                 <el-form-item label="话题分数权重%" prop="topicScore">
@@ -196,7 +196,7 @@
                         :max="100"
                         step-strictly
                         label="请输入话题分数权重"
-                        style="width:100%"
+                        style="width: 100%;"
                     ></el-input-number>
                 </el-form-item>
             </el-form>
@@ -315,7 +315,7 @@ export default {
             delete params.time;
             this.$http.classesService
                 .getClasses(params)
-                .then(res => {
+                .then((res) => {
                     this.$refs.classesTable.loadData(res.data.content);
                     this.totalPage = res.data.totalPages;
                     this.totalNum = res.data.totalElements;
@@ -325,14 +325,14 @@ export default {
                 });
         },
         getAllClassesData() {
-            this.$http.classesService.getAllClasses().then(res => {
+            this.$http.classesService.getAllClasses().then((res) => {
                 this.classesOptions = res.data;
             });
         },
         openAddDialog() {},
         // 新增/编辑班级
         saveData() {
-            this.$refs['addClassesForm'].validate(valid => {
+            this.$refs['addClassesForm'].validate((valid) => {
                 if (valid) {
                     this.dialogLoading = true;
                     const { time, name, projectType } = this.addClassesForm;
@@ -345,7 +345,7 @@ export default {
                     if (this.classesDialogType === 'add') {
                         this.$http.classesService
                             .createClasses(params)
-                            .then(res => {
+                            .then((res) => {
                                 this.addClassesdialogVisible = false;
                                 this.getData();
                             })
@@ -356,7 +356,7 @@ export default {
                         params.id = this.curCheckedId;
                         this.$http.classesService
                             .updateClasses(params)
-                            .then(res => {
+                            .then((res) => {
                                 this.addClassesdialogVisible = false;
                                 this.getData();
                             })
@@ -389,7 +389,7 @@ export default {
             this.resetClassesForm();
         },
         remove({ id }) {
-            this.$http.classesService.deleteClasses(id).then(res => {
+            this.$http.classesService.deleteClasses(id).then((res) => {
                 this.$message({
                     message: '删除成功',
                     type: 'success'
@@ -410,7 +410,7 @@ export default {
             this.curCheckedId = id;
         },
         addWeight() {
-            this.$refs['weightForm'].validate(valid => {
+            this.$refs['weightForm'].validate((valid) => {
                 if (valid) {
                     const { topicScore, courseScore, onlineScore, signInScore, assignmentScore } = this.weightForm;
                     const num = topicScore + courseScore + onlineScore + signInScore + assignmentScore;

@@ -15,6 +15,8 @@ export default {};
     width: 100%;
     background-image: url(../assets/img/login-bg.jpg);
     background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
     overflow: hidden;
     .title-box {
         margin-top: 200px;
