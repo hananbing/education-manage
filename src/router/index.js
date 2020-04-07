@@ -50,6 +50,7 @@ routes = routes.concat([
     }
 ]);
 const routeObj = new Router({
+    mode: 'history',
     routes
 });
 export default routeObj;

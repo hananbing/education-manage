@@ -273,6 +273,7 @@ export default {
                 return;
             }
             this.addUserDialogVisible = true;
+            this.userDialogType = 'add'
         },
         getClassesById() {
             return this.classesOptions.find(item => item.id === this.form.classesId);
@@ -321,7 +322,7 @@ export default {
                 }
             });
         },
-        handleEditUser({ id, name, classesId, authorities, sexType, nationType, login, email, companyName, subject, fullAddressName }) {
+        handleEditUser({ id, name, authorities, sexType, nationType, login, email, companyName, subject, fullAddressName }) {
             this.addUserForm = {
                 name,
                 authorities: authorities[0] || '',
@@ -331,7 +332,6 @@ export default {
                 email,
                 companyName,
                 subject,
-                classesId,
                 addressData: fullAddressName ? fullAddressName.split('-') : []
             };
             this.userDialogType = 'edit';
@@ -340,7 +340,7 @@ export default {
         },
         viewData({ id, name, authorities, sexType, nationType, login, email, companyName, subject, fullAddressName }) {
             this.viewDataList = [
-                { name: '角色', value: authorities[0] },
+                { name: '角色', value: this.roleOptions[authorities[0]] },
                 { name: '姓名', value: name },
                 { name: '性别', value: sexType === 'MEN' ? '男' : '女' },
                 { name: '民族', value: NATION_TYPES[nationType] },
