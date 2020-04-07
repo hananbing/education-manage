@@ -184,7 +184,7 @@ export default {
         // 获取账户信息
         getAccountInfo() {
             this.$http.userService.getAccount().then(res => {
-                this.$store.commit({ type: 'setUserInfo', data: res });
+                this.$store.commit({ type: 'setUserInfo', data: res.data });
             });
         }
     }

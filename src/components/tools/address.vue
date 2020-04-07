@@ -34,7 +34,7 @@ export default {
             const { level, data } = node;
             this.$http.commonService.getChildrenAddress({ parentId: !level ? 'ZONE' : data.value }).then(res => {
                 // 通过调用resolve将子节点数据返回，通知组件数据加载完成
-                const nodes = res.map(item => ({ label: item.name, value: item.codeId, leaf: level >= 2 }));
+                const nodes = res.data.map(item => ({ label: item.name, value: item.codeId, leaf: level >= 2 }));
                 resolve(nodes);
             });
         }
