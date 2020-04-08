@@ -8,9 +8,7 @@ export default {
     created() {
         if (sessionStorage.getItem('token')) {
             this.getAccountInfo();
-             
         }
-         
     },
     mounted() {
         let winHeight;
@@ -22,7 +20,6 @@ export default {
         this.$store.commit({ type: 'setwinHeight', val: winHeight });
     },
     methods: {
-        
         // 获取账户信息
         getAccountInfo() {
             this.$http.userService.getAccount().then(res => {
@@ -35,8 +32,31 @@ export default {
 <style>
 @import './style/icon/iconfont.css'; /*iconfont字体图标*/
 @import './style/main.css';
+/* fade-transform */
+.fade-transform-leave-active,
+.fade-transform-enter-active {
+    transition: all 0.3s;
+}
+
+.fade-transform-enter {
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+.fade-transform-leave-to {
+    opacity: 0;
+    transform: translateX(20px);
+}
 .search-box .el-date-editor--daterange.el-input__inner {
     width: 240px !important;
+}
+.el-message {
+    padding: 10px 16px;
+    min-width: initial !important;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    pointer-events: all;
 }
 /* 弹框中的表单样式 */
 .dialog-form-box {

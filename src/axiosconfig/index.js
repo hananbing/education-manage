@@ -34,7 +34,7 @@ axios.interceptors.response.use(
     err => {
         if (err && err.response) {
             if (err.response.status === 401) {
-                Message.error(err.response.data.detail);
+                Message.error(err.response.data.message);
                 // clearTimeout(timmer);
                 // timmer = null;
                 // if (sessionStorage.token !== '') {
@@ -48,16 +48,16 @@ axios.interceptors.response.use(
                 //   window.location.href = '/#/login'
                 // }, 5000);
             } else if (err.response.status === 403) {
-                Message.error('没有访问权限！');
+                Message.error(err.response.data.message ? err.response.data.message : '没有访问权限！');
             } else if (err.response.status === 404) {
-                Message.error('数据错误，未找到该资源！');
+                Message.error(err.response.data.message ? err.response.data.message: '数据错误，未找到该资源！');
             } else if (String(err.response.data.status).length === 4) {
                 // 需要特殊处理的错误
             } else {
                 Message({
                     type: 'error',
                     // dangerouslyUseHTMLString: true,
-                    message: err.response.data.detail
+                    message: err.response.data.message
                 });
             }
             return Promise.reject(err.response);

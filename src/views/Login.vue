@@ -55,8 +55,8 @@ export default {
         };
         return {
             param: {
-                username: '13812345678',
-                password: 'admin',
+                username: '',
+                password: '',
                 code: ''
             },
             identifyCode: '',

@@ -5,7 +5,7 @@
         <div class="content-box" :class="{ 'content-collapse': collapse }">
             <!-- <v-tags></v-tags> -->
             <div class="content">
-                <transition name="move" mode="out-in">
+                <transition name="fade-transform" mode="out-in">
                     <keep-alive :include="tagsList">
                         <router-view></router-view>
                     </keep-alive>

@@ -9,7 +9,7 @@
                 <div class="paddingBox">
                     <el-row class="flexBox">
                         <slot name="input"></slot>
-                        <el-col style="width:160px;">
+                        <el-col style="width:165px;margin-right:0">
                             <slot name="button"></slot>
                         </el-col>
                     </el-row>

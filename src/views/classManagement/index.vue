@@ -52,10 +52,10 @@
             <vxe-table border stripe highlight-hover-row size="medium" ref="classesTable" show-overflow :max-height="tableMaxHeight">
                 <vxe-table-column field="name" title="班级名称"></vxe-table-column>
                 <vxe-table-column title="开始日期">
-                    <template slot-scope="scope">{{ scope.row.startDate | formatDate}}</template>
+                    <template slot-scope="scope">{{ scope.row.startDate | formatDate }}</template>
                 </vxe-table-column>
                 <vxe-table-column title="结束日期">
-                    <template slot-scope="scope">{{ scope.row.endDate | formatDate}}</template>
+                    <template slot-scope="scope">{{ scope.row.endDate | formatDate }}</template>
                 </vxe-table-column>
                 <vxe-table-column field="instructorName" title="辅导员名称"></vxe-table-column>
                 <vxe-table-column field="expertName" title="专家名称"></vxe-table-column>
@@ -124,11 +124,11 @@
                 </li>
                 <li class="item">
                     <div class="label">开始时间</div>
-                    <div class="content">{{ addClassesForm.time[0] | formatDate}}</div>
+                    <div class="content">{{ addClassesForm.time[0] | formatDate }}</div>
                 </li>
                 <li class="item">
                     <div class="label">结束时间</div>
-                    <div class="content">{{ addClassesForm.time[1] | formatDate}}</div>
+                    <div class="content">{{ addClassesForm.time[1] | formatDate }}</div>
                 </li>
                 <li class="item">
                     <div class="label">辅导员</div>
@@ -307,7 +307,7 @@ export default {
             this.form.current = 0;
             this.getData();
         },
-        getData() {
+        getData(isRefersh = false) {
             this.tableLoading = true;
             const params = Object.assign({}, this.form);
             params.startDate = params.time[0] || '';
@@ -315,24 +315,30 @@ export default {
             delete params.time;
             this.$http.classesService
                 .getClasses(params)
-                .then((res) => {
+                .then(res => {
                     this.$refs.classesTable.loadData(res.data.content);
                     this.totalPage = res.data.totalPages;
                     this.totalNum = res.data.totalElements;
+                    if (isRefersh) {
+                        this.$store.commit({
+                            type: 'setClassesData',
+                            val: res.data
+                        });
+                    }
                 })
                 .finally(() => {
                     this.tableLoading = false;
                 });
         },
         getAllClassesData() {
-            this.$http.classesService.getAllClasses().then((res) => {
+            this.$http.classesService.getAllClasses().then(res => {
                 this.classesOptions = res.data;
             });
         },
         openAddDialog() {},
         // 新增/编辑班级
         saveData() {
-            this.$refs['addClassesForm'].validate((valid) => {
+            this.$refs['addClassesForm'].validate(valid => {
                 if (valid) {
                     this.dialogLoading = true;
                     const { time, name, projectType } = this.addClassesForm;
@@ -345,9 +351,9 @@ export default {
                     if (this.classesDialogType === 'add') {
                         this.$http.classesService
                             .createClasses(params)
-                            .then((res) => {
+                            .then(res => {
                                 this.addClassesdialogVisible = false;
-                                this.getData();
+                                this.getData('refersh');
                             })
                             .finally(() => {
                                 this.dialogLoading = false;
@@ -356,9 +362,9 @@ export default {
                         params.id = this.curCheckedId;
                         this.$http.classesService
                             .updateClasses(params)
-                            .then((res) => {
+                            .then(res => {
                                 this.addClassesdialogVisible = false;
-                                this.getData();
+                                this.getData('refersh');
                             })
                             .finally(() => {
                                 this.dialogLoading = false;
@@ -389,12 +395,12 @@ export default {
             this.resetClassesForm();
         },
         remove({ id }) {
-            this.$http.classesService.deleteClasses(id).then((res) => {
+            this.$http.classesService.deleteClasses(id).then(res => {
                 this.$message({
                     message: '删除成功',
                     type: 'success'
                 });
-                this.getData();
+                this.getData('refersh');
             });
         },
         weightConfig({ id, weightInfo }) {
@@ -410,7 +416,7 @@ export default {
             this.curCheckedId = id;
         },
         addWeight() {
-            this.$refs['weightForm'].validate((valid) => {
+            this.$refs['weightForm'].validate(valid => {
                 if (valid) {
                     const { topicScore, courseScore, onlineScore, signInScore, assignmentScore } = this.weightForm;
                     const num = topicScore + courseScore + onlineScore + signInScore + assignmentScore;
