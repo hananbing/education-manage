@@ -28,6 +28,7 @@
             </vxe-table>
             <!-- <pagniation :currentPage="form.current" :totalPage="totalPage" :totalNum="totalNum" @changePage="handleChangePage"></pagniation> -->
         </div>
+        <a href="http://file.miniedu.com/学员导入模板1586410816381.csv?v=1586111" download ref='download'></a>
     </div>
 </template>
 <script>
@@ -92,7 +93,9 @@ export default {
             this.tableData = res.data.failData || [];
         },
         importData() {},
-        downloadTemplate() {}
+        downloadTemplate() {
+            this.$refs.download.click()
+        }
     }
 };
 </script>

@@ -49,7 +49,16 @@
             </template>
         </search-box>
         <div class="container" v-loading="tableLoading">
-            <vxe-table border stripe highlight-hover-row size="medium" ref="classesTable" show-overflow :max-height="tableMaxHeight">
+            <vxe-table
+                border
+                stripe
+                highlight-hover-row
+                size="medium"
+                ref="classesTable"
+                show-header-overflow
+                show-overflow
+                :max-height="tableMaxHeight"
+            >
                 <vxe-table-column field="name" title="班级名称"></vxe-table-column>
                 <vxe-table-column title="开始日期">
                     <template slot-scope="scope">{{ scope.row.startDate | formatDate }}</template>

@@ -38,12 +38,21 @@
                 <el-button icon="el-icon-refresh" @click="resetForm">重置</el-button>
             </template>
             <template slot="rightButton">
-                <el-button icon="iconfont icondaoru" @click="importData">导入</el-button>
+                <el-button icon="iconfont icondaoru" @click="importData" v-permission="['ROLE_ADMIN']">导入</el-button>
                 <el-button type="warning" icon="el-icon-plus" @click="openAddDialog">新增</el-button>
             </template>
         </search-box>
         <div class="container" v-loading="tableLoading">
-            <vxe-table border stripe highlight-hover-row size="medium" ref="userTable" :max-height="tableMaxHeight">
+            <vxe-table
+                border
+                stripe
+                highlight-hover-row
+                show-header-overflow
+                show-overflow
+                size="medium"
+                ref="userTable"
+                :max-height="tableMaxHeight"
+            >
                 <vxe-table-column field="name" title="姓名"></vxe-table-column>
                 <vxe-table-column field="name" title="性别">
                     <template v-slot="{ row }">
@@ -76,7 +85,7 @@
             :close-on-click-modal="false"
             width="500px"
         >
-            <p class="course-name">班级名称&nbsp;{{curClassName}}</p>
+            <p class="course-name">班级名称&nbsp;{{ curClassName }}</p>
             <el-form
                 ref="addUserForm"
                 class="dialog-form-box"
@@ -104,7 +113,7 @@
                         <el-option v-for="(value, key) in nationTypes" :key="key" :label="value" :value="key"> </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="手机号" prop="login" v-if="userDialogType !== 'edit'">
+                <el-form-item label="手机号" prop="login" >
                     <el-input v-model.trim="addUserForm.login" placeholder="请输入手机号"></el-input>
                 </el-form-item>
                 <el-form-item label="邮箱" prop="email">
@@ -203,7 +212,7 @@ export default {
         },
         // 当前显示的班级名称
         curClassName() {
-            const data = this.classesOptions.find((item) => item.id === this.form.classesId);
+            const data = this.classesOptions.find(item => item.id === this.form.classesId);
             return data ? data.name : '';
         },
         classesOptions() {
@@ -226,7 +235,7 @@ export default {
             this.form.classesId = first ? first.id : '';
         },
         async getAllClassesData() {
-            await this.$http.classesService.getAllClasses().then((res) => {
+            await this.$http.classesService.getAllClasses().then(res => {
                 this.$store.commit({
                     type: 'setClassesData',
                     val: res.data
@@ -273,7 +282,7 @@ export default {
                 return;
             }
             this.addUserDialogVisible = true;
-            this.userDialogType = 'add'
+            this.userDialogType = 'add';
         },
         getClassesById() {
             return this.classesOptions.find(item => item.id === this.form.classesId);
