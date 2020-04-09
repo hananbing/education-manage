@@ -3,7 +3,7 @@
         <search-box :form="form">
             <template slot="input">
                 <el-col :span="18"
-                    ><span class="content-title">作业标题：{{ homeWorkTitle }} </span>
+                    ><span class="content-title">作业标题：{{ topicTitle }} </span>
                 </el-col>
             </template>
             <template slot="rightButton">
@@ -20,18 +20,28 @@
                 show-overflow
                 :max-height="tableMaxHeight"
             >
-                <vxe-table-column field="name" title="学员姓名"></vxe-table-column>
-                <vxe-table-column title="提交时间">
+                <vxe-table-column field="name" title="回复时间" width="180">
                     <template slot-scope="scope">{{ scope.row.endDate | formatDate('yyyy-MM-dd hh:mm') }}</template>
                 </vxe-table-column>
-                <vxe-table-column field="score" title="分数"></vxe-table-column>
-                <vxe-table-column fixed="right" title="操作" width="220">
+                <vxe-table-column field="name" title="回复人姓名" width="150"></vxe-table-column>
+                <vxe-table-column field="content" title="回复人内容"></vxe-table-column>
+                <vxe-table-column title="得分" width="380">
                     <template slot-scope="scope">
-                        <div class="operation-icon">
-                            <el-button type="text" @click="homeworkCorrecting(scope.row)">{{
-                                scope.row.corrented ? '重批' : '批改'
-                            }}</el-button>
-                        </div>
+                        <el-slider
+                            show-input
+                            input-size="mini"
+                            v-model.number="scope.row.score"
+                            class="slider"
+                            :class="{ dark: !scope.row.light }"
+                            @change="sliderChange(scope.row)"
+                            style="margin-left:5px;"
+                        >
+                        </el-slider>
+                    </template>
+                </vxe-table-column>
+                <vxe-table-column title="" width="80">
+                    <template slot-scope="scope">
+                        <el-button type="text" @click="saveScore(scope.row)">保存</el-button>
                     </template>
                 </vxe-table-column>
             </vxe-table>
@@ -44,13 +54,13 @@
             :close-on-click-modal="false"
             width="780px"
         >
-            <el-form ref="workForm" class="dialog-form-box" :model="workForm" label-width="100px">
+            <el-form ref="workForm" class="dialog-form-box" :model="workForm" label-width="115px">
                 <el-form-item label="作业内容" prop="name">
                     <!-- <tinymce v-model.trim="workForm.content" :height="250" /> -->
                     <div v-html="workForm.content" class="work-content-box"></div>
                 </el-form-item>
                 <el-form-item label="得分" prop="score">
-                    <el-slider v-model.number="workForm.score" show-input input-size='mini' > </el-slider>
+                    <el-slider v-model.number="workForm.score" show-input input-size="mini"> </el-slider>
                 </el-form-item>
                 <el-form-item label="评语">
                     <el-input
@@ -77,7 +87,7 @@
 export default {
     data() {
         return {
-            tableData: [],
+            tableData: [{ name: '12', score: 0 }],
             curCheckId: null,
             tableLoading: false,
             workForm: {
@@ -92,7 +102,7 @@ export default {
             dialogType: 'add',
             totalPage: 0,
             totalNum: 0,
-            workDialogVisible: true
+            workDialogVisible: false
         };
     },
     // components: { Tinymce },
@@ -101,15 +111,15 @@ export default {
             return this.dialogType === 'add' ? '批改' : '重批';
         },
         // 当前显示的作业标题
-        homeWorkTitle() {
+        topicTitle() {
             return this.$route.query.title || '';
         },
-        homeWorkId() {
+        topicId() {
             return this.$route.params.id;
         }
     },
     created() {
-        this.getData();
+        // this.getData();
     },
     methods: {
         searchData() {
@@ -119,7 +129,7 @@ export default {
         getData() {
             this.tableLoading = true;
             this.$http.homeWorkService
-                .getStudentsByWork(this.homeWorkId)
+                .getStudentsByWork(this.topicId)
                 .then(res => {
                     this.totalPage = res.data.totalPages;
                     this.totalNum = res.data.totalElements;
@@ -139,6 +149,8 @@ export default {
             this.content = content;
             this.workDialogVisible = true;
         },
+        // 保存打分
+        saveScore({ id, score }) {},
         // 批改作业
         saveData() {
             this.dialogLoading = true;
@@ -172,6 +184,9 @@ export default {
                     });
             }
         },
+        sliderChange(row) {
+            row.light = true;
+        },
         closeAddDialog() {
             this.workDialogVisible = false;
             this.resetWorkForm();
@@ -191,6 +206,20 @@ export default {
     }
 };
 </script>
+<style scoped>
+.dark >>> .el-slider__bar {
+    background-color: #cccccc;
+}
+.dark >>> .el-slider__button {
+    border-color: #cccccc;
+}
+.slider >>> .el-slider__input.el-input-number {
+    width: 100px !important;
+}
+.slider >>> .el-slider__runway {
+    margin-right: 114px;
+}
+</style>
 <style scoped lang="scss">
 .content-title {
     font-size: 16px;

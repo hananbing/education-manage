@@ -107,10 +107,11 @@ export default {
         getAccountInfo() {
             this.$http.userService.getAccount().then(res => {
                 this.$store.commit({ type: 'setUserInfo', data: res });
-
+                sessionStorage.setItem('userInfo', JSON.stringify(res))
             });
         },
         RememberUserMesg() {
+             
             //七天过期
             if (!this.rememberP && localStorage._userInfo) {
                 localStorage.removeItem('_userInfo');

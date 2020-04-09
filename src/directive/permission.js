@@ -1,7 +1,7 @@
 export default {
     inserted(el, binding, vnode) {
         const { value } = binding;
-        const roles = JSON.parse(sessionStorage.userInfo).authorities;
+        const roles = JSON.parse(sessionStorage.userInfo).authorities || [];
         if (value && value.length > 0) {
             const permissionRoles = value;
             const hasPermission = roles.some(role => {

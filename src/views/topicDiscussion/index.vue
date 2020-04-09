@@ -16,7 +16,7 @@
                     </el-form-item>
                 </el-col>
                 <el-col :span="5">
-                    <el-input v-model="form.name" placeholder="请输入作业标题" @keyup.enter.native="searchData"></el-input>
+                    <el-input v-model="form.name" placeholder="请输入话题标题" @keyup.enter.native="searchData"></el-input>
                 </el-col>
             </template>
             <template slot="button">
@@ -37,20 +37,22 @@
                 show-overflow
                 :max-height="tableMaxHeight"
             >
-                <vxe-table-column field="name" title="作业标题"></vxe-table-column>
-                <vxe-table-column title="结束时间">
-                    <template slot-scope="scope">{{ scope.row.endDate | formatDate('yyyy-MM-dd hh:mm') }}</template>
+                <vxe-table-column field="name" title="话题标题"></vxe-table-column>
+                <vxe-table-column field="name" title="发布人"> </vxe-table-column>
+                <vxe-table-column field="name" title="回复数"></vxe-table-column>
+                <vxe-table-column title="创建时间">
+                    <template slot-scope="scope">{{ scope.row.createDate | formatDate('yyyy-MM-dd hh:mm') }}</template>
                 </vxe-table-column>
                 <vxe-table-column fixed="right" title="操作" width="220">
                     <template slot-scope="scope">
                         <div class="operation-icon">
-                            <template>
-                                <el-button type="text" @click="viewData(scope.row)">查看</el-button>
+                            <el-button type="text" @click="viewData(scope.row)">查看</el-button>
+                            <template v-if="form.endStatus == 'unFinished'">
                                 <el-button type="text" @click="handleEditWork(scope.row)">编辑</el-button>
                                 <el-button type="text" @click="remove(scope.row)">删除</el-button>
                             </template>
-                            <template>
-                                <el-button type="text" @click="homeworkCorrecting(scope.row)">批改作业</el-button>
+                            <template v-else>
+                                <el-button type="text" @click="handleScoring(scope.row)">打分</el-button>
                             </template>
                         </div>
                     </template>
@@ -60,43 +62,43 @@
         </div>
         <el-dialog
             :title="addDialogTitle"
-            :visible.sync="addWokDialogVisible"
+            :visible.sync="addTopicDialogVisible"
             @close="closeAddDialog"
             :close-on-click-modal="false"
-            width="780px"
+            width="600px"
         >
-            <p class="course-name">班级名称&nbsp;{{ curClassName }}</p>
+            <p class="classes-name">班级名称&nbsp;{{ curClassName }}</p>
             <el-form
-                ref="addHomeWorkForm"
+                ref="topicForm"
                 class="dialog-form-box"
                 v-if="dialogType !== 'view'"
-                :model="addHomeWorkForm"
-                :rules="addWorkRules"
+                :model="topicForm"
+                :rules="addTopicRules"
                 label-width="85px"
             >
-                <el-form-item label="作业标题" prop="name">
-                    <el-input v-model.trim="addHomeWorkForm.name" placeholder="请输入作业标题"></el-input>
+                <el-form-item label="话题标题" prop="name">
+                    <el-input v-model.trim="topicForm.name" placeholder="请输入话题标题"></el-input>
+                </el-form-item>
+                <el-form-item label="话题内容" prop="content">
+                    <el-input v-model.trim="topicForm.content" placeholder="请输入话题内容"></el-input>
                 </el-form-item>
                 <el-form-item label="结束时间" prop="time">
-                    <el-date-picker v-model.number="addHomeWorkForm.time" type="datetime" style="width: 100%;" value-format="timestamp">
+                    <el-date-picker v-model.number="topicForm.time" type="datetime" style="width: 100%;" value-format="timestamp">
                     </el-date-picker>
-                </el-form-item>
-                <el-form-item label="作业内容" prop="content">
-                    <tinymce v-model.trim="addHomeWorkForm.content" :height="250" />
                 </el-form-item>
             </el-form>
             <ul class="dialog-form-view" v-else>
                 <li class="item">
                     <div class="label">作业标题</div>
-                    <div class="content">{{ addHomeWorkForm.name }}</div>
+                    <div class="content">{{ topicForm.name }}</div>
                 </li>
                 <li class="item">
                     <div class="label">结束时间</div>
-                    <div class="content">{{ addHomeWorkForm.time | formatDate('yyyy-MM-dd hh:mm') }}</div>
+                    <div class="content">{{ topicForm.time | formatDate('yyyy-MM-dd hh:mm') }}</div>
                 </li>
                 <li class="item">
                     <div class="label">作业内容</div>
-                    <div class="content" v-html="addHomeWorkForm.content"></div>
+                    <div class="content" v-html="topicForm.content"></div>
                 </li>
                 <li class="item">
                     <div class="label">发布人</div>
@@ -109,16 +111,15 @@
             </ul>
             <span slot="footer" class="dialog-footer">
                 <template v-if="dialogType !== 'view'">
-                    <el-button @click="addWokDialogVisible = false">取 消</el-button>
+                    <el-button @click="addTopicDialogVisible = false">取 消</el-button>
                     <el-button type="primary" @click="saveData">确 定</el-button>
                 </template>
-                <template v-else><el-button @click="addWokDialogVisible = false">关 闭</el-button></template>
+                <template v-else><el-button @click="addTopicDialogVisible = false">关 闭</el-button></template>
             </span>
         </el-dialog>
     </div>
 </template>
 <script>
-import Tinymce from '@/components/Tinymce';
 export default {
     data() {
         return {
@@ -133,7 +134,7 @@ export default {
             tableData: [],
             curCheckId: null,
             tableLoading: false,
-            addHomeWorkForm: {
+            topicForm: {
                 name: '',
                 time: '',
                 content: ''
@@ -141,15 +142,14 @@ export default {
             dialogType: 'add',
             totalPage: 0,
             totalNum: 0,
-            addWokDialogVisible: false,
-            addWorkRules: {
-                name: { required: true, message: '请输入作业标题', trigger: 'blur' },
+            addTopicDialogVisible: false,
+            addTopicRules: {
+                name: { required: true, message: '请输入话题标题', trigger: 'blur' },
                 time: { required: true, message: '请选择结束时间', trigger: 'change' },
-                content: { required: true, message: '请输入作业内容', trigger: 'blur' }
+                content: { required: true, message: '请输入话题内容', trigger: 'blur' }
             }
         };
     },
-    components: { Tinymce },
     computed: {
         addDialogTitle() {
             return this.dialogType === 'add' ? '发布' : this.dialogType === 'edit' ? '编辑' : '查看';
@@ -212,14 +212,9 @@ export default {
                 this.getData();
             });
         },
-        // 批改作业
-        homeworkCorrecting({ id, name }) {
-            this.$router.push({
-                path: '/homework-correcting' + id,
-                query: {
-                    title: name
-                }
-            });
+        // 打分
+        handleScoring() {
+            this.$router.push('/');
         },
         resetForm() {
             this.form = {
@@ -236,9 +231,9 @@ export default {
         },
         // 新增/编辑班级
         saveData() {
-            this.$refs['addHomeWorkForm'].validate(valid => {
+            this.$refs['topicForm'].validate(valid => {
                 if (valid) {
-                    const params = Object.assign({}, this.addHomeWorkForm);
+                    const params = Object.assign({}, this.topicForm);
                     params.startDate = params.time[0];
                     params.endDate = params.time[1];
                     this.dialogLoading = true;
@@ -284,27 +279,27 @@ export default {
             this.curCheckId = row.id;
         },
         splitData({ name, content, endDate }, opeartionType = 'edit') {
-            this.addHomeWorkForm = {
+            this.topicForm = {
                 name,
                 content,
                 time: endDate
             };
             this.dialogType = opeartionType;
-            this.addWokDialogVisible = true;
+            this.addTopicDialogVisible = true;
         },
         openAddDialog() {
             if (!this.form.classesId) {
                 this.$message.error('请先选择班级!');
                 return;
             }
-            this.addWokDialogVisible = true;
+            this.addTopicDialogVisible = true;
             this.dialogType = 'add';
         },
         viewData(row) {
             this.splitData(row, 'view');
         },
         closeAddDialog() {
-            this.addWokDialogVisible = false;
+            this.addTopicDialogVisible = false;
             this.resetcourseForm();
         },
         closeUploadDialog() {
@@ -312,13 +307,13 @@ export default {
             this.$refs.uploadForm.resetFields();
         },
         resetcourseForm() {
-            this.addHomeWorkForm = {
+            this.topicForm = {
                 name: '',
                 time: '',
                 content: ''
             };
-            const addHomeWorkForm = this.$refs.addHomeWorkForm;
-            addHomeWorkForm && addHomeWorkForm.resetFields();
+            const topicForm = this.$refs.topicForm;
+            topicForm && topicForm.resetFields();
         },
         handleChangePage(page) {
             this.form.pageSize = page.pageSize;
@@ -328,14 +323,4 @@ export default {
     }
 };
 </script>
-<style scoped lang="scss">
-.course-name {
-    color: #333;
-    font-family: Microsoft YaHei;
-    font-weight: bold;
-}
-.icon .iconshi,
-.icon .iconfou {
-    font-size: 12px;
-}
-</style>
+<style scoped lang="scss"></style>

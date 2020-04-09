@@ -81,10 +81,12 @@ export default {
   },
   watch: {
     value(val) {
+      console.log(this.hasChange)
       if (!this.hasChange && this.hasInit) {
         this.$nextTick(() =>
           window.tinymce.get(this.tinymceId).setContent(val || ''))
       }
+      this.hasChange = false
     }
   },
   mounted() {
@@ -138,8 +140,9 @@ export default {
             editor.setContent(_this.value)
           }
           _this.hasInit = true
-          editor.on('NodeChange Change KeyUp SetContent', () => {
-            this.hasChange = true
+          editor.on('NodeChange Change', () => {
+            this.hasChange = true;
+            console.log('ok2')
             this.$emit('input', editor.getContent())
           })
         },

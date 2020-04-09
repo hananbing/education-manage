@@ -89,8 +89,8 @@ export default {
 .vxe-table.size--medium .vxe-body--column:not(.col--ellipsis) {
     padding: 8px 0 !important;
 }
-
-.course-name {
+ 
+.course-name,.classes-name {
     color: #333;
     font-family: Microsoft YaHei;
     font-weight: bold;

@@ -12,7 +12,7 @@
             <el-form :model="param" :rules="rules" ref="regsiterForm" label-width="0px" class="ms-content">
                 <el-form-item prop="name">
                     <el-input v-model.trim="param.name" placeholder="姓名" size="medium">
-                        <el-button slot="prepend" icon="iconfont iconxingming"></el-button>
+                        <el-button slot="prepend" icon="el-icon-user"></el-button>
                     </el-input>
                 </el-form-item>
                 <el-form-item prop="phone">

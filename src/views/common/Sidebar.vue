@@ -49,43 +49,49 @@ export default {
                 {
                     icon: 'iconfont iconshouye',
                     index: 'dashboard',
-                    title: '系统首页',
+                    title: '系统首页'
                 },
                 {
                     icon: 'iconfont iconyonghuguanli',
                     index: 'user-management',
                     title: '用户管理',
+                    auth: ['ROLE_ADMIN', 'ROLE_INSTRUCTOR']
                 },
                 {
                     icon: 'iconfont iconbanjiguanli',
                     index: 'class-management',
-                    title: '班级管理'
+                    title: '班级管理',
+                    auth: ['ROLE_ADMIN']
                 },
                 {
                     icon: 'iconfont iconkechengguanli',
                     index: 'course-management',
-                    title: '课程管理'
+                    title: '课程管理',
+                    auth: ['ROLE_INSTRUCTOR']
                 },
                 {
                     icon: 'iconfont iconzuoyeguanli',
                     index: 'homework-management',
-                    title: '作业管理'
-                },
+                    title: '作业管理',
+                    auth: ['ROLE_INSTRUCTOR', 'ROLE_EXPERT']
+                }
             ]
         };
-    }, 
+    },
     computed: {
         onRoutes() {
             return this.$route.path.replace('/', '');
+        },
+        routes() {
+            const roles = JSON.parse(sessionStorage.userInfo).authorities || [];
+            return this.items.filter(item => {
+                return roles.some(role => {
+                    return !item.auth ? true : item.auth.includes(role);
+                });
+            });
         }
     },
-    created() {
-        // // 通过 Event Bus 进行组件间通信，来折叠侧边栏
-        // bus.$on('collapse', msg => {
-        //     this.collapse = msg;
-        //     bus.$emit('collapse-content', msg);
-        // });
-    }
+    created() {}
 };
 </script>
 

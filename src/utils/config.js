@@ -18,4 +18,14 @@ const NATION_TYPES = {
     TIBETAN: '藏族',
     OTHERS: '其他'
 };
-export { ALL_ROLES, SELEECT_ROLES, NATION_TYPES };
+// 角色对应的可选角色
+const SELEECT_ROLES_PERM = {
+    ROLE_ADMIN: {
+        ROLE_INSTRUCTOR: '辅导员',
+        ROLE_EXPERT: '专家'
+    },
+    ROLE_INSTRUCTOR: {
+        ROLE_STUDENT: '学员'
+    }
+};
+export { ALL_ROLES, SELEECT_ROLES, NATION_TYPES, SELEECT_ROLES_PERM };

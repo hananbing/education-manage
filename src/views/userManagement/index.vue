@@ -38,7 +38,7 @@
                 <el-button icon="el-icon-refresh" @click="resetForm">重置</el-button>
             </template>
             <template slot="rightButton">
-                <el-button icon="iconfont icondaoru" @click="importData" v-permission="['ROLE_ADMIN']">导入</el-button>
+                <el-button icon="iconfont icondaoru" @click="importData" v-permission="['ROLE_INSTRUCTOR']">导入</el-button>
                 <el-button type="warning" icon="el-icon-plus" @click="openAddDialog">新增</el-button>
             </template>
         </search-box>
@@ -113,7 +113,7 @@
                         <el-option v-for="(value, key) in nationTypes" :key="key" :label="value" :value="key"> </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="手机号" prop="login" >
+                <el-form-item label="手机号" prop="login">
                     <el-input v-model.trim="addUserForm.login" placeholder="请输入手机号"></el-input>
                 </el-form-item>
                 <el-form-item label="邮箱" prop="email">
@@ -152,7 +152,7 @@ import viewData from '@/components/viewData.vue';
 import importUser from './components/importUser.vue';
 import addressComponent from '@/components/tools/address.vue';
 import { validatePhone, validateEmail } from '@/utils/utils.js';
-import { SELEECT_ROLES, NATION_TYPES } from '@/utils/config.js';
+import { NATION_TYPES, SELEECT_ROLES_PERM } from '@/utils/config.js';
 export default {
     data() {
         return {
@@ -177,7 +177,6 @@ export default {
                 addressData: []
             },
             nationTypes: NATION_TYPES,
-            roleOptions: SELEECT_ROLES,
             dialogDto: {
                 component: null,
                 classesName: '',
@@ -217,6 +216,15 @@ export default {
         },
         classesOptions() {
             return this.$store.state.Common.classesData;
+        },
+        roleOptions() {
+            const roles = JSON.parse(sessionStorage.userInfo).authorities || [];
+            for (let item of roles) {
+                if (SELEECT_ROLES_PERM[item]) {
+                    return SELEECT_ROLES_PERM[item];
+                }
+            }
+            return ;
         }
     },
     components: { viewData, importUser, addressComponent },
@@ -224,7 +232,6 @@ export default {
         await this.setFirstClassId();
         this.getData();
     },
-    watch: {},
     methods: {
         // 默认选中第一项
         async setFirstClassId() {

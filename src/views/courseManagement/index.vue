@@ -64,7 +64,7 @@
                         </div>
                     </template>
                 </vxe-table-column>
-                <vxe-table-column fixed="right" title="操作" width="220">
+                <vxe-table-column fixed="right" title="操作" width="230">
                     <template slot-scope="scope">
                         <div class="operation-icon">
                             <el-button type="text" @click="viewData(scope.row)">查看</el-button>
@@ -163,7 +163,7 @@
             :close-on-click-modal="false"
             width="450px"
         >
-            <p class="course-name">班级名称&nbsp;{{ curClassName }}</p>
+            <p class="course-name">课程名称&nbsp;{{ curCourseName }}</p>
             <el-form ref="uploadForm" class="dialog-form-box" :model="uploadForm" :rules="uploadRules" label-width="85px">
                 <template v-if="uploadDialogType === 'LIVE'">
                     <el-form-item label="链接地址" prop="url" key="1" required>
@@ -224,6 +224,7 @@ export default {
                 current: 0,
                 type: ''
             },
+            tableData:[],
             curCheckId: null,
             courseOptions: Object.freeze({ LIVE: '直播', VIDEO: '视频', OFFICE: 'office文件' }), // 课程类型
             tableLoading: false,
@@ -269,6 +270,9 @@ export default {
         },
         classesOptions() {
             return this.$store.state.Common.classesData;
+        },
+        curCourseName(){
+            return (this.tableData.find(item => item.id === this.curCheckId) || {}).name
         }
     },
     async created() {
