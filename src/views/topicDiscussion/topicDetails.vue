@@ -87,7 +87,7 @@
 export default {
     data() {
         return {
-            tableData: [{ name: '12', score: 0 }],
+            tableData: [{ name: '12', score: 0,light:false },{ name: '12322', score: 0,light:false }],
             curCheckId: null,
             tableLoading: false,
             workForm: {
@@ -150,7 +150,9 @@ export default {
             this.workDialogVisible = true;
         },
         // 保存打分
-        saveScore({ id, score }) {},
+        saveScore(row) {
+            row.light = false
+        },
         // 批改作业
         saveData() {
             this.dialogLoading = true;

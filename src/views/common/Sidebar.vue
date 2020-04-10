@@ -48,39 +48,57 @@ export default {
             items: [
                 {
                     icon: 'iconfont iconshouye',
-                    index: 'dashboard',
+                    index: '/dashboard',
                     title: '系统首页'
                 },
                 {
                     icon: 'iconfont iconyonghuguanli',
-                    index: 'user-management',
+                    index: '/user-management',
                     title: '用户管理',
                     auth: ['ROLE_ADMIN', 'ROLE_INSTRUCTOR']
                 },
                 {
                     icon: 'iconfont iconbanjiguanli',
-                    index: 'class-management',
+                    index: '/class-management',
                     title: '班级管理',
                     auth: ['ROLE_ADMIN']
                 },
                 {
                     icon: 'iconfont iconkechengguanli',
-                    index: 'course-management',
+                    index: '/course-management',
                     title: '课程管理',
                     auth: ['ROLE_INSTRUCTOR']
                 },
                 {
                     icon: 'iconfont iconzuoyeguanli',
-                    index: 'homework-management',
+                    index: '/homework-management',
                     title: '作业管理',
                     auth: ['ROLE_INSTRUCTOR', 'ROLE_EXPERT']
+                },
+                {
+                    icon: 'iconfont iconhuatitaolun',
+                    index: '/topic-management',
+                    title: '话题讨论',
+                    auth: ['ROLE_INSTRUCTOR', 'ROLE_EXPERT']
+                },
+                {
+                    icon: 'iconfont iconziyuanguanli',
+                    index: '/resources-management',
+                    title: '资源管理',
+                    auth: ['ROLE_INSTRUCTOR', 'ROLE_EXPERT']
+                },
+                {
+                    icon: 'iconfont iconxueqingtongji',
+                    index: '/statistics-management',
+                    title: '学情统计',
+                    auth: ['ROLE_ADMIN']
                 }
             ]
         };
     },
     computed: {
         onRoutes() {
-            return this.$route.path.replace('/', '');
+            return this.$route.path;
         },
         routes() {
             const roles = JSON.parse(sessionStorage.userInfo).authorities || [];

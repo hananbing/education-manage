@@ -51,11 +51,12 @@ export default {
     width: 240px !important;
 }
 .el-message {
-    padding: 10px 16px;
     min-width: initial !important;
-    background: #fff;
-    border-radius: 4px;
+    background: #fff !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 10px 16px;
+    border-radius: 4px;
+    border:none !important;
     pointer-events: all;
 }
 /* 弹框中的表单样式 */

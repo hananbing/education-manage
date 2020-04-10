@@ -62,7 +62,7 @@
                 <vxe-table-column field="login" title="手机号"></vxe-table-column>
                 <vxe-table-column title="角色">
                     <template v-slot="{ row }">
-                        <span>{{ roleOptions[row.authorities[0]] }}</span>
+                        <span>{{ allRoles[row.authorities[0]] }}</span>
                     </template>
                 </vxe-table-column>
                 <vxe-table-column fixed="right" title="操作" width="200">
@@ -152,7 +152,7 @@ import viewData from '@/components/viewData.vue';
 import importUser from './components/importUser.vue';
 import addressComponent from '@/components/tools/address.vue';
 import { validatePhone, validateEmail } from '@/utils/utils.js';
-import { NATION_TYPES, SELEECT_ROLES_PERM } from '@/utils/config.js';
+import { NATION_TYPES, SELEECT_ROLES_PERM, ALL_ROLES } from '@/utils/config.js';
 export default {
     data() {
         return {
@@ -224,7 +224,10 @@ export default {
                     return SELEECT_ROLES_PERM[item];
                 }
             }
-            return ;
+            return;
+        },
+        allRoles(){
+            return ALL_ROLES
         }
     },
     components: { viewData, importUser, addressComponent },

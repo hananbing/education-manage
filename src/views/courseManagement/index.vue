@@ -224,7 +224,7 @@ export default {
                 current: 0,
                 type: ''
             },
-            tableData:[],
+            tableData: [],
             curCheckId: null,
             courseOptions: Object.freeze({ LIVE: '直播', VIDEO: '视频', OFFICE: 'office文件' }), // 课程类型
             tableLoading: false,
@@ -271,8 +271,8 @@ export default {
         classesOptions() {
             return this.$store.state.Common.classesData;
         },
-        curCourseName(){
-            return (this.tableData.find(item => item.id === this.curCheckId) || {}).name
+        curCourseName() {
+            return (this.tableData.find(item => item.id === this.curCheckId) || {}).name;
         }
     },
     async created() {
@@ -413,14 +413,15 @@ export default {
                 }
             });
         },
-        // 上传附件
+        // 上传附件/视频/链接
         uploadData() {
             this.$refs['uploadForm'].validate(valid => {
                 if (valid) {
                     this.dialogLoading = true;
-                    const params = this.tableData.find(item => item.id === this.curCheckId);
+                    // const row = this.tableData.find(item => item.id === this.curCheckId);
+                    const params = Object.assign({ id: this.curCheckId }, this.uploadForm);
                     this.$http.courseService
-                        .updateCourse({ ...params, ...this.uploadForm })
+                        .updateCourseAnnex(params)
                         .then(res => {
                             this.getData();
                             this.$message({

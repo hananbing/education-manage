@@ -390,9 +390,9 @@ export default {
             this.addClassesForm = {
                 name,
                 time: [startDate, endDate],
-                projectType
-                // expertName,
-                // instructorName
+                projectType,
+                expertName,
+                instructorName
             };
             this.classesDialogType = type;
             this.addClassesdialogVisible = true;
