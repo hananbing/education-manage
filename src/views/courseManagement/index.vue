@@ -3,8 +3,8 @@
         <search-box :form="form">
             <template slot="tabs">
                 <el-tabs v-model="form.endStatus" @tab-click="searchData">
-                    <el-tab-pane label="未结束" name="unFinished"></el-tab-pane>
-                    <el-tab-pane label="已结束" name="finished"></el-tab-pane>
+                    <el-tab-pane label="未结束课程列表" name="unFinished"></el-tab-pane>
+                    <el-tab-pane label="已结束课程列表" name="finished"></el-tab-pane>
                 </el-tabs>
             </template>
             <template slot="input">
@@ -64,21 +64,21 @@
                         </div>
                     </template>
                 </vxe-table-column>
-                <vxe-table-column fixed="right" title="操作" width="230">
+                <vxe-table-column fixed="right" title="操作" :width="form.endStatus === 'finished' ? 120 : 230">
                     <template slot-scope="scope">
                         <div class="operation-icon">
                             <el-button type="text" @click="viewData(scope.row)">查看</el-button>
-                            <!-- <template v-if="form.endStatus === 'finished'"> -->
-                            <el-button type="text" @click="handleScoring(scope.row)">打分</el-button>
-                            <!-- </template> -->
-                            <!-- <template v-else> -->
-                            <el-button type="text" @click="handleEditcourse(scope.row)">编辑</el-button>
-                            <el-button type="text" @click="remove(scope.row)">删除</el-button>
-                            <el-button type="text" @click="addLink(scope.row)">{{
-                                scope.row.type === 'LIVE' ? '添加链接' : '上传附件'
-                            }}</el-button>
-                            <!-- <el-button type="text" @click="upload(scope.row)" v-if="scope.row.type === 'OFFICE'">上传附件</el-button> -->
-                            <!-- </template> -->
+                            <template v-if="form.endStatus === 'finished'">
+                                <el-button type="text" @click="handleScoring(scope.row)">打分</el-button>
+                            </template>
+                            <template v-else>
+                                <!-- <el-button type="text" @click="handleEditcourse(scope.row)">编辑</el-button> -->
+                                <el-button type="text" @click="remove(scope.row)">删除</el-button>
+                                <el-button type="text" @click="addLink(scope.row)">{{
+                                    scope.row.type === 'LIVE' ? '添加链接' : '上传附件'
+                                }}</el-button>
+                                <!-- <el-button type="text" @click="upload(scope.row)" v-if="scope.row.type === 'OFFICE'">上传附件</el-button> -->
+                            </template>
                         </div>
                     </template>
                 </vxe-table-column>
@@ -174,10 +174,10 @@
                     <el-form-item label="附件名称" prop="annexName">
                         <el-input v-model="uploadForm.annexName" placeholder="请输入附件名称" clearable></el-input>
                     </el-form-item>
-                    <el-form-item label="播放地址" prop="url" v-if="uploadDialogType === 'VIDEO'" key="2">
+                    <el-form-item :label="uploadDialogType === 'VIDEO' ? '播放地址' : '链接地址'" prop="url">
                         <el-input v-model="uploadForm.url" placeholder="请输入播放地址"></el-input>
                     </el-form-item>
-                    <el-form-item label="上传文件" prop="url" required v-else>
+                    <!-- <el-form-item label="上传文件" prop="url" required v-else>
                         <el-upload
                             class="upload-demo"
                             drag
@@ -191,7 +191,7 @@
                             <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
                             <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过10M</div>
                         </el-upload>
-                    </el-form-item>
+                    </el-form-item> -->
                 </template>
             </el-form>
             <span slot="footer" class="dialog-footer">

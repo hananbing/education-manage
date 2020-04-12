@@ -8,6 +8,7 @@
                 :headers="headers"
                 :data="params"
                 :limit="1"
+                :before-upload="onBeforeUpload"
                 :on-error="onError"
                 :on-success="onSuccess"
                 :on-exceed="onExceed"
@@ -28,7 +29,7 @@
             </vxe-table>
             <!-- <pagniation :currentPage="form.current" :totalPage="totalPage" :totalNum="totalNum" @changePage="handleChangePage"></pagniation> -->
         </div>
-        <a href="http://file.miniedu.com/学员导入模板1586410816381.csv?v=1586111" download ref='download'></a>
+        <a href="http://file.miniedu.com/学员导入模板1586410816381.csv?v=1586111" download ref="download"></a>
     </div>
 </template>
 <script>
@@ -83,6 +84,14 @@ export default {
             this.form.current = page.currentPage - 1;
             this.getData();
         },
+        onBeforeUpload(file) {
+            const type = ['.csv'];
+            const flag = type.some(item => file.name.indexOf(item) > -1);
+            if (!flag) {
+                this.$message.error('导入文件只能是 csv 格式!');
+            }
+            return flag;
+        },
         onError(err, file, fileList) {
             this.$message.error('上传失败');
         },
@@ -94,7 +103,7 @@ export default {
         },
         importData() {},
         downloadTemplate() {
-            this.$refs.download.click()
+            this.$refs.download.click();
         }
     }
 };

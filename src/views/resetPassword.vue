@@ -2,13 +2,13 @@
     <div class="login-wrap">
         <div class="header">
             <div class="header-left">
-                <!-- <img src="../assets/img/logo.png" alt="logo" /> -->
+                <img src="../assets/img/logo.png" alt="logo" />
                 <div class="header-title">重置密码</div>
             </div>
             <div class="header-right">有账号？ <router-link to="/login" style="color:#2693FF">去登录</router-link></div>
         </div>
         <div class="ms-login">
-            <!-- <div class="ms-title">继续教育平台</div> -->
+            <div class="ms-title">继续教育平台</div>
             <el-form :model="param" :rules="rules" ref="resetPasswordForm" label-width="0px" class="ms-content">
                 <!-- <template v-if="type === 'A'"> -->
                 <el-form-item prop="phone">
@@ -207,8 +207,9 @@ export default {
     color: #fff;
     font-size: 32px;
     font-family: FZCuHeiSongS-B-GB;
-    font-weight: 400;
+    font-weight: 600;
     color: rgba(77, 77, 77, 1);
+    letter-spacing: 2px;
 }
 .header {
     height: 94px;
@@ -255,7 +256,7 @@ export default {
     left: 50%;
     top: 50%;
     width: 440px;
-    margin: -215px 0 0 -175px;
+    margin: -230px 0 0 -220px;
     border-radius: 5px;
     overflow: hidden;
 }

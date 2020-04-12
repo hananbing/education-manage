@@ -38,8 +38,10 @@ Object.keys(directives).forEach(key => {
         Vue.directive(key, directives[key]);
     }
 });
+
 Vue.component('search-box', searchBox);
 Vue.component('pagniation', pagniation);
+
 Vue.use(confirm);
 Vue.use(alert);
 Vue.prototype.$http = api; // 挂载接口服务在原型上

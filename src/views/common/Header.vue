@@ -1,9 +1,9 @@
 <template>
     <div class="header">
         <div class="header-left">
-            <!-- <div class="logo"> -->
+            <div class="logo">
                  <img src="../../assets/img/logo.png" class="logo" alt="logo" />
-            <!-- </div> -->
+            </div>
         </div>
         <div class="header-right">
             <div class="title">继续教育后台管理</div>

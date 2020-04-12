@@ -97,4 +97,9 @@ export default {
     font-weight: bold;
     margin-bottom: 7px;
 }
+.ms-login .el-button i{
+    margin-right: 0;
+    font-size: 15px;
+    color: #2E8661;
+}
 </style>
