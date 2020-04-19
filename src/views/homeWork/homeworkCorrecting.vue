@@ -136,13 +136,13 @@ export default {
             });
         },
         // 批改作业
-        homeworkCorrecting({ score, content, id }) {
+        homeworkCorrecting({ score, answer, id }) {
             if (score) {
                 this.dialogType = 'edit'; // 重批
             } else {
                 this.dialogType = 'add'; // 批改
             }
-            this.workForm.content = content;
+            this.workForm.content = answer;
             this.curCheckId = id;
             this.workDialogVisible = true;
         },
