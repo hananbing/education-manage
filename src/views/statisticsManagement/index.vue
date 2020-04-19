@@ -2,9 +2,9 @@
     <div>
         <search-box :form="form">
             <template slot="tabs">
-                <el-tabs v-model="form.endStatus" @tab-click="searchData">
-                    <el-tab-pane label="未结束" name="unFinished"></el-tab-pane>
-                    <el-tab-pane label="已结束" name="finished"></el-tab-pane>
+                <el-tabs v-model="form.type" @tab-click="searchData">
+                    <el-tab-pane label="学习统计" name="unFinished"></el-tab-pane>
+                    <el-tab-pane label="考勤统计" name="finished"></el-tab-pane>
                 </el-tabs>
             </template>
             <template slot="input">
@@ -40,40 +40,36 @@
                 size="medium"
                 show-header-overflow
                 show-overflow
-                :data="studyTableData"
+                :data="tableData"
                 :max-height="tableMaxHeight"
-                v-show="form.endStatus === 'finished'"
             >
-                <vxe-table-column field="name" title="姓名"> </vxe-table-column>
-                <vxe-table-column field="name" title="总分"> </vxe-table-column>
-                <vxe-table-column field="name" title="签到得分"> </vxe-table-column>
-                <vxe-table-column field="name" title="在线学习得分"> </vxe-table-column>
-                <vxe-table-column field="name" title="作业得分"> </vxe-table-column>
-                <vxe-table-column field="name" title="话题得分"> </vxe-table-column>
-            </vxe-table>
-            <vxe-table
-                stripe
-                highlight-hover-row
-                size="medium"
-                show-header-overflow
-                show-overflow
-                :data="examineTableData"
-                :max-height="tableMaxHeight"
-                v-show="form.endStatus === 'unFinished'"
-            >
-                <vxe-table-column field="日期" title="课程名称">
-                    <template slot-scope="scope">{{ scope.row.startDate | formatDate }}</template>
-                </vxe-table-column>
-                <vxe-table-column title="已签到人数">
-                    <template slot-scope="scope">
-                        <span>{{ scope.row.num }}</span>
-                    </template>
-                </vxe-table-column>
-                <vxe-table-column title="未签到人数">
-                    <template slot-scope="scope">
-                        <span>{{ scope.row.num }}</span>
-                    </template>
-                </vxe-table-column>
+                <template v-if="form.type === 'finished'">
+                    <vxe-table-column field="name" title="姓名"> </vxe-table-column>
+                    <vxe-table-column field="name" title="总分"> </vxe-table-column>
+                    <vxe-table-column field="name" title="签到得分"> </vxe-table-column>
+                    <vxe-table-column field="name" title="在线学习得分"> </vxe-table-column>
+                    <vxe-table-column field="name" title="作业得分"> </vxe-table-column>
+                    <vxe-table-column field="name" title="话题得分"> </vxe-table-column>
+                </template>
+                <template v-else>
+                    <vxe-table-column field="日期" title="课程名称">
+                        <template slot-scope="scope">{{ scope.row.startDate | formatDate }}</template>
+                    </vxe-table-column>
+                    <vxe-table-column title="已签到人数">
+                        <template slot-scope="scope">
+                            <el-tooltip class="item" effect="dark" content="点击查看详情" placement="top">
+                                <span @click="checkDetails(true)">{{ scope.row.num }}</span>
+                            </el-tooltip>
+                        </template>
+                    </vxe-table-column>
+                    <vxe-table-column title="未签到人数">
+                        <template slot-scope="scope">
+                            <el-tooltip class="item" effect="dark" content="点击查看详情" placement="top">
+                                <span @click="checkDetails(false)">{{ scope.row.num }}</span>
+                            </el-tooltip>
+                        </template>
+                    </vxe-table-column>
+                </template>
             </vxe-table>
             <pagniation :currentPage="form.current" :totalPage="totalPage" :totalNum="totalNum" @changePage="handleChangePage"></pagniation>
         </div>
@@ -84,35 +80,38 @@
                     placeholder="请输入姓名"
                     clearable
                     style="width:300px;margin-right:20px;"
-                    @keyup.enter.native="searchData"
+                    @keyup.enter.native="searchDialogData"
                 ></el-input>
                 <div>
                     <el-button type="primary" icon="el-icon-search" @click="searchDialogData">搜索</el-button>
                     <el-button icon="el-icon-refresh" @click="resetDialogForm">重置</el-button>
                 </div>
             </div>
-            <vxe-table
-                stripe
-                highlight-hover-row
-                size="medium"
-                show-header-overflow
-                show-overflow
-                :data="dialogData"
-                max-height="300px"
-                style="width:100%"
-                v-show="form.endStatus === 'unFinished'"
-            >
-                <vxe-table-column field="" title="签到时间">
-                    <template slot-scope="scope">{{ scope.row.startDate | formatDate('yyyy-MM-dd hh:mm') }}</template>
-                </vxe-table-column>
-                <vxe-table-column field="name" title="姓名"></vxe-table-column>
-            </vxe-table>
-            <pagniation
-                :currentPage="dialogForm.current"
-                :totalPage="dialogForm.totalPage"
-                :totalNum="dialogForm.totalNum"
-                @changePage="handleDialogChangePage"
-            ></pagniation>
+            <div v-loading="dialogDto.loading">
+                <vxe-table
+                    stripe
+                    highlight-hover-row
+                    size="medium"
+                    show-header-overflow
+                    show-overflow
+                    :data="dialogData"
+                    max-height="300px"
+                    style="width:100%"
+                    v-show="form.type === 'unFinished'"
+                >
+                    <vxe-table-column field="" title="签到时间">
+                        <template slot-scope="scope">{{ scope.row.startDate | formatDate('yyyy-MM-dd hh:mm') }}</template>
+                    </vxe-table-column>
+                    <vxe-table-column field="name" title="姓名"></vxe-table-column>
+                </vxe-table>
+                <pagniation
+                    :currentPage="dialogForm.current"
+                    :totalPage="dialogDto.totalPage"
+                    :totalNum="dialogDto.totalNum"
+                    @changePage="handleDialogChangePage"
+                ></pagniation>
+            </div>
+
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialogDto.visible = false">关 闭</el-button>
             </span>
@@ -128,21 +127,22 @@ export default {
                 pageSize: 30,
                 classesId: '',
                 time: '',
-                endStatus: 'unFinished'
+                type: 'unFinished'
             },
             dialogDto: {
-                title: '',
-                visible: false
-            },
-            dialogForm: {
-                name: '',
-                pageSize: 30,
-                current: 0,
+                title: '已签到列表',
+                visible: false,
+                loading: false,
                 totalPage: 0,
                 totalNum: 0
             },
-            studyTableData: [],
-            examineTableData: [],
+            tableLoading: false,
+            dialogForm: {
+                name: '',
+                pageSize: 30,
+                current: 0
+            },
+            tableData: [],
             dialogData: [],
             curCheckId: null,
             totalPage: 0,
@@ -160,7 +160,6 @@ export default {
         }
     },
     async created() {
-        this.tableLoading = true;
         await this.setFirstClassId();
         this.getData();
     },
@@ -185,13 +184,25 @@ export default {
             this.form.current = 0;
             this.getData();
         },
-        getDialogData() {},
+        getDialogData() {
+            this.dialogDto.loading = true;
+            this.$http.statisticsService
+                .getStudentList(this.dialogForm)
+                .then(res => {
+                    this.totalPage = res.data.totalPages;
+                    this.totalNum = res.data.totalElements;
+                    this.dialogData = Object.freeze(res.data.content);
+                })
+                .finally(() => {
+                    this.dialogDto.loading = false;
+                });
+        },
         getData() {
             this.tableLoading = true;
             const params = Object.assign({}, this.form);
-            params.endStatus = params.endStatus !== 'unFinished';
-            this.$http.courseService
-                .getAllCourses(params)
+            params.type = params.type !== 'unFinished';
+            this.$http.statisticsService
+                .getStatisticList(params)
                 .then(res => {
                     this.totalPage = res.data.totalPages;
                     this.totalNum = res.data.totalElements;
@@ -201,9 +212,22 @@ export default {
                     this.tableLoading = false;
                 });
         },
+        // 点击查看详情
+        checkDetails(row, type = 'signed') {
+            // signed 已签到  unsign 未签到
+            this.dialogDto = {
+                title: type === 'signed' ? '已签到列表' : '未签到列表',
+                visible: true,
+                loading: false,
+                totalPage: 0,
+                totalNum: 0,
+                type
+            };
+            this.getDialogData();
+        },
         resetForm() {
             this.form = {
-                endStatus: this.form.endStatus,
+                type: this.form.type,
                 classesId: this.form.classesId,
                 time: '',
                 pageSize: this.form.pageSize,

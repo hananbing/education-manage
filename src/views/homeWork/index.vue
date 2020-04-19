@@ -16,7 +16,7 @@
                     </el-form-item>
                 </el-col>
                 <el-col :span="5">
-                    <el-input v-model="form.name" placeholder="请输入作业标题" @keyup.enter.native="searchData"></el-input>
+                    <el-input v-model="form.title" placeholder="请输入作业标题" clearable @keyup.enter.native="searchData"></el-input>
                 </el-col>
             </template>
             <template slot="button">
@@ -37,19 +37,19 @@
                 show-overflow
                 :max-height="tableMaxHeight"
             >
-                <vxe-table-column field="name" title="作业标题"></vxe-table-column>
+                <vxe-table-column field="title" title="作业标题"></vxe-table-column>
                 <vxe-table-column title="结束时间">
-                    <template slot-scope="scope">{{ scope.row.endDate | formatDate('yyyy-MM-dd hh:mm') }}</template>
+                    <template slot-scope="scope">{{ scope.row.deadline | formatDate('yyyy-MM-dd hh:mm') }}</template>
                 </vxe-table-column>
-                <vxe-table-column fixed="right" title="操作" width="220">
+                <vxe-table-column fixed="right" title="操作" width="150">
                     <template slot-scope="scope">
                         <div class="operation-icon">
-                            <template>
+                            <template v-if="form.endStatus === 'unFinished'">
                                 <el-button type="text" @click="viewData(scope.row)">查看</el-button>
                                 <el-button type="text" @click="handleEditWork(scope.row)">编辑</el-button>
                                 <el-button type="text" @click="remove(scope.row)">删除</el-button>
                             </template>
-                            <template>
+                            <template v-else>
                                 <el-button type="text" @click="homeworkCorrecting(scope.row)">批改作业</el-button>
                             </template>
                         </div>
@@ -74,11 +74,11 @@
                 :rules="addWorkRules"
                 label-width="85px"
             >
-                <el-form-item label="作业标题" prop="name">
-                    <el-input v-model.trim="addHomeWorkForm.name" placeholder="请输入作业标题"></el-input>
+                <el-form-item label="作业标题" prop="title">
+                    <el-input v-model.trim="addHomeWorkForm.title" placeholder="请输入作业标题"></el-input>
                 </el-form-item>
                 <el-form-item label="结束时间" prop="time">
-                    <el-date-picker v-model.number="addHomeWorkForm.time" type="datetime" style="width: 100%;" value-format="timestamp">
+                    <el-date-picker v-model.number="addHomeWorkForm.deadline" type="datetime" style="width: 100%;" value-format="timestamp">
                     </el-date-picker>
                 </el-form-item>
                 <el-form-item label="作业内容" prop="content">
@@ -88,23 +88,23 @@
             <ul class="dialog-form-view" v-else>
                 <li class="item">
                     <div class="label">作业标题</div>
-                    <div class="content">{{ addHomeWorkForm.name }}</div>
+                    <div class="content">{{ viewForm.title }}</div>
                 </li>
                 <li class="item">
                     <div class="label">结束时间</div>
-                    <div class="content">{{ addHomeWorkForm.time | formatDate('yyyy-MM-dd hh:mm') }}</div>
+                    <div class="content">{{ viewForm.deadline | formatDate('yyyy-MM-dd hh:mm') }}</div>
                 </li>
                 <li class="item">
                     <div class="label">作业内容</div>
-                    <div class="content" v-html="addHomeWorkForm.content"></div>
+                    <div class="content" v-html="viewForm.content"></div>
                 </li>
                 <li class="item">
                     <div class="label">发布人</div>
-                    <div class="content"></div>
+                    <div class="content">{{ viewForm.publisherName }}</div>
                 </li>
                 <li class="item">
                     <div class="label">创建时间</div>
-                    <div class="content"></div>
+                    <div class="content">{{ viewForm.createDate | formatDate('yyyy-MM-dd hh:mm') }}</div>
                 </li>
             </ul>
             <span slot="footer" class="dialog-footer">
@@ -125,26 +125,26 @@ export default {
             form: {
                 endStatus: 'unFinished',
                 classesId: '',
-                name: '',
+                title: '',
                 pageSize: 30,
-                current: 0,
-                type: ''
+                current: 0
             },
             tableData: [],
             curCheckId: null,
             tableLoading: false,
             addHomeWorkForm: {
-                name: '',
-                time: '',
+                title: '',
+                deadline: '',
                 content: ''
             },
+            viewForm: {},
             dialogType: 'add',
             totalPage: 0,
             totalNum: 0,
             addWokDialogVisible: false,
             addWorkRules: {
-                name: { required: true, message: '请输入作业标题', trigger: 'blur' },
-                time: { required: true, message: '请选择结束时间', trigger: 'change' },
+                title: { required: true, message: '请输入作业标题', trigger: 'blur' },
+                deadline: { required: true, message: '请选择结束时间', trigger: 'change' },
                 content: { required: true, message: '请输入作业内容', trigger: 'blur' }
             }
         };
@@ -191,9 +191,10 @@ export default {
         getData() {
             this.tableLoading = true;
             const params = Object.assign({}, this.form);
-            params.endStatus = params.endStatus !== 'unFinished';
-            this.$http.courseService
-                .getAllCourses(params)
+            params.ended = params.endStatus !== 'unFinished';
+            delete params.endStatus;
+            this.$http.homeWorkService
+                .getHomeWorkList(params)
                 .then(res => {
                     this.totalPage = res.data.totalPages;
                     this.totalNum = res.data.totalElements;
@@ -204,7 +205,7 @@ export default {
                 });
         },
         remove({ id }) {
-            this.$http.courseService.deleteCourse(id).then(res => {
+            this.$http.homeWorkService.removehomeWork(id).then(res => {
                 this.$message({
                     message: '删除成功',
                     type: 'success'
@@ -213,11 +214,11 @@ export default {
             });
         },
         // 批改作业
-        homeworkCorrecting({ id, name }) {
+        homeworkCorrecting({ id, title }) {
             this.$router.push({
-                path: '/homework-correcting' + id,
+                path: '/homework-correcting/' + id,
                 query: {
-                    title: name
+                    title: title
                 }
             });
         },
@@ -225,7 +226,7 @@ export default {
             this.form = {
                 endStatus: this.form.endStatus,
                 classesId: this.form.classesId,
-                name: '',
+                title: '',
                 pageSize: this.form.pageSize,
                 current: 0
             };
@@ -234,25 +235,23 @@ export default {
         getClassesById() {
             return this.classesOptions.find(item => item.id === this.form.classesId);
         },
-        // 新增/编辑班级
+        // 新增/编辑作业
         saveData() {
             this.$refs['addHomeWorkForm'].validate(valid => {
                 if (valid) {
                     const params = Object.assign({}, this.addHomeWorkForm);
-                    params.startDate = params.time[0];
-                    params.endDate = params.time[1];
                     this.dialogLoading = true;
                     if (this.dialogType === 'add') {
                         const { id, name } = this.getClassesById();
                         params.classesId = id;
                         params.classesName = name;
-                        this.$http.courseService
-                            .createCourse(params)
+                        this.$http.homeWorkService
+                            .createhomeWork(params)
                             .then(res => {
                                 this.closeAddDialog();
                                 this.$message({
                                     type: 'success',
-                                    message: '课程添加成功'
+                                    message: '作业添加成功'
                                 });
                                 this.getData();
                             })
@@ -261,15 +260,16 @@ export default {
                             });
                     } else {
                         params.id = this.curCheckId;
+                        params.classesId = this.form.classesId;
                         this.dialogLoading = true;
-                        this.$http.courseService
-                            .updateCourse(params)
+                        this.$http.homeWorkService
+                            .updatehomeWork(params)
                             .then(res => {
                                 this.getData();
                                 this.closeAddDialog();
                                 this.$message({
                                     type: 'success',
-                                    message: '课程修改成功'
+                                    message: '作业修改成功'
                                 });
                             })
                             .finally(() => {
@@ -283,11 +283,11 @@ export default {
             this.splitData(row, 'edit');
             this.curCheckId = row.id;
         },
-        splitData({ name, content, endDate }, opeartionType = 'edit') {
+        splitData({ content, title, deadline }, opeartionType = 'edit') {
             this.addHomeWorkForm = {
-                name,
                 content,
-                time: endDate
+                title,
+                deadline
             };
             this.dialogType = opeartionType;
             this.addWokDialogVisible = true;
@@ -301,7 +301,9 @@ export default {
             this.dialogType = 'add';
         },
         viewData(row) {
-            this.splitData(row, 'view');
+            this.viewForm = row;
+            this.dialogType = 'view';
+            this.addWokDialogVisible = true;
         },
         closeAddDialog() {
             this.addWokDialogVisible = false;
@@ -313,8 +315,8 @@ export default {
         },
         resetcourseForm() {
             this.addHomeWorkForm = {
-                name: '',
-                time: '',
+                title: '',
+                deadline: '',
                 content: ''
             };
             const addHomeWorkForm = this.$refs.addHomeWorkForm;

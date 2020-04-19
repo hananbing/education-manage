@@ -59,6 +59,13 @@ export default {
     border:none !important;
     pointer-events: all;
 }
+/* .el-dialog .el-dialog__body{
+    max-height: 500px;
+    overflow-y: auto;
+} */
+.el-dialog{
+    min-width: 300px;
+}
 /* 弹框中的表单样式 */
 .dialog-form-box {
     padding: 15px 15px 0;
