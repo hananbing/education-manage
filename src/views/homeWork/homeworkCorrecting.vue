@@ -20,16 +20,16 @@
                 show-overflow
                 :max-height="tableMaxHeight"
             >
-                <vxe-table-column field="name" title="学员姓名"></vxe-table-column>
+                <vxe-table-column field="studentName" title="学员姓名"></vxe-table-column>
                 <vxe-table-column title="提交时间">
-                    <template slot-scope="scope">{{ scope.row.endDate | formatDate('yyyy-MM-dd hh:mm') }}</template>
+                    <template slot-scope="scope">{{ scope.row.submitTime | formatDate('yyyy-MM-dd hh:mm') }}</template>
                 </vxe-table-column>
                 <vxe-table-column field="score" title="分数"></vxe-table-column>
                 <vxe-table-column fixed="right" title="操作" width="220">
                     <template slot-scope="scope">
                         <div class="operation-icon">
                             <el-button type="text" @click="homeworkCorrecting(scope.row)">{{
-                                scope.row.corrented ? '重批' : '批改'
+                                scope.row.score ? '重批' : '批改'
                             }}</el-button>
                         </div>
                     </template>
@@ -50,7 +50,7 @@
                     <div v-html="workForm.content" class="work-content-box"></div>
                 </el-form-item>
                 <el-form-item label="得分" prop="score">
-                    <el-slider v-model.number="workForm.score" show-input input-size='mini' > </el-slider>
+                    <el-slider v-model.number="workForm.score" show-input input-size="mini"> </el-slider>
                 </el-form-item>
                 <el-form-item label="评语">
                     <el-input
@@ -92,7 +92,8 @@ export default {
             dialogType: 'add',
             totalPage: 0,
             totalNum: 0,
-            workDialogVisible: true
+            homeWorkData: {},
+            workDialogVisible: false
         };
     },
     // components: { Tinymce },
@@ -119,7 +120,7 @@ export default {
         getData() {
             this.tableLoading = true;
             this.$http.homeWorkService
-                .getStudentsByWork(this.homeWorkId)
+                .getStudentByhomeWork({ homeworkId: this.homeWorkId })
                 .then(res => {
                     this.totalPage = res.data.totalPages;
                     this.totalNum = res.data.totalElements;
@@ -129,48 +130,43 @@ export default {
                     this.tableLoading = false;
                 });
         },
+        getHomeWorkDetails() {
+            this.$http.homeWorkService.getHomeWorkById(this.homeWorkId).then(res => {
+                this.homeWorkData = res.data;
+            });
+        },
         // 批改作业
-        homeworkCorrecting({ corrented, content }) {
-            if (corrented) {
+        homeworkCorrecting({ score, answer, id }) {
+            if (score) {
                 this.dialogType = 'edit'; // 重批
             } else {
-                this.dialogType = 'add'; // 重批
+                this.dialogType = 'add'; // 批改
             }
-            this.content = content;
+            this.workForm.content = answer;
+            this.curCheckId = id;
             this.workDialogVisible = true;
         },
         // 批改作业
         saveData() {
             this.dialogLoading = true;
-            if (this.dialogType === 'add') {
-                this.$http.courseService
-                    .createCourse(params)
-                    .then(res => {
-                        this.closeAddDialog();
-                        this.$message({
-                            type: 'success',
-                            message: '课程添加成功'
-                        });
-                        this.getData();
-                    })
-                    .finally(() => {
-                        this.dialogLoading = false;
+            const params = {
+                comment: this.workForm.comment,
+                score: this.workForm.score,
+                id: this.curCheckId
+            };
+            this.$http.homeWorkService
+                .homeworkCorrecting(params)
+                .then(res => {
+                    this.closeAddDialog();
+                    this.$message({
+                        type: 'success',
+                        message: '作业已批改'
                     });
-            } else {
-                this.$http.courseService
-                    .updateCourse(params)
-                    .then(res => {
-                        this.getData();
-                        this.closeAddDialog();
-                        this.$message({
-                            type: 'success',
-                            message: '课程修改成功'
-                        });
-                    })
-                    .finally(() => {
-                        this.dialogLoading = false;
-                    });
-            }
+                    this.getData();
+                })
+                .finally(() => {
+                    this.dialogLoading = false;
+                });
         },
         closeAddDialog() {
             this.workDialogVisible = false;
@@ -204,5 +200,7 @@ export default {
     width: 100%;
     border: 1px solid #e0e0e0;
     border-radius: 5px;
+    padding-left: 10px;
+    box-sizing: border-box;
 }
 </style>

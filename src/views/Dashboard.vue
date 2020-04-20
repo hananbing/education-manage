@@ -1,8 +1,8 @@
 <template>
     <div class="page-box">
         <div class="title-box">
-            <!-- <p class="welcome">欢迎使用</p>
-            <p class="title">中小学教师继续教育培训平台</p> -->
+            <p class="welcome">欢迎使用</p>
+            <p class="title">中小学教师继续教育培训平台</p>
         </div>
     </div>
 </template>

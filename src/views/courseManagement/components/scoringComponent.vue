@@ -13,7 +13,7 @@
                     <template v-slot="{ row }">
                         <div class="score-box">
                             <span class="score">{{ row.score }}</span>
-                            <el-button type="text" @click="saveData(row)">保存</el-button>
+                            <el-button type="text" @click="saveData(row)" :disabled="!row.light">保存</el-button>
                         </div>
                     </template>
                 </vxe-table-column>
@@ -53,7 +53,12 @@ export default {
         },
         saveData(row) {
             row.light = false;
-            this.$http.courseService.updateStudentScore(this.courseId, row.studentUserId, { score: parseFloat(row.score) });
+            this.$http.courseService.updateStudentScore(this.courseId, row.studentUserId, { score: parseFloat(row.score) }).then(()=>{
+                this.$message({
+                    type:'success',
+                    message:'保存成功'
+                })
+            });
         },
         closeDialog() {
             this.tableData = [];

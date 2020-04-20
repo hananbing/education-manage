@@ -10,7 +10,7 @@
             unique-opened
             router
         >
-            <template v-for="item in items">
+            <template v-for="item in routes">
                 <template v-if="item.subs">
                     <el-submenu :index="item.index" :key="item.index">
                         <template slot="title">
@@ -75,24 +75,24 @@ export default {
                     title: '作业管理',
                     auth: ['ROLE_INSTRUCTOR', 'ROLE_EXPERT']
                 },
-                {
-                    icon: 'iconfont iconhuatitaolun',
-                    index: '/topic-management',
-                    title: '话题讨论',
-                    auth: ['ROLE_INSTRUCTOR', 'ROLE_EXPERT']
-                },
-                {
-                    icon: 'iconfont iconziyuanguanli',
-                    index: '/resources-management',
-                    title: '资源管理',
-                    auth: ['ROLE_INSTRUCTOR', 'ROLE_EXPERT']
-                },
-                {
-                    icon: 'iconfont iconxueqingtongji',
-                    index: '/statistics-management',
-                    title: '学情统计',
-                    auth: ['ROLE_ADMIN']
-                }
+                // {
+                //     icon: 'iconfont iconhuatitaolun',
+                //     index: '/topic-management',
+                //     title: '话题讨论',
+                //     auth: ['ROLE_INSTRUCTOR', 'ROLE_EXPERT']
+                // },
+                // {
+                //     icon: 'iconfont iconziyuanguanli',
+                //     index: '/resources-management',
+                //     title: '资源管理',
+                //     auth: ['ROLE_INSTRUCTOR', 'ROLE_EXPERT']
+                // },
+                // {
+                //     icon: 'iconfont iconxueqingtongji',
+                //     index: '/statistics-management',
+                //     title: '学情统计',
+                //     auth: ['ROLE_ADMIN']
+                // }
             ]
         };
     },

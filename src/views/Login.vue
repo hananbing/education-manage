@@ -2,13 +2,13 @@
     <div class="login-wrap">
         <div class="header">
             <div class="header-left">
-                <!-- <img src="../assets/img/logo.png" alt="logo" /> -->
-                <!-- <div class="header-title">注册</div> -->
+                <img src="../assets/img/logo.png" alt="logo" />
+                <div class="header-title">登录</div>
             </div>
             <div class="header-right">没有账号？ <router-link to="/register" style="color:#2693FF">去注册</router-link></div>
         </div>
         <div class="ms-login">
-            <!-- <div class="ms-title">继续教育平台</div> -->
+            <div class="ms-title">继续教育平台</div>
             <el-form :model="param" :rules="rules" ref="login" label-width="0px" class="ms-content">
                 <el-form-item prop="username">
                     <el-input v-model="param.username" placeholder="手机号" size="medium">
@@ -30,7 +30,7 @@
                     <el-checkbox v-model="rememberP">记住用户</el-checkbox>
                 </el-form-item>
                 <div class="login-btn">
-                    <el-button type="primary" @click="submitForm()" size="medium" :loading="submitLoading">登录</el-button>
+                    <el-button type="primary" @click="submitForm()" size="medium" :loading="submitLoading">登 录</el-button>
                 </div>
                 <p class="login-tips"><el-link @click="$router.push('/resetPassword')">忘记密码</el-link></p>
             </el-form>
@@ -95,7 +95,6 @@ export default {
                             sessionStorage.setItem('token', res.id_token);
                             this.getAccountInfo();
                             this.RememberUserMesg();
-                            this.$router.push('/');
                         })
                         .finally(() => {
                             this.submitLoading = false;
@@ -107,11 +106,11 @@ export default {
         getAccountInfo() {
             this.$http.userService.getAccount().then(res => {
                 this.$store.commit({ type: 'setUserInfo', data: res });
-                sessionStorage.setItem('userInfo', JSON.stringify(res))
+                sessionStorage.setItem('userInfo', JSON.stringify(res));
+                this.$router.push('/');
             });
         },
         RememberUserMesg() {
-             
             //七天过期
             if (!this.rememberP && localStorage._userInfo) {
                 localStorage.removeItem('_userInfo');
@@ -148,9 +147,11 @@ export default {
     text-align: center;
     color: #fff;
     font-size: 32px;
-    font-family: FZCuHeiSongS-B-GB;
-    font-weight: 400;
+    font-family: FZCuYuan-M03S;
+    font-weight: 600;
     color: rgba(77, 77, 77, 1);
+    letter-spacing: 2px;
+
 }
 .header {
     height: 94px;
@@ -170,6 +171,17 @@ export default {
 .header-left {
     font-size: 16px;
 }
+.header-title {
+    font-size: 30px;
+    font-family: Microsoft YaHei;
+    font-weight: 400;
+    height: 36px;
+    color: rgba(51, 51, 51, 1);
+    padding-left: 20px;
+    border-left: 1px solid #d8d8d8;
+    line-height: 35px;
+    margin-left: 20px;
+}
 .header-right {
     color: #666666;
 }
@@ -186,7 +198,7 @@ export default {
     left: 50%;
     top: 50%;
     width: 440px;
-    margin: -215px 0 0 -175px;
+    margin: -230px 0 0 -220px;
     border-radius: 5px;
     overflow: hidden;
 }
