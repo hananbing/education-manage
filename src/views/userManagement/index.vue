@@ -38,7 +38,7 @@
                 <el-button icon="el-icon-refresh" @click="resetForm">重置</el-button>
             </template>
             <template slot="rightButton">
-                <el-button icon="iconfont icondaoru" @click="importData" v-permission="['ROLE_INSTRUCTOR']">导入</el-button>
+                <el-button icon="iconfont icondaoru" @click="importData" v-permission="['ROLE_ADMIN']">导入</el-button>
                 <el-button type="warning" icon="el-icon-plus" @click="openAddDialog">新增</el-button>
             </template>
         </search-box>
