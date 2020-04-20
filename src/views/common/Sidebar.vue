@@ -87,12 +87,12 @@ export default {
                 //     title: '资源管理',
                 //     auth: ['ROLE_INSTRUCTOR', 'ROLE_EXPERT']
                 // },
-                {
-                    icon: 'iconfont iconxueqingtongji',
-                    index: '/statistics-management',
-                    title: '学情统计',
-                    auth: ['ROLE_ADMIN']
-                }
+                // {
+                //     icon: 'iconfont iconxueqingtongji',
+                //     index: '/statistics-management',
+                //     title: '学情统计',
+                //     auth: ['ROLE_ADMIN']
+                // }
             ]
         };
     },
