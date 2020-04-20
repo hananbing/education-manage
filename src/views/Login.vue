@@ -20,12 +20,12 @@
                         <el-button slot="prepend" icon="iconfont iconmima"></el-button>
                     </el-input>
                 </el-form-item>
-                <el-form-item prop="code">
+                <!-- <el-form-item prop="code">
                     <div class="code-box">
                         <el-input placeholder="验证码" v-model="param.code" size="medium" @keyup.enter.native="submitForm()"> </el-input>
                         <div class="code-img"><s-identify :code.sync="identifyCode"></s-identify></div>
                     </div>
-                </el-form-item>
+                </el-form-item> -->
                 <el-form-item>
                     <el-checkbox v-model="rememberP">记住用户</el-checkbox>
                 </el-form-item>
@@ -35,13 +35,13 @@
                 <p class="login-tips"><el-link @click="$router.push('/resetPassword')">忘记密码</el-link></p>
             </el-form>
         </div>
-        <!-- <div class="footer">ICP备案号 &nbsp;Copyright ©2020 &nbsp; 四川师范大学版权所有</div> -->
+        <div class="footer">ICP备案号 &nbsp;Copyright ©2020 &nbsp; 四川师范大学版权所有</div>
     </div>
 </template>
 
 <script>
 import CryptoJS from 'crypto-js';
-import SIdentify from '@/components/identify.vue';
+// import SIdentify from '@/components/identify.vue';
 export default {
     data() {
         var validateCode = (rule, value, callback) => {
@@ -82,7 +82,7 @@ export default {
             }
         }
     },
-    components: { SIdentify },
+    // components: { SIdentify },
     methods: {
         submitForm() {
             this.$refs.login.validate(valid => {
