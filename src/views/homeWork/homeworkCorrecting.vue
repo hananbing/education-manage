@@ -81,7 +81,7 @@ export default {
             totalPage: 0,
             totalNum: 0,
             homeWorkData: {},
-            workDialogVisible: true
+            workDialogVisible: false
         };
     },
     // components: { Tinymce },
