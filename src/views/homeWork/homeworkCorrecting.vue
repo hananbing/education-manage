@@ -11,15 +11,7 @@
             </template>
         </search-box>
         <div class="container" v-loading="tableLoading">
-            <vxe-table
-                stripe
-                highlight-hover-row
-                size="medium"
-                :data="tableData"
-                show-header-overflow
-                show-overflow
-                :max-height="tableMaxHeight"
-            >
+            <vxe-table stripe highlight-hover-row size="medium" :data="tableData" show-header-overflow show-overflow :max-height="tableMaxHeight">
                 <vxe-table-column field="studentName" title="学员姓名"></vxe-table-column>
                 <vxe-table-column title="提交时间">
                     <template slot-scope="scope">{{ scope.row.submitTime | formatDate('yyyy-MM-dd hh:mm') }}</template>
@@ -28,26 +20,21 @@
                 <vxe-table-column fixed="right" title="操作" width="220">
                     <template slot-scope="scope">
                         <div class="operation-icon">
-                            <el-button type="text" @click="homeworkCorrecting(scope.row)">{{
-                                scope.row.score ? '重批' : '批改'
-                            }}</el-button>
+                            <el-button type="text" @click="homeworkCorrecting(scope.row)">{{ scope.row.score ? '重批' : '批改' }}</el-button>
                         </div>
                     </template>
                 </vxe-table-column>
             </vxe-table>
             <pagniation :currentPage="form.current" :totalPage="totalPage" :totalNum="totalNum" @changePage="handleChangePage"></pagniation>
         </div>
-        <el-dialog
-            :title="addDialogTitle"
-            :visible.sync="workDialogVisible"
-            @close="closeAddDialog"
-            :close-on-click-modal="false"
-            width="780px"
-        >
+        <el-dialog :title="addDialogTitle" :visible.sync="workDialogVisible" @close="closeAddDialog" :close-on-click-modal="false" width="780px">
             <el-form ref="workForm" class="dialog-form-box" :model="workForm" label-width="100px">
                 <el-form-item label="作业内容" prop="name">
                     <!-- <tinymce v-model.trim="workForm.content" :height="250" /> -->
                     <div v-html="workForm.content" class="work-content-box"></div>
+                </el-form-item>
+                <el-form-item label="附件" v-if="homeWorkData.annexUrl"> 
+                     <el-button type="text"  class="download" @click="download">下载附件</el-button>
                 </el-form-item>
                 <el-form-item label="得分" prop="score">
                     <el-slider v-model.number="workForm.score" show-input input-size="mini"> </el-slider>
@@ -63,6 +50,7 @@
                     />
                 </el-form-item>
             </el-form>
+            <a :href="homeWorkData.annexUrl"  ref='download' download></a>
             <span slot="footer" class="dialog-footer">
                 <template>
                     <el-button @click="workDialogVisible = false">取 消</el-button>
@@ -93,7 +81,7 @@ export default {
             totalPage: 0,
             totalNum: 0,
             homeWorkData: {},
-            workDialogVisible: false
+            workDialogVisible: true
         };
     },
     // components: { Tinymce },
@@ -179,6 +167,9 @@ export default {
                 comment: ''
             };
         },
+        download(){
+            this.$refs.download.click()
+        },
         handleChangePage(page) {
             this.form.pageSize = page.pageSize;
             this.form.current = page.currentPage - 1;
@@ -193,6 +184,9 @@ export default {
     font-family: Microsoft YaHei;
     font-weight: 500;
     color: rgba(51, 51, 51, 1);
+}
+.download{
+    font-size: 14px;
 }
 .work-content-box {
     height: 250px;

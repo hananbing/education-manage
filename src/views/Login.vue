@@ -107,7 +107,7 @@ export default {
             this.$http.userService.getAccount().then(res => {
                 this.$store.commit({ type: 'setUserInfo', data: res });
                 sessionStorage.setItem('userInfo', JSON.stringify(res));
-                this.$router.push('/');
+                this.$router.replace('/');
             });
         },
         RememberUserMesg() {
