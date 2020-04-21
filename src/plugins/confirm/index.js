@@ -10,7 +10,7 @@ Confirm.install = function (Vue) {
   document.body.appendChild(instance.$el)
 
   // 通过Vue的原型注册一个方法
-  Vue.prototype.$confirmComponent = (msgTitle, msgText, btnObj) => {
+  Vue.prototype.$confirmComponent = (msgTitle, msgText, btnObj = {}) => {
     return new Promise((resolve, reject) => {
       instance.messageTitle = msgTitle;
       instance.messageText = msgText;

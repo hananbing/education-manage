@@ -4,6 +4,7 @@
         <div class="dialog-search-box">
             <el-upload
                 class="upload-demo"
+                ref="upload"
                 :action="action"
                 :headers="headers"
                 :data="params"
@@ -87,10 +88,26 @@ export default {
         onBeforeUpload(file) {
             const type = ['.csv'];
             const flag = type.some(item => file.name.indexOf(item) > -1);
-            if (!flag) {
-                this.$message.error('导入文件只能是 csv 格式!');
-            }
-            return flag;
+            this.$confirmComponent(`确认在 ${this.dialogDto.classesName} 班级下导入？`, '')
+                .then(() => {
+                    if (!flag) {
+                        this.$message.error('导入文件只能是 csv 格式!');
+                        return;
+                    }
+                    let formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('classesId', this.dialogDto.classesId);
+                    this.$http.userService
+                        .uploadFile(formData)
+                        .then(res => {
+                            this.tableData = res.data.failData || [];
+                        })
+                        .catch(() => {
+                            this.$message.error('上传失败');
+                        });
+                })
+                .catch(() => {});
+            return false;
         },
         onError(err, file, fileList) {
             this.$message.error('上传失败');

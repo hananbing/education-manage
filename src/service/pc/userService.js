@@ -1,4 +1,4 @@
-import { doGet, doPost, doPut, doDelete } from '../../axiosconfig/index.js';
+import { doGet, doPost, doPut, doDelete, doUploadFileFormData } from '../../axiosconfig/index.js';
 const userService = {
     // 获取所有用户列表
     getAllUsers: params => doGet('/users', params),
@@ -20,5 +20,7 @@ const userService = {
     getCodeByphone: (params) => doGet('/account/reset-password/captcha', params),
     // 注册账号
     createAccount: (params) => doPost('/account/register', params),
+    // 导入数据 formdata
+    uploadFile: params => doUploadFileFormData("/users/import", params)
 };
 export default { userService };
