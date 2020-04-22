@@ -3,7 +3,7 @@
         <search-box :form="form">
             <template slot="input">
                 <el-col :span="18"
-                    ><span class="content-title">作业标题：{{ topicTitle }} </span>
+                    ><span class="content-title">话题标题：{{ topicTitle }} </span>
                 </el-col>
             </template>
             <template slot="rightButton">
@@ -11,15 +11,7 @@
             </template>
         </search-box>
         <div class="container" v-loading="tableLoading">
-            <vxe-table
-                stripe
-                highlight-hover-row
-                size="medium"
-                :data="tableData"
-                show-header-overflow
-                show-overflow
-                :max-height="tableMaxHeight"
-            >
+            <vxe-table stripe highlight-hover-row size="medium" :data="tableData" show-header-overflow show-overflow :max-height="tableMaxHeight">
                 <vxe-table-column field="name" title="回复时间" width="180">
                     <template slot-scope="scope">{{ scope.row.endDate | formatDate('yyyy-MM-dd hh:mm') }}</template>
                 </vxe-table-column>
@@ -47,13 +39,7 @@
             </vxe-table>
             <pagniation :currentPage="form.current" :totalPage="totalPage" :totalNum="totalNum" @changePage="handleChangePage"></pagniation>
         </div>
-        <el-dialog
-            :title="addDialogTitle"
-            :visible.sync="workDialogVisible"
-            @close="closeAddDialog"
-            :close-on-click-modal="false"
-            width="780px"
-        >
+        <el-dialog :title="addDialogTitle" :visible.sync="workDialogVisible" @close="closeAddDialog" :close-on-click-modal="false" width="780px">
             <el-form ref="workForm" class="dialog-form-box" :model="workForm" label-width="115px">
                 <el-form-item label="作业内容" prop="name">
                     <!-- <tinymce v-model.trim="workForm.content" :height="250" /> -->
@@ -87,7 +73,7 @@
 export default {
     data() {
         return {
-            tableData: [{ name: '12', score: 0,light:false },{ name: '12322', score: 0,light:false }],
+            tableData: [],
             curCheckId: null,
             tableLoading: false,
             workForm: {
@@ -119,7 +105,7 @@ export default {
         }
     },
     created() {
-        // this.getData();
+        this.getData();
     },
     methods: {
         searchData() {
@@ -128,12 +114,15 @@ export default {
         },
         getData() {
             this.tableLoading = true;
-            this.$http.homeWorkService
-                .getStudentsByWork(this.topicId)
+            this.$http.topiceService
+                .getTopiceReplicesList(this.topicId, this.form)
                 .then(res => {
                     this.totalPage = res.data.totalPages;
                     this.totalNum = res.data.totalElements;
-                    this.tableData = res.data.content;
+                    this.tableData = (res.data.content || []).map(item => {
+                        item.light = false;
+                        return item;
+                    });
                 })
                 .finally(() => {
                     this.tableLoading = false;
@@ -151,7 +140,7 @@ export default {
         },
         // 保存打分
         saveScore(row) {
-            row.light = false
+            row.light = false;
         },
         // 批改作业
         saveData() {

@@ -3,8 +3,8 @@
         <search-box :form="form">
             <template slot="tabs">
                 <el-tabs v-model="form.type" @tab-click="searchData">
-                    <el-tab-pane label="学习统计" name="unFinished"></el-tab-pane>
-                    <el-tab-pane label="考勤统计" name="finished"></el-tab-pane>
+                    <el-tab-pane label="学习统计" name="study"></el-tab-pane>
+                    <el-tab-pane label="考勤统计" name="attendance"></el-tab-pane>
                 </el-tabs>
             </template>
             <template slot="input">
@@ -17,13 +17,7 @@
                 </el-col>
                 <el-col :span="4">
                     <el-form-item>
-                        <el-date-picker
-                            v-model.number="form.time"
-                            type="date"
-                            value-format="timestamp"
-                            placeholder="选择日期"
-                            style="width:100%"
-                        >
+                        <el-date-picker v-model.number="form.time" type="date" value-format="timestamp" placeholder="选择日期" style="width:100%">
                         </el-date-picker>
                     </el-form-item>
                 </el-col>
@@ -34,44 +28,43 @@
             </template>
         </search-box>
         <div class="container" v-loading="tableLoading">
-            <vxe-table
-                stripe
-                highlight-hover-row
-                size="medium"
-                show-header-overflow
-                show-overflow
-                :data="tableData"
-                :max-height="tableMaxHeight"
-            >
-                <template v-if="form.type === 'finished'">
+            <vxe-table stripe highlight-hover-row size="medium" show-header-overflow show-overflow :data="tableData" :max-height="tableMaxHeight">
+                <template v-if="form.type === 'study'">
                     <vxe-table-column field="name" title="姓名"> </vxe-table-column>
                     <vxe-table-column field="name" title="总分"> </vxe-table-column>
                     <vxe-table-column field="name" title="签到得分"> </vxe-table-column>
                     <vxe-table-column field="name" title="在线学习得分"> </vxe-table-column>
+                    <vxe-table-column field="name" title="课程学习得分"> </vxe-table-column>
                     <vxe-table-column field="name" title="作业得分"> </vxe-table-column>
                     <vxe-table-column field="name" title="话题得分"> </vxe-table-column>
                 </template>
                 <template v-else>
                     <vxe-table-column field="日期" title="课程名称">
-                        <template slot-scope="scope">{{ scope.row.startDate | formatDate }}</template>
+                        <template slot-scope="scope">{{ scope.row.date | formatDate }}</template>
                     </vxe-table-column>
                     <vxe-table-column title="已签到人数">
                         <template slot-scope="scope">
                             <el-tooltip class="item" effect="dark" content="点击查看详情" placement="top">
-                                <span @click="checkDetails(true)">{{ scope.row.num }}</span>
+                                <span @click="checkDetails(scope.row, true)" class="tips">{{ scope.row.signedCount }}</span>
                             </el-tooltip>
                         </template>
                     </vxe-table-column>
                     <vxe-table-column title="未签到人数">
                         <template slot-scope="scope">
                             <el-tooltip class="item" effect="dark" content="点击查看详情" placement="top">
-                                <span @click="checkDetails(false)">{{ scope.row.num }}</span>
+                                <span @click="checkDetails(scope.row, false)" class="tips">{{ scope.row.noSignCount }}</span>
                             </el-tooltip>
                         </template>
                     </vxe-table-column>
                 </template>
             </vxe-table>
-            <pagniation :currentPage="form.current" :totalPage="totalPage" :totalNum="totalNum" @changePage="handleChangePage"></pagniation>
+            <pagniation
+                :currentPage="form.current"
+                v-show="form.type === 'study'"
+                :totalPage="totalPage"
+                :totalNum="totalNum"
+                @changePage="handleChangePage"
+            ></pagniation>
         </div>
         <el-dialog :title="dialogDto.title" width="700px" :visible.sync="dialogDto.visible" :close-on-click-modal="false">
             <div class="dialog-search-box">
@@ -97,19 +90,19 @@
                     :data="dialogData"
                     max-height="300px"
                     style="width:100%"
-                    v-show="form.type === 'unFinished'"
+                    v-show="form.type === 'attendance'"
                 >
                     <vxe-table-column field="" title="签到时间">
-                        <template slot-scope="scope">{{ scope.row.startDate | formatDate('yyyy-MM-dd hh:mm') }}</template>
+                        <template slot-scope="scope">{{ scope.row.date | formatDate('yyyy-MM-dd hh:mm') }}</template>
                     </vxe-table-column>
                     <vxe-table-column field="name" title="姓名"></vxe-table-column>
                 </vxe-table>
-                <pagniation
+                <!-- <pagniation
                     :currentPage="dialogForm.current"
                     :totalPage="dialogDto.totalPage"
                     :totalNum="dialogDto.totalNum"
                     @changePage="handleDialogChangePage"
-                ></pagniation>
+                ></pagniation> -->
             </div>
 
             <span slot="footer" class="dialog-footer">
@@ -127,7 +120,7 @@ export default {
                 pageSize: 30,
                 classesId: '',
                 time: '',
-                type: 'unFinished'
+                type: 'attendance' // study,  attendance
             },
             dialogDto: {
                 title: '已签到列表',
@@ -139,8 +132,11 @@ export default {
             tableLoading: false,
             dialogForm: {
                 name: '',
-                pageSize: 30,
-                current: 0
+                date: 0,
+                classesId: null,
+                signed: false
+                // pageSize: 30,
+                // current: 0
             },
             tableData: [],
             dialogData: [],
@@ -189,41 +185,66 @@ export default {
             this.$http.statisticsService
                 .getStudentList(this.dialogForm)
                 .then(res => {
-                    this.totalPage = res.data.totalPages;
-                    this.totalNum = res.data.totalElements;
-                    this.dialogData = Object.freeze(res.data.content);
+                    // this.totalPage = res.data.totalPages;
+                    // this.totalNum = res.data.totalElements;
+                    this.dialogData = Object.freeze(res.data || []);
                 })
                 .finally(() => {
                     this.dialogDto.loading = false;
                 });
         },
         getData() {
-            this.tableLoading = true;
-            const params = Object.assign({}, this.form);
-            params.type = params.type !== 'unFinished';
-            this.$http.statisticsService
-                .getStatisticList(params)
-                .then(res => {
-                    this.totalPage = res.data.totalPages;
-                    this.totalNum = res.data.totalElements;
-                    this.tableData = Object.freeze(res.data.content);
-                })
-                .finally(() => {
-                    this.tableLoading = false;
-                });
+            const { current, pageSize, type, time, classesId } = this.form;
+            if (type === 'study') {
+                // 学习列表
+                const params = {
+                    classesId,
+                    current,
+                    pageSize
+                };
+                this.$message.error('暂未开通');
+                return;
+                this.tableLoading = true;
+                this.$http.statisticsService
+                    .getStudyList(params)
+                    .then(res => {
+                        this.totalPage = res.data.totalPages;
+                        this.totalNum = res.data.totalElements;
+                        this.tableData = res.data.content;
+                    })
+                    .finally(() => {
+                        this.tableLoading = false;
+                    });
+            } else {
+                // 考情列表
+                const params = {
+                    classesId,
+                    date: time
+                };
+                this.tableLoading = true;
+                this.$http.statisticsService
+                    .getStatisticList(params)
+                    .then(res => {
+                        this.tableData = res.data || [];
+                    })
+                    .finally(() => {
+                        this.tableLoading = false;
+                    });
+            }
         },
-        // 点击查看详情
-        checkDetails(row, type = 'signed') {
-            // signed 已签到  unsign 未签到
+        // 点击查看详情  signed = true / false
+        checkDetails({ date }, signed = false) {
             this.dialogDto = {
-                title: type === 'signed' ? '已签到列表' : '未签到列表',
+                title: signed ? '已签到人数列表' : '未签到人数列表',
                 visible: true,
                 loading: false,
                 totalPage: 0,
-                totalNum: 0,
-                type
+                totalNum: 0
             };
-            this.getDialogData();
+            this.dialogForm.date = date;
+            this.dialogForm.signed = signed;
+            this.dialogForm.classesId = this.form.classesId;
+            this.resetDialogForm();
         },
         resetForm() {
             this.form = {
@@ -243,10 +264,9 @@ export default {
             this.getDialogData();
         },
         resetDialogForm() {
-            this.dialogForm = {
-                name: '',
-                current: 0
-            };
+            this.dialogForm.name = '';
+            // this.dialogForm.current = 0;
+            this.getDialogData();
         },
         handleDialogChangePage(page) {
             this.dialogForm.pageSize = page.pageSize;
@@ -266,5 +286,12 @@ export default {
     display: flex;
     justify-content: flex-start;
     margin: 8px 0 15px;
+}
+.tips {
+    color: #2693ff;
+    cursor: pointer;
+}
+.tips:hover {
+    text-decoration: underline;
 }
 </style>
