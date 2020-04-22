@@ -12,11 +12,11 @@
         </search-box>
         <div class="container" v-loading="tableLoading">
             <vxe-table stripe highlight-hover-row size="medium" :data="tableData" show-header-overflow show-overflow :max-height="tableMaxHeight">
-                <vxe-table-column field="name" title="回复时间" width="180">
-                    <template slot-scope="scope">{{ scope.row.endDate | formatDate('yyyy-MM-dd hh:mm') }}</template>
+                <vxe-table-column  title="回复时间" width="180">
+                    <template slot-scope="scope">{{ scope.row.replyTime | formatDate('yyyy-MM-dd hh:mm') }}</template>
                 </vxe-table-column>
-                <vxe-table-column field="name" title="回复人姓名" width="150"></vxe-table-column>
-                <vxe-table-column field="content" title="回复人内容"></vxe-table-column>
+                <vxe-table-column field="replierName" title="回复人姓名" width="150"></vxe-table-column>
+                <vxe-table-column field="replyContent" title="回复内容"></vxe-table-column>
                 <vxe-table-column title="得分" width="380">
                     <template slot-scope="scope">
                         <el-slider

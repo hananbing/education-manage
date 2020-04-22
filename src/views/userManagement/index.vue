@@ -65,6 +65,9 @@
                         <span>{{ allRoles[row.authorities[0]] }}</span>
                     </template>
                 </vxe-table-column>
+                <vxe-table-column  title="注册时间" width="180">
+                    <template slot-scope="scope">{{ Number(scope.row.registerTime) | formatDate('yyyy-MM-dd hh:mm') }}</template>
+                </vxe-table-column>
                 <vxe-table-column fixed="right" title="操作" width="200">
                     <template slot-scope="scope">
                         <div class="operation-icon">
