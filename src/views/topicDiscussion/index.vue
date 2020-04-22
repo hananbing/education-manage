@@ -16,7 +16,7 @@
                     </el-form-item>
                 </el-col>
                 <el-col :span="5">
-                    <el-input v-model="form.name" placeholder="请输入话题标题" @keyup.enter.native="searchData"></el-input>
+                    <el-input v-model="form.title" placeholder="请输入话题标题" @keyup.enter.native="searchData"></el-input>
                 </el-col>
             </template>
             <template slot="button">
@@ -28,22 +28,14 @@
             </template>
         </search-box>
         <div class="container" v-loading="tableLoading">
-            <vxe-table
-                stripe
-                highlight-hover-row
-                size="medium"
-                :data="tableData"
-                show-header-overflow
-                show-overflow
-                :max-height="tableMaxHeight"
-            >
-                <vxe-table-column field="name" title="话题标题"></vxe-table-column>
-                <vxe-table-column field="name" title="发布人"> </vxe-table-column>
-                <vxe-table-column field="name" title="回复数"></vxe-table-column>
+            <vxe-table stripe highlight-hover-row size="medium" :data="tableData" show-header-overflow show-overflow :max-height="tableMaxHeight">
+                <vxe-table-column field="title" title="话题标题"></vxe-table-column>
+                <vxe-table-column field="publisherName" title="发布人"> </vxe-table-column>
+                <vxe-table-column field="replyNumber" title="回复数"></vxe-table-column>
                 <vxe-table-column title="创建时间">
                     <template slot-scope="scope">{{ scope.row.createDate | formatDate('yyyy-MM-dd hh:mm') }}</template>
                 </vxe-table-column>
-                <vxe-table-column fixed="right" title="操作" width="220">
+                <vxe-table-column fixed="right" title="操作" width="140">
                     <template slot-scope="scope">
                         <div class="operation-icon">
                             <el-button type="text" @click="viewData(scope.row)">查看</el-button>
@@ -60,13 +52,7 @@
             </vxe-table>
             <pagniation :currentPage="form.current" :totalPage="totalPage" :totalNum="totalNum" @changePage="handleChangePage"></pagniation>
         </div>
-        <el-dialog
-            :title="addDialogTitle"
-            :visible.sync="addTopicDialogVisible"
-            @close="closeAddDialog"
-            :close-on-click-modal="false"
-            width="600px"
-        >
+        <el-dialog :title="addDialogTitle" :visible.sync="addTopicDialogVisible" @close="closeAddDialog" :close-on-click-modal="false" width="600px">
             <p class="classes-name">班级名称&nbsp;{{ curClassName }}</p>
             <el-form
                 ref="topicForm"
@@ -76,37 +62,44 @@
                 :rules="addTopicRules"
                 label-width="85px"
             >
-                <el-form-item label="话题标题" prop="name">
-                    <el-input v-model.trim="topicForm.name" placeholder="请输入话题标题"></el-input>
+                <el-form-item label="话题标题" prop="title">
+                    <el-input v-model.trim="topicForm.title" placeholder="请输入话题标题"></el-input>
                 </el-form-item>
-                <el-form-item label="话题内容" prop="content">
-                    <el-input v-model.trim="topicForm.content" placeholder="请输入话题内容"></el-input>
+                <el-form-item label="话题内容" prop="topicContent">
+                    <el-input v-model.trim="topicForm.topicContent" placeholder="请输入话题内容"></el-input>
                 </el-form-item>
-                <el-form-item label="结束时间" prop="time">
-                    <el-date-picker v-model.number="topicForm.time" type="datetime" style="width: 100%;" value-format="timestamp">
+                <el-form-item label="结束时间" prop="deadline">
+                    <el-date-picker
+                        v-model.number="topicForm.deadline"
+                        type="datetime"
+                        placeholder="请选择结束时间"
+                        style="width: 100%;"
+                        value-format="timestamp"
+                    >
                     </el-date-picker>
                 </el-form-item>
             </el-form>
             <ul class="dialog-form-view" v-else>
                 <li class="item">
-                    <div class="label">作业标题</div>
-                    <div class="content">{{ topicForm.name }}</div>
+                    <div class="label">话题标题</div>
+                    <div class="content">{{ viewForm.title }}</div>
                 </li>
                 <li class="item">
-                    <div class="label">结束时间</div>
-                    <div class="content">{{ topicForm.time | formatDate('yyyy-MM-dd hh:mm') }}</div>
-                </li>
-                <li class="item">
-                    <div class="label">作业内容</div>
-                    <div class="content" v-html="topicForm.content"></div>
+                    <div class="label">话题内容</div>
+                    <div class="content">{{ viewForm.topicContent }}</div>
                 </li>
                 <li class="item">
                     <div class="label">发布人</div>
-                    <div class="content"></div>
+                    <div class="content">{{ viewForm.publisherName }}</div>
                 </li>
                 <li class="item">
+                    <div class="label">结束时间</div>
+                    <div class="content">{{ viewForm.deadline | formatDate('yyyy-MM-dd hh:mm') }}</div>
+                </li>
+
+                <li class="item">
                     <div class="label">创建时间</div>
-                    <div class="content"></div>
+                    <div class="content">{{ viewForm.createDate | formatDate('yyyy-MM-dd hh:mm') }}</div>
                 </li>
             </ul>
             <span slot="footer" class="dialog-footer">
@@ -126,27 +119,27 @@ export default {
             form: {
                 endStatus: 'unFinished',
                 classesId: '',
-                name: '',
+                title: '',
                 pageSize: 30,
-                current: 0,
-                type: ''
+                current: 0
             },
             tableData: [],
             curCheckId: null,
             tableLoading: false,
             topicForm: {
-                name: '',
-                time: '',
-                content: ''
+                title: '',
+                deadline: '',
+                topicContent: ''
             },
+            viewForm: {},
             dialogType: 'add',
             totalPage: 0,
             totalNum: 0,
             addTopicDialogVisible: false,
             addTopicRules: {
-                name: { required: true, message: '请输入话题标题', trigger: 'blur' },
-                time: { required: true, message: '请选择结束时间', trigger: 'change' },
-                content: { required: true, message: '请输入话题内容', trigger: 'blur' }
+                title: { required: true, message: '请输入话题标题', trigger: 'blur' },
+                deadline: { required: true, message: '请选择结束时间', trigger: 'change' },
+                topicContent: { required: true, message: '请输入话题内容', trigger: 'blur' }
             }
         };
     },
@@ -191,9 +184,10 @@ export default {
         getData() {
             this.tableLoading = true;
             const params = Object.assign({}, this.form);
-            params.endStatus = params.endStatus !== 'unFinished';
-            this.$http.courseService
-                .getAllCourses(params)
+            params.ended = this.form.endStatus !== 'unFinished';
+            delete params.endStatus;
+            this.$http.topiceService
+                .getTopiceList(params)
                 .then(res => {
                     this.totalPage = res.data.totalPages;
                     this.totalNum = res.data.totalElements;
@@ -204,7 +198,7 @@ export default {
                 });
         },
         remove({ id }) {
-            this.$http.courseService.deleteCourse(id).then(res => {
+            this.$http.topiceService.removeTopice(id).then(res => {
                 this.$message({
                     message: '删除成功',
                     type: 'success'
@@ -213,14 +207,19 @@ export default {
             });
         },
         // 打分
-        handleScoring() {
-            this.$router.push('/');
+        handleScoring({ id, title }) {
+            this.$router.push({
+                path: '/topic-details/' + id,
+                query: {
+                    title
+                }
+            });
         },
         resetForm() {
             this.form = {
                 endStatus: this.form.endStatus,
                 classesId: this.form.classesId,
-                name: '',
+                title: '',
                 pageSize: this.form.pageSize,
                 current: 0
             };
@@ -234,15 +233,13 @@ export default {
             this.$refs['topicForm'].validate(valid => {
                 if (valid) {
                     const params = Object.assign({}, this.topicForm);
-                    params.startDate = params.time[0];
-                    params.endDate = params.time[1];
                     this.dialogLoading = true;
                     if (this.dialogType === 'add') {
                         const { id, name } = this.getClassesById();
                         params.classesId = id;
                         params.classesName = name;
-                        this.$http.courseService
-                            .createCourse(params)
+                        this.$http.topiceService
+                            .addTopice(params)
                             .then(res => {
                                 this.closeAddDialog();
                                 this.$message({
@@ -257,8 +254,8 @@ export default {
                     } else {
                         params.id = this.curCheckId;
                         this.dialogLoading = true;
-                        this.$http.courseService
-                            .updateCourse(params)
+                        this.$http.topiceService
+                            .editTopice(params)
                             .then(res => {
                                 this.getData();
                                 this.closeAddDialog();
@@ -278,11 +275,11 @@ export default {
             this.splitData(row, 'edit');
             this.curCheckId = row.id;
         },
-        splitData({ name, content, endDate }, opeartionType = 'edit') {
+        splitData({ title, topicContent, deadline }, opeartionType = 'edit') {
             this.topicForm = {
-                name,
-                content,
-                time: endDate
+                title,
+                topicContent,
+                deadline
             };
             this.dialogType = opeartionType;
             this.addTopicDialogVisible = true;
@@ -296,7 +293,9 @@ export default {
             this.dialogType = 'add';
         },
         viewData(row) {
-            this.splitData(row, 'view');
+            this.viewForm = row;
+            this.dialogType = 'view';
+            this.addTopicDialogVisible = true;
         },
         closeAddDialog() {
             this.addTopicDialogVisible = false;
@@ -308,9 +307,9 @@ export default {
         },
         resetcourseForm() {
             this.topicForm = {
-                name: '',
-                time: '',
-                content: ''
+                title: '',
+                topicContent: '',
+                deadline: ''
             };
             const topicForm = this.$refs.topicForm;
             topicForm && topicForm.resetFields();

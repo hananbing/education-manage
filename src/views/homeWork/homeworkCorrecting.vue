@@ -33,7 +33,7 @@
                     <!-- <tinymce v-model.trim="workForm.content" :height="250" /> -->
                     <div v-html="workForm.content" class="work-content-box"></div>
                 </el-form-item>
-                <el-form-item label="附件" v-if="homeWorkData.annexUrl"> 
+                <el-form-item label="附件" v-if="annexUrl"> 
                      <el-button type="text"  class="download" @click="download">下载附件</el-button>
                 </el-form-item>
                 <el-form-item label="得分" prop="score">
@@ -50,7 +50,7 @@
                     />
                 </el-form-item>
             </el-form>
-            <a :href="homeWorkData.annexUrl"  ref='download' download></a>
+            <a :href="annexUrl"  ref='download' download></a>
             <span slot="footer" class="dialog-footer">
                 <template>
                     <el-button @click="workDialogVisible = false">取 消</el-button>
@@ -77,10 +77,11 @@ export default {
                 current: 0,
                 pageSize: 30
             },
+            annexUrl:null,
             dialogType: 'add',
             totalPage: 0,
             totalNum: 0,
-            homeWorkData: {},
+            // homeWorkData: {},
             workDialogVisible: false
         };
     },
@@ -118,19 +119,20 @@ export default {
                     this.tableLoading = false;
                 });
         },
-        getHomeWorkDetails() {
-            this.$http.homeWorkService.getHomeWorkById(this.homeWorkId).then(res => {
-                this.homeWorkData = res.data;
-            });
-        },
+        // getHomeWorkDetails() {
+        //     this.$http.homeWorkService.getHomeWorkById(this.homeWorkId).then(res => {
+        //         this.homeWorkData = res.data;
+        //     });
+        // },
         // 批改作业
-        homeworkCorrecting({ score, answer, id }) {
+        homeworkCorrecting({ score, annexUrl, answer, id }) {
             if (score) {
                 this.dialogType = 'edit'; // 重批
             } else {
                 this.dialogType = 'add'; // 批改
             }
             this.workForm.content = answer;
+            this.annexUrl = annexUrl
             this.curCheckId = id;
             this.workDialogVisible = true;
         },
