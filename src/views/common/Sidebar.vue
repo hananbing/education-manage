@@ -75,12 +75,12 @@ export default {
                     title: '作业管理',
                     auth: ['ROLE_INSTRUCTOR', 'ROLE_EXPERT']
                 },
-                // {
-                //     icon: 'iconfont iconhuatitaolun',
-                //     index: '/topic-management',
-                //     title: '话题讨论',
-                //     auth: ['ROLE_INSTRUCTOR', 'ROLE_EXPERT']
-                // },
+                {
+                    icon: 'iconfont iconhuatitaolun',
+                    index: '/topic-management',
+                    title: '话题讨论',
+                    auth: ['ROLE_INSTRUCTOR', 'ROLE_EXPERT']
+                },
                 // {
                 //     icon: 'iconfont iconziyuanguanli',
                 //     index: '/resources-management',

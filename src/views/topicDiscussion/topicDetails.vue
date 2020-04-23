@@ -12,7 +12,7 @@
         </search-box>
         <div class="container" v-loading="tableLoading">
             <vxe-table stripe highlight-hover-row size="medium" :data="tableData" show-header-overflow show-overflow :max-height="tableMaxHeight">
-                <vxe-table-column  title="回复时间" width="180">
+                <vxe-table-column title="回复时间" width="180">
                     <template slot-scope="scope">{{ scope.row.replyTime | formatDate('yyyy-MM-dd hh:mm') }}</template>
                 </vxe-table-column>
                 <vxe-table-column field="replierName" title="回复人姓名" width="150"></vxe-table-column>
@@ -121,6 +121,7 @@ export default {
                     this.totalNum = res.data.totalElements;
                     this.tableData = (res.data.content || []).map(item => {
                         item.light = false;
+                        item.score = 0;
                         return item;
                     });
                 })
@@ -139,8 +140,14 @@ export default {
             this.workDialogVisible = true;
         },
         // 保存打分
-        saveScore(row) {
-            row.light = false;
+        saveScore({ id, score }) {
+            this.$http.topiceService.correntScore({ id, score }).then(res => {
+                row.light = false;
+                this.$message({
+                    type: 'success',
+                    message: '保存成功'
+                });
+            });
         },
         // 批改作业
         saveData() {
