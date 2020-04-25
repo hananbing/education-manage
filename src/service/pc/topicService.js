@@ -9,6 +9,8 @@ const topiceService = {
     // 获取话题回复列表
     getTopiceReplicesList: (id, params) => doGet('/topic-replies/teacher-topics/' + id, params),
     // 打分
-    correntScore: (params) => doPost('/student-replies', params)
+    correntScore: params => doPost('/student-replies', params),
+    // 删除回复
+    removeReply: id => doDelete('/topic-replies/' + id)
 };
 export default { topiceService };

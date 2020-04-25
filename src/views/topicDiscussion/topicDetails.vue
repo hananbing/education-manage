@@ -31,9 +31,10 @@
                         </el-slider>
                     </template>
                 </vxe-table-column>
-                <vxe-table-column title="" width="80">
+                <vxe-table-column title="" width="100">
                     <template slot-scope="scope">
                         <el-button type="text" @click="saveScore(scope.row)">保存</el-button>
+                        <el-button type="text" @click="removeReply(scope.row)">删除</el-button>
                     </template>
                 </vxe-table-column>
             </vxe-table>
@@ -129,6 +130,16 @@ export default {
                     this.tableLoading = false;
                 });
         },
+        // 删除回复
+        removeReply({ id }) {
+            this.$http.topiceService.removeReply(id).then(res => {
+                this.$message({
+                    type: 'success',
+                    message: '回复已删除'
+                });
+                this.getData()
+            });
+        },
         // 批改作业
         homeworkCorrecting({ corrented, content }) {
             if (corrented) {
@@ -140,8 +151,8 @@ export default {
             this.workDialogVisible = true;
         },
         // 保存打分
-        saveScore({ id, score }) {
-            this.$http.topiceService.correntScore({ id, score }).then(res => {
+        saveScore({studentTopicId, score }) {
+            this.$http.topiceService.correntScore({ id: studentTopicId ,  score }).then(res => {
                 row.light = false;
                 this.$message({
                     type: 'success',
