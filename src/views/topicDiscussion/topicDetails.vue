@@ -151,8 +151,8 @@ export default {
             this.workDialogVisible = true;
         },
         // 保存打分
-        saveScore({studentTopicId, score }) {
-            this.$http.topiceService.correntScore({ id: studentTopicId ,  score }).then(res => {
+        saveScore(row) {
+            this.$http.topiceService.correntScore({ id: row.studentTopicId ,  score:row.score }).then(res => {
                 row.light = false;
                 this.$message({
                     type: 'success',
