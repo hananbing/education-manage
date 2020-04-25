@@ -122,7 +122,7 @@ export default {
                     this.totalNum = res.data.totalElements;
                     this.tableData = (res.data.content || []).map(item => {
                         item.light = false;
-                        item.score = 0;
+                        // item.score = 0;
                         return item;
                     });
                 })
