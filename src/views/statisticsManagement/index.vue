@@ -3,8 +3,9 @@
         <search-box :form="form">
             <template slot="tabs">
                 <el-tabs v-model="form.type" @tab-click="searchData">
-                    <el-tab-pane label="学习统计" name="study"></el-tab-pane>
+                    <el-tab-pane label="成绩统计" name="study"></el-tab-pane>
                     <el-tab-pane label="考勤统计" name="attendance"></el-tab-pane>
+                    <el-tab-pane label="学情统计" name="learningEmotion"></el-tab-pane>
                 </el-tabs>
             </template>
             <template slot="input">
@@ -15,7 +16,7 @@
                         </el-select>
                     </el-form-item>
                 </el-col>
-                <el-col :span="4">
+                <el-col :span="4" v-show="form.type === 'attendance'">
                     <el-form-item>
                         <el-date-picker v-model.number="form.time" type="date" value-format="timestamp" placeholder="选择日期" style="width:100%">
                         </el-date-picker>
@@ -30,30 +31,60 @@
         <div class="container" v-loading="tableLoading">
             <vxe-table stripe highlight-hover-row size="medium" show-header-overflow show-overflow :data="tableData" :max-height="tableMaxHeight">
                 <template v-if="form.type === 'study'">
-                    <vxe-table-column field="name" title="姓名"> </vxe-table-column>
-                    <vxe-table-column field="name" title="总分"> </vxe-table-column>
-                    <vxe-table-column field="name" title="签到得分"> </vxe-table-column>
-                    <vxe-table-column field="name" title="在线学习得分"> </vxe-table-column>
-                    <vxe-table-column field="name" title="课程学习得分"> </vxe-table-column>
-                    <vxe-table-column field="name" title="作业得分"> </vxe-table-column>
-                    <vxe-table-column field="name" title="话题得分"> </vxe-table-column>
+                    <vxe-table-column field="studentName" title="姓名" key="study1"> </vxe-table-column>
+                    <vxe-table-column field="totalScore" title="总分" key="study2"> </vxe-table-column>
+                    <vxe-table-column field="signScore" title="签到得分" key="study3"> </vxe-table-column>
+                    <vxe-table-column field="onlineScore" title="在线学习得分" key="study4"> </vxe-table-column>
+                    <vxe-table-column field="courseScore" title="课程学习得分" key="study5"> </vxe-table-column>
+                    <vxe-table-column field="homeworkScore" title="作业得分" key="study6"> </vxe-table-column>
+                    <vxe-table-column field="topicScore" title="话题得分" key="study7"> </vxe-table-column>
                 </template>
-                <template v-else>
-                    <vxe-table-column field="日期" title="课程名称">
+                <template v-else-if="form.type === 'attendance'">
+                    <vxe-table-column title="日期" key="attendance1">
                         <template slot-scope="scope">{{ scope.row.date | formatDate }}</template>
                     </vxe-table-column>
-                    <vxe-table-column title="已签到人数">
+                    <vxe-table-column title="已签到人数" key="attendance2">
                         <template slot-scope="scope">
                             <el-tooltip class="item" effect="dark" content="点击查看详情" placement="top">
                                 <span @click="checkDetails(scope.row, true)" class="tips">{{ scope.row.signedCount }}</span>
                             </el-tooltip>
                         </template>
                     </vxe-table-column>
-                    <vxe-table-column title="未签到人数">
+                    <vxe-table-column title="未签到人数" key="attendance3">
                         <template slot-scope="scope">
                             <el-tooltip class="item" effect="dark" content="点击查看详情" placement="top">
                                 <span @click="checkDetails(scope.row, false)" class="tips">{{ scope.row.noSignCount }}</span>
                             </el-tooltip>
+                        </template>
+                    </vxe-table-column>
+                </template>
+                <template v-else>
+                    <vxe-table-column title="姓名">
+                        <template slot-scope="scope">{{ scope.row.studentName }}</template>
+                    </vxe-table-column>
+                    <vxe-table-column title="签到">
+                        <template slot-scope="scope">
+                            <span class="red">{{ scope.row.SIGN }}</span>
+                        </template>
+                    </vxe-table-column>
+                    <vxe-table-column title="在线学习">
+                        <template slot-scope="scope"
+                            ><span class="red">{{ scope.row.ONLINE }}</span>
+                        </template>
+                    </vxe-table-column>
+                    <vxe-table-column title="课程学习">
+                        <template slot-scope="scope"
+                            ><span class="red">{{ scope.row.COURSE }}</span>
+                        </template>
+                    </vxe-table-column>
+                    <vxe-table-column title="作业">
+                        <template slot-scope="scope"
+                            ><span class="red">{{ scope.row.JOB }}</span>
+                        </template>
+                    </vxe-table-column>
+                    <vxe-table-column title="话题">
+                        <template slot-scope="scope"
+                            ><span class="red">{{ scope.row.TOPIC }}</span>
                         </template>
                     </vxe-table-column>
                 </template>
@@ -116,11 +147,11 @@ export default {
     data() {
         return {
             form: {
-                current: 0,
-                pageSize: 30,
+                // current: 0,
+                // pageSize: 30,
                 classesId: '',
                 time: '',
-                type: 'attendance' // study,  attendance
+                type: 'study' // study,  attendance,  learningEmotion
             },
             dialogDto: {
                 title: '已签到列表',
@@ -194,43 +225,70 @@ export default {
                 });
         },
         getData() {
+            const serviceFn = {
+                study: this.getStudyList,
+                attendance: this.getStatisticList,
+                learningEmotion: this.getLearningEmotion
+            };
+            serviceFn[this.form.type].call(this);
+        },
+        // 获取学习成绩列表
+        getStudyList() {
             const { current, pageSize, type, time, classesId } = this.form;
-            if (type === 'study') {
-                // 学习列表
-                const params = {
-                    classesId,
-                    current,
-                    pageSize
-                };
-                this.$message.error('暂未开通');
-                return;
-                this.tableLoading = true;
-                this.$http.statisticsService
-                    .getStudyList(params)
-                    .then(res => {
-                        this.totalPage = res.data.totalPages;
-                        this.totalNum = res.data.totalElements;
-                        this.tableData = res.data.content;
-                    })
-                    .finally(() => {
-                        this.tableLoading = false;
+            // 学习列表
+            const params = {
+                classesId
+                // current,
+                // pageSize
+            };
+            this.tableLoading = true;
+            this.$http.statisticsService
+                .getStudyList(params)
+                .then(res => {
+                    this.tableData = res.data || [];
+                })
+                .finally(() => {
+                    this.tableLoading = false;
+                });
+        },
+        // 获取考勤列表
+        getStatisticList() {
+            const { current, pageSize, type, time, classesId } = this.form;
+            // 考情列表
+            const params = {
+                classesId,
+                date: time
+            };
+            this.tableLoading = true;
+            this.$http.statisticsService
+                .getStatisticList(params)
+                .then(res => {
+                    this.tableData = res.data || [];
+                })
+                .finally(() => {
+                    this.tableLoading = false;
+                });
+        },
+        // 学情列表
+        getLearningEmotion() {
+            const { current, pageSize, type, time, classesId } = this.form;
+            const params = {
+                classesId
+            };
+            this.tableLoading = true;
+            this.$http.statisticsService
+                .getLearningEmotion(params)
+                .then(res => {
+                    this.tableData = (res.data || []).map(item => {
+                        item.moduleInfo.forEach(ele => {
+                            item[ele.moduleType] = ele.molecular + '/' + ele.denominator;
+                        });
+                        return item;
                     });
-            } else {
-                // 考情列表
-                const params = {
-                    classesId,
-                    date: time
-                };
-                this.tableLoading = true;
-                this.$http.statisticsService
-                    .getStatisticList(params)
-                    .then(res => {
-                        this.tableData = res.data || [];
-                    })
-                    .finally(() => {
-                        this.tableLoading = false;
-                    });
-            }
+                })
+                .finally(() => {
+                    this.tableLoading = false;
+                });
         },
         // 点击查看详情  signed = true / false
         checkDetails({ date }, signed = false) {
@@ -293,5 +351,8 @@ export default {
 }
 .tips:hover {
     text-decoration: underline;
+}
+.red {
+    color: #ef3f3f;
 }
 </style>

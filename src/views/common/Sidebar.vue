@@ -90,7 +90,7 @@ export default {
                 {
                     icon: 'iconfont iconxueqingtongji',
                     index: '/statistics-management',
-                    title: '学情统计',
+                    title: '统计',
                     auth: ['ROLE_ADMIN', 'ROLE_INSTRUCTOR']
                 }
             ]

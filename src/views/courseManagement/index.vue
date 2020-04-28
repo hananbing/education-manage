@@ -68,10 +68,8 @@
                     <template slot-scope="scope">
                         <div class="operation-icon">
                             <el-button type="text" @click="viewData(scope.row)">查看</el-button>
-                            <template v-if="form.endStatus === 'finished'">
-                                <el-button type="text" @click="handleScoring(scope.row)">打分</el-button>
-                            </template>
-                            <template v-else>
+                            <el-button type="text" @click="handleScoring(scope.row)">打分</el-button>
+                            <template v-if="form.endStatus === 'unFinished'">
                                 <!-- <el-button type="text" @click="handleEditcourse(scope.row)">编辑</el-button> -->
                                 <el-button type="text" @click="remove(scope.row)">删除</el-button>
                                 <el-button type="text" @click="addLink(scope.row)">{{

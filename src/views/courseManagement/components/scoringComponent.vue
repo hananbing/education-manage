@@ -3,8 +3,13 @@
         <p class="course-name">课程名称:&nbsp;{{ courseName }}</p>
         <div v-loading="tableLoading">
             <vxe-table :data="tableData" stripe highlight-hover-row size="small" max-height="350px">
-                <vxe-table-column field="studentName" title="学员姓名" width="140"></vxe-table-column>
-                <vxe-table-column field="score" title="得分">
+                <vxe-table-column field="studentName" title="学员姓名" width="100"></vxe-table-column>
+                <vxe-table-column field="score" title="状态"  width="80">
+                    <template v-slot="{ row }">
+                        {{ states[row.status] }}
+                    </template>
+                </vxe-table-column>
+                <vxe-table-column field="score" title="得分" >
                     <template v-slot="{ row }">
                         <el-slider v-model="row.score" :class="{ dark: !row.light }" @change="sliderChange(row)"></el-slider>
                     </template>
@@ -41,7 +46,11 @@ export default {
             totalPage: 0,
             totalNum: 0,
             tableData: [],
-            tableLoading: false
+            tableLoading: false,
+            states: Object.freeze({
+                NOT_COMPLETED: '未完成',
+                COMPLETED: '已完成'
+            })
         };
     },
     methods: {
@@ -53,24 +62,25 @@ export default {
         },
         saveData(row) {
             row.light = false;
-            this.$http.courseService.updateStudentScore(this.courseId, row.studentUserId, { score: parseFloat(row.score) }).then(()=>{
+            this.$http.courseService.updateStudentScore(this.courseId, row.studentUserId, { score: parseFloat(row.score) }).then(() => {
                 this.$message({
-                    type:'success',
-                    message:'保存成功'
-                })
+                    type: 'success',
+                    message: '保存成功'
+                });
             });
         },
         closeDialog() {
             this.tableData = [];
         },
         sliderChange(row) {
-            row.light = true;
+            // row.light = true;
+            this.$set(row, 'light', true)
         },
         getData() {
             this.tableLoading = true;
             this.$http.courseService
                 .getCourseStudents(this.courseId)
-                .then((res) => {
+                .then(res => {
                     this.tableData = res.data.content;
                     this.totalPage = res.data.totalPages;
                     this.totalNum = res.data.totalElements;
