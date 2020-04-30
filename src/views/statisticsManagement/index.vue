@@ -89,13 +89,13 @@
                     </vxe-table-column>
                 </template>
             </vxe-table>
-            <pagniation
+            <!-- <pagniation
                 :currentPage="form.current"
                 v-show="form.type === 'study'"
                 :totalPage="totalPage"
                 :totalNum="totalNum"
                 @changePage="handleChangePage"
-            ></pagniation>
+            ></pagniation> -->
         </div>
         <el-dialog :title="dialogDto.title" width="700px" :visible.sync="dialogDto.visible" :close-on-click-modal="false">
             <div class="dialog-search-box">
