@@ -64,7 +64,7 @@ export default {
     overflow-y: auto;
 } */
 .el-dialog{
-    min-width: 300px;
+    min-width: 360px;
 }
 /* 弹框中的表单样式 */
 .dialog-form-box {

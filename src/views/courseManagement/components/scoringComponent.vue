@@ -1,5 +1,5 @@
 <template>
-    <el-dialog title="打分列表" :visible.sync="visible" @close="closeDialog" :close-on-click-modal="false" width="600px">
+    <el-dialog title="打分列表" :visible.sync="visible" @close="closeDialog" :close-on-click-modal="false" width="680px">
         <p class="course-name">课程名称:&nbsp;{{ courseName }}</p>
         <div v-loading="tableLoading">
             <vxe-table :data="tableData" stripe highlight-hover-row size="small" max-height="350px">
@@ -78,8 +78,12 @@ export default {
         },
         getData() {
             this.tableLoading = true;
+            const params = {
+                size:this.form.pageSize,
+                page:this.form.current
+            }
             this.$http.courseService
-                .getCourseStudents(this.courseId)
+                .getCourseStudents(this.courseId, params)
                 .then(res => {
                     this.tableData = res.data.content;
                     this.totalPage = res.data.totalPages;

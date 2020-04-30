@@ -11,7 +11,7 @@ const courseService = {
     // 删除课程
     deleteCourse: id => doDelete('/courses/' + id),
     // 获取课程下面的所有学生
-    getCourseStudents: id => doGet(`/courses/${id}/students`),
+    getCourseStudents: (id, params) => doGet(`/courses/${id}/students`, params),
     // 上传视频/链接/附件
     updateCourseAnnex: params => doPut(`/courses/annex`, params),
     // 老师对学生打分
