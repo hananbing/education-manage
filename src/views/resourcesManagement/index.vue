@@ -18,27 +18,19 @@
                 <el-button icon="el-icon-refresh" @click="resetForm">重置</el-button>
             </template>
             <template slot="rightButton">
-                <el-button type="warning" icon="iconfont el-icon-plus" @click="openAddDialog">新增</el-button>
+                <el-button type="warning" icon="el-icon-plus" @click="openAddDialog">新增</el-button>
             </template>
         </search-box>
         <div class="container" v-loading="tableLoading">
-            <vxe-table
-                stripe
-                highlight-hover-row
-                size="medium"
-                :data="tableData"
-                show-header-overflow
-                show-overflow
-                :max-height="tableMaxHeight"
-            >
+            <vxe-table stripe highlight-hover-row size="medium" :data="tableData" show-header-overflow show-overflow :max-height="tableMaxHeight">
                 <vxe-table-column field="name" title="资源名称">
                     <template slot-scope="scope">
                         <span class="resources-name">{{ scope.row.name }}</span>
                     </template>
                 </vxe-table-column>
-                <vxe-table-column field="name" title="上传人" width="200"> </vxe-table-column>
-                <vxe-table-column title="上传时间" width="200">
-                    <template slot-scope="scope">{{ scope.row.createDate | formatDate('yyyy-MM-dd hh:mm') }}</template>
+                <vxe-table-column field="uploadUser.name" title="上传人"> </vxe-table-column>
+                <vxe-table-column title="上传时间">
+                    <template slot-scope="scope">{{ scope.row.uploadTime | formatDate('yyyy-MM-dd hh:mm') }}</template>
                 </vxe-table-column>
                 <vxe-table-column fixed="right" title="操作" width="100">
                     <template slot-scope="scope">
@@ -51,13 +43,7 @@
             </vxe-table>
             <pagniation :currentPage="form.current" :totalPage="totalPage" :totalNum="totalNum" @changePage="handleChangePage"></pagniation>
         </div>
-        <el-dialog
-            :title="addDialogTitle"
-            :visible.sync="addTopicDialogVisible"
-            @close="closeAddDialog"
-            :close-on-click-modal="false"
-            width="600px"
-        >
+        <el-dialog :title="addDialogTitle" :visible.sync="addTopicDialogVisible" @close="closeAddDialog" :close-on-click-modal="false" width="600px">
             <p class="classes-name">班级名称&nbsp;{{ curClassName }}</p>
             <el-form
                 ref="rescoucesForm"
@@ -74,10 +60,12 @@
                     <el-upload
                         class="upload-demo"
                         drag
+                        name="upload"
                         :action="action"
                         :before-upload="beforeUpload"
                         :file-list="fileList"
                         :limit="1"
+                        :on-exceed="onExceed"
                         :on-success="uploadSuccess"
                     >
                         <i class="el-icon-upload"></i>
@@ -115,16 +103,16 @@ export default {
                 classesId: '',
                 name: '',
                 pageSize: 30,
-                current: 0,
+                current: 0
             },
             fileList: [],
-            action: environment.env().url + 'file',
+            action: environment.env().url + '/files/file',
             tableData: [],
             curCheckId: null,
             tableLoading: false,
             rescoucesForm: {
                 name: '',
-                url:''
+                url: ''
             },
             dialogType: 'add',
             totalPage: 0,
@@ -132,7 +120,7 @@ export default {
             addTopicDialogVisible: false,
             addTopicRules: {
                 name: { required: true, message: '请输入资源名称', trigger: 'blur' },
-                url: { required: true, message: '请上传资源文件', trigger: 'change' },
+                url: { required: true, message: '请上传资源文件', trigger: 'change' }
             }
         };
     },
@@ -176,8 +164,8 @@ export default {
         },
         getData() {
             this.tableLoading = true;
-            this.$http.courseService
-                .getAllCourses(this.form)
+            this.$http.resourcesService
+                .getResourcesList(this.form)
                 .then(res => {
                     this.totalPage = res.data.totalPages;
                     this.totalNum = res.data.totalElements;
@@ -188,7 +176,7 @@ export default {
                 });
         },
         remove({ id }) {
-            this.$http.courseService.deleteCourse(id).then(res => {
+            this.$http.resourcesService.deleteCourse(id).then(res => {
                 this.$message({
                     message: '删除成功',
                     type: 'success'
@@ -202,7 +190,10 @@ export default {
         },
         beforeUpload() {},
         uploadSuccess(response, file, fileList) {
-            this.rescoucesForm.url = response.data
+            this.rescoucesForm.url = response.data;
+        },
+        onExceed() {
+            this.$message.error('请删除历史文件再上传');
         },
         resetForm() {
             this.form = {
@@ -221,20 +212,18 @@ export default {
             this.$refs['rescoucesForm'].validate(valid => {
                 if (valid) {
                     const params = Object.assign({}, this.rescoucesForm);
-                    params.startDate = params.time[0];
-                    params.endDate = params.time[1];
+                    const { id, name } = this.getClassesById();
+                    params.classesId = id;
+                    params.classesName = name;
                     this.dialogLoading = true;
                     if (this.dialogType === 'add') {
-                        const { id, name } = this.getClassesById();
-                        params.classesId = id;
-                        params.classesName = name;
-                        this.$http.courseService
-                            .createCourse(params)
+                        this.$http.resourcesService
+                            .addResources(params)
                             .then(res => {
                                 this.closeAddDialog();
                                 this.$message({
                                     type: 'success',
-                                    message: '课程添加成功'
+                                    message: '资源添加成功'
                                 });
                                 this.getData();
                             })
@@ -244,14 +233,14 @@ export default {
                     } else {
                         params.id = this.curCheckId;
                         this.dialogLoading = true;
-                        this.$http.courseService
-                            .updateCourse(params)
+                        this.$http.resourcesService
+                            .editResources(params)
                             .then(res => {
                                 this.getData();
                                 this.closeAddDialog();
                                 this.$message({
                                     type: 'success',
-                                    message: '课程修改成功'
+                                    message: '资源修改成功'
                                 });
                             })
                             .finally(() => {
@@ -268,8 +257,9 @@ export default {
         splitData({ name, url }, opeartionType = 'edit') {
             this.rescoucesForm = {
                 name,
-                url,
+                url
             };
+            this.fileList = [{ name, url }];
             this.dialogType = opeartionType;
             this.addTopicDialogVisible = true;
         },
@@ -285,17 +275,14 @@ export default {
             this.splitData(row, 'view');
         },
         closeAddDialog() {
+            this.fileList = [];
             this.addTopicDialogVisible = false;
             this.resetcourseForm();
-        },
-        closeUploadDialog() {
-            this.uploadForm = { annexName: '', url: '' };
-            this.$refs.uploadForm.resetFields();
         },
         resetcourseForm() {
             this.rescoucesForm = {
                 name: '',
-                url:''
+                url: ''
             };
             const rescoucesForm = this.$refs.rescoucesForm;
             rescoucesForm && rescoucesForm.resetFields();

@@ -81,12 +81,12 @@ export default {
                     title: '话题讨论',
                     auth: ['ROLE_INSTRUCTOR', 'ROLE_EXPERT']
                 },
-                // {
-                //     icon: 'iconfont iconziyuanguanli',
-                //     index: '/resources-management',
-                //     title: '资源管理',
-                //     auth: ['ROLE_INSTRUCTOR', 'ROLE_EXPERT']
-                // },
+                {
+                    icon: 'iconfont iconziyuanguanli',
+                    index: '/resources-management',
+                    title: '资源管理',
+                    auth: ['ROLE_INSTRUCTOR', 'ROLE_EXPERT']
+                },
                 {
                     icon: 'iconfont iconxueqingtongji',
                     index: '/statistics-management',
