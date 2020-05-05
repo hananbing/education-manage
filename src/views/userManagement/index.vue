@@ -4,13 +4,7 @@
             <template slot="input">
                 <el-col :span="5">
                     <el-form-item>
-                        <el-select
-                            v-model.trim="form.classesId"
-                            style="width: 100%;"
-                            filterable
-                            placeholder="请选择班级"
-                            @change="searchData"
-                        >
+                        <el-select v-model.trim="form.classesId" style="width: 100%;" filterable placeholder="请选择班级" @change="searchData">
                             <el-option v-for="item in classesOptions" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                         </el-select>
                     </el-form-item>
@@ -38,7 +32,7 @@
                 <el-button icon="el-icon-refresh" @click="resetForm">重置</el-button>
             </template>
             <template slot="rightButton">
-                <el-button icon="iconfont icondaoru" @click="importData" v-permission="['ROLE_ADMIN','ROLE_INSTRUCTOR']">导入</el-button>
+                <el-button icon="iconfont icondaoru" @click="importData" v-permission="['ROLE_ADMIN', 'ROLE_INSTRUCTOR']">导入</el-button>
                 <el-button type="warning" icon="el-icon-plus" @click="openAddDialog">新增</el-button>
             </template>
         </search-box>
@@ -65,7 +59,7 @@
                         <span>{{ allRoles[row.authorities[0]] }}</span>
                     </template>
                 </vxe-table-column>
-                <vxe-table-column  title="注册时间" width="180">
+                <vxe-table-column title="注册时间" width="180">
                     <template slot-scope="scope">{{ Number(scope.row.registerTime) | formatDate('yyyy-MM-dd hh:mm') }}</template>
                 </vxe-table-column>
                 <vxe-table-column fixed="right" title="操作" width="200">
@@ -81,13 +75,7 @@
             <pagniation :currentPage="form.current" :totalPage="totalPage" :totalNum="totalNum" @changePage="handleChangePage"></pagniation>
         </div>
         <!-- 新增 -->
-        <el-dialog
-            :title="addDialogTitle"
-            :visible.sync="addUserDialogVisible"
-            @close="closeAddDialog"
-            :close-on-click-modal="false"
-            width="500px"
-        >
+        <el-dialog :title="addDialogTitle" :visible.sync="addUserDialogVisible" @close="closeAddDialog" :close-on-click-modal="false" width="500px">
             <p class="course-name">班级名称&nbsp;{{ curClassName }}</p>
             <el-form
                 ref="addUserForm"
@@ -229,8 +217,8 @@ export default {
             }
             return;
         },
-        allRoles(){
-            return ALL_ROLES
+        allRoles() {
+            return ALL_ROLES;
         }
     },
     components: { viewData, importUser, addressComponent },
@@ -381,11 +369,19 @@ export default {
         },
         remove({ id }) {
             this.$http.userService.removeUser(id).then(res => {
-                this.$message({
-                    type: 'success',
-                    message: '删除成功'
-                });
-                this.getData();
+                this.$confirm('此操作将删除该用户, 是否继续?', '', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                })
+                    .then(() => {
+                        this.$message({
+                            type: 'success',
+                            message: '删除成功'
+                        });
+                        this.getData();
+                    })
+                    .catch(() => {});
             });
         },
         resetUserForm() {

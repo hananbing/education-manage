@@ -32,11 +32,12 @@
                 <vxe-table-column title="上传时间">
                     <template slot-scope="scope">{{ scope.row.uploadTime | formatDate('yyyy-MM-dd hh:mm') }}</template>
                 </vxe-table-column>
-                <vxe-table-column fixed="right" title="操作" width="100">
+                <vxe-table-column fixed="right" title="操作" width="150">
                     <template slot-scope="scope">
                         <div class="operation-icon">
                             <el-button type="text" @click="viewData(scope.row)">查看</el-button>
                             <el-button type="text" @click="handleEditWork(scope.row)">编辑</el-button>
+                            <el-button type="text" @click="remove(scope.row)">删除</el-button>
                         </div>
                     </template>
                 </vxe-table-column>
@@ -67,6 +68,7 @@
                         :limit="1"
                         :on-exceed="onExceed"
                         :on-success="uploadSuccess"
+                        :on-error="uploadError"
                     >
                         <i class="el-icon-upload"></i>
                         <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
@@ -121,7 +123,8 @@ export default {
             addTopicRules: {
                 name: { required: true, message: '请输入资源名称', trigger: 'blur' },
                 url: { required: true, message: '请上传资源文件', trigger: 'change' }
-            }
+            },
+            uploadEnd: true
         };
     },
     computed: {
@@ -176,21 +179,37 @@ export default {
                 });
         },
         remove({ id }) {
-            this.$http.resourcesService.deleteCourse(id).then(res => {
-                this.$message({
-                    message: '删除成功',
-                    type: 'success'
-                });
-                this.getData();
+            this.$http.resourcesService.removeResources(id).then(res => {
+                this.$confirm('此操作将删除该资源, 是否继续?', '', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                })
+                    .then(() => {
+                        this.$message({
+                            message: '删除成功',
+                            type: 'success'
+                        });
+                        this.getData();
+                    })
+                    .catch(() => {});
             });
         },
         // 打分
         handleScoring() {
             this.$router.push('/');
         },
-        beforeUpload() {},
+        beforeUpload() {
+            this.rescoucesForm.url = '';
+            this.uploadEnd = false;
+        },
         uploadSuccess(response, file, fileList) {
             this.rescoucesForm.url = response.data;
+            this.uploadEnd = true;
+        },
+        uploadError() {
+            this.uploadEnd = true;
+            this.$message.error('上传失败');
         },
         onExceed() {
             this.$message.error('请删除历史文件再上传');
@@ -209,6 +228,10 @@ export default {
         },
         // 新增/编辑班级
         saveData() {
+            if (!this.uploadEnd) {
+                this.$message.error('文件还未上传完成，请稍后');
+                return;
+            }
             this.$refs['rescoucesForm'].validate(valid => {
                 if (valid) {
                     const params = Object.assign({}, this.rescoucesForm);

@@ -28,15 +28,7 @@
             </template>
         </search-box>
         <div class="container" v-loading="tableLoading">
-            <vxe-table
-                stripe
-                highlight-hover-row
-                size="medium"
-                :data="tableData"
-                show-header-overflow
-                show-overflow
-                :max-height="tableMaxHeight"
-            >
+            <vxe-table stripe highlight-hover-row size="medium" :data="tableData" show-header-overflow show-overflow :max-height="tableMaxHeight">
                 <vxe-table-column field="title" title="作业标题"></vxe-table-column>
                 <vxe-table-column title="结束时间">
                     <template slot-scope="scope">{{ scope.row.deadline | formatDate('yyyy-MM-dd hh:mm') }}</template>
@@ -58,13 +50,7 @@
             </vxe-table>
             <pagniation :currentPage="form.current" :totalPage="totalPage" :totalNum="totalNum" @changePage="handleChangePage"></pagniation>
         </div>
-        <el-dialog
-            :title="addDialogTitle"
-            :visible.sync="addWokDialogVisible"
-            @close="closeAddDialog"
-            :close-on-click-modal="false"
-            width="780px"
-        >
+        <el-dialog :title="addDialogTitle" :visible.sync="addWokDialogVisible" @close="closeAddDialog" :close-on-click-modal="false" width="780px">
             <p class="course-name">班级名称&nbsp;{{ curClassName }}</p>
             <el-form
                 ref="addHomeWorkForm"
@@ -206,11 +192,19 @@ export default {
         },
         remove({ id }) {
             this.$http.homeWorkService.removehomeWork(id).then(res => {
-                this.$message({
-                    message: '删除成功',
-                    type: 'success'
-                });
-                this.getData();
+                this.$confirm('此操作将删除该作业, 是否继续?', '', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                })
+                    .then(() => {
+                        this.$message({
+                            message: '删除成功',
+                            type: 'success'
+                        });
+                        this.getData();
+                    })
+                    .catch(() => {});
             });
         },
         // 批改作业

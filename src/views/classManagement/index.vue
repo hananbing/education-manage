@@ -405,11 +405,19 @@ export default {
         },
         remove({ id }) {
             this.$http.classesService.deleteClasses(id).then(res => {
-                this.$message({
-                    message: '删除成功',
-                    type: 'success'
-                });
-                this.getData('refersh');
+                this.$confirm('此操作将删除该班级, 是否继续?', '', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                })
+                    .then(() => {
+                        this.$message({
+                            message: '删除成功',
+                            type: 'success'
+                        });
+                        this.getData('refersh');
+                    })
+                    .catch(() => {});
             });
         },
         weightConfig({ id, weightInfo }) {

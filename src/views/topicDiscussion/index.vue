@@ -199,11 +199,19 @@ export default {
         },
         remove({ id }) {
             this.$http.topiceService.removeTopice(id).then(res => {
-                this.$message({
-                    message: '删除成功',
-                    type: 'success'
-                });
-                this.getData();
+                this.$confirm('此操作将删除该话题, 是否继续?', '', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                })
+                    .then(() => {
+                        this.$message({
+                            message: '删除成功',
+                            type: 'success'
+                        });
+                        this.getData();
+                    })
+                    .catch(() => {});
             });
         },
         // 打分

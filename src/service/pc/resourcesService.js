@@ -5,5 +5,6 @@ const resourcesService = {
     // 添加资源
     addResources: params => doPost('/files', params),
     editResources: params => doPut('/files', params),
+    removeResources: id => doDelete('/files/' + id)
 };
 export default { resourcesService };

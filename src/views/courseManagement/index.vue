@@ -35,15 +35,7 @@
             </template>
         </search-box>
         <div class="container" v-loading="tableLoading">
-            <vxe-table
-                stripe
-                highlight-hover-row
-                size="medium"
-                ref="courseTable"
-                show-header-overflow
-                show-overflow
-                :max-height="tableMaxHeight"
-            >
+            <vxe-table stripe highlight-hover-row size="medium" ref="courseTable" show-header-overflow show-overflow :max-height="tableMaxHeight">
                 <vxe-table-column field="name" title="课程名称"></vxe-table-column>
                 <vxe-table-column title="课程类型" width="110">
                     <template slot-scope="scope">{{ courseOptions[scope.row.type] }}</template>
@@ -83,13 +75,7 @@
             </vxe-table>
             <pagniation :currentPage="form.current" :totalPage="totalPage" :totalNum="totalNum" @changePage="handleChangePage"></pagniation>
         </div>
-        <el-dialog
-            :title="addDialogTitle"
-            :visible.sync="addCoursedialogVisible"
-            @close="closeAddDialog"
-            :close-on-click-modal="false"
-            width="520px"
-        >
+        <el-dialog :title="addDialogTitle" :visible.sync="addCoursedialogVisible" @close="closeAddDialog" :close-on-click-modal="false" width="520px">
             <p class="course-name">班级名称&nbsp;{{ curClassName }}</p>
             <el-form
                 ref="addCourseForm"
@@ -317,11 +303,19 @@ export default {
         },
         remove({ id }) {
             this.$http.courseService.deleteCourse(id).then(res => {
-                this.$message({
-                    message: '删除成功',
-                    type: 'success'
-                });
-                this.getData();
+                this.$confirm('此操作将删除该课程, 是否继续?', '', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                })
+                    .then(() => {
+                        this.$message({
+                            message: '删除成功',
+                            type: 'success'
+                        });
+                        this.getData();
+                    })
+                    .catch(() => {});
             });
         },
         addLink({ id, annexName, url, type }) {
