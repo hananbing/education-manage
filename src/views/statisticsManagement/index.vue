@@ -74,7 +74,7 @@
                     </vxe-table-column>
                     <vxe-table-column title="课程学习">
                         <template slot-scope="scope"
-                            ><span class="red">{{ scope.row.COURSE }}</span>
+                            ><span class="red pointer" @click="courseView(scope.row)" title="点击查看详情">{{ scope.row.COURSE }}</span>
                         </template>
                     </vxe-table-column>
                     <vxe-table-column title="作业">
@@ -140,6 +140,31 @@
                 <el-button @click="dialogDto.visible = false">关 闭</el-button>
             </span>
         </el-dialog>
+        <el-dialog :title="viewDialog.title" width="700px" :visible.sync="viewDialog.visible" :close-on-click-modal="false">
+            <div v-loading="viewDialog.loading">
+                <vxe-table
+                    stripe
+                    highlight-hover-row
+                    size="small"
+                    show-header-overflow
+                    show-overflow
+                    :data="viewDialog.tableData"
+                    max-height="300px"
+                    style="width:100%"
+                >
+                    <vxe-table-column field="courseName" title="课程名称" v-if="viewDialog.type === 'course'"> </vxe-table-column>
+                </vxe-table>
+                <!-- <pagniation
+                    :currentPage="dialogForm.current"
+                    :totalPage="dialogDto.totalPage"
+                    :totalNum="dialogDto.totalNum"
+                    @changePage="handleDialogChangePage"
+                ></pagniation> -->
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="viewDialog.visible = false">关 闭</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 <script>
@@ -168,6 +193,13 @@ export default {
                 signed: false
                 // pageSize: 30,
                 // current: 0
+            },
+            viewDialog: {
+                visible: false,
+                loading: false,
+                type: 'course',
+                title: '已完成课程',
+                tableData: []
             },
             tableData: [],
             dialogData: [],
@@ -314,6 +346,24 @@ export default {
             };
             this.getData();
         },
+        courseView(row) {
+            this.viewDialog.visible = true;
+            this.viewDialog.loading = true;
+            this.$http.statisticsService
+                .getComplateCourse({ classesId: this.form.classesId, studentUserId: row.studentUserId })
+                .then(res => {
+                    this.viewDialog = {
+                        visible: true,
+                        type: 'course',
+                        loading: false,
+                        title: '已完成课程',
+                        tableData: res.data
+                    };
+                })
+                .finally(() => {
+                    this.viewDialog.loading = false;
+                });
+        },
         getClassesById() {
             return this.classesOptions.find(item => item.id === this.form.classesId);
         },
@@ -354,5 +404,8 @@ export default {
 }
 .red {
     color: #ef3f3f;
+}
+.pointer{
+    cursor: pointer;
 }
 </style>

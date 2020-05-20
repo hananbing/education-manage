@@ -7,6 +7,8 @@ const statisticsService = {
     // 获取学情列表
     getLearningEmotion: params => doGet('/achievement', params),
     // 获取已签到，未签到人数列表
-    getStudentList: params => doGet('/sign-users', params)
+    getStudentList: params => doGet('/sign-users', params),
+    // 获取该学生已完成的课程
+    getComplateCourse: params => doGet('/attendance/course', params)
 };
 export default { statisticsService };
